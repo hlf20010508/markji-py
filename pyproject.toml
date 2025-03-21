@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "markji-py"
+version = "0.1.0"
+description = "Markji SDK for Python"
+authors = ["L-ING <hlf01@icloud.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+aiohttp = "^3.11.14"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
