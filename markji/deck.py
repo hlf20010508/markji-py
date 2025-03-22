@@ -6,13 +6,18 @@
 """
 
 from dataclasses import dataclass
-from markji._const import _DECK_URL
-from markji.chapter import Chapter
+from datetime import datetime
+from typing import Dict, List, Optional, Type, TypeVar, Union, cast
+from markji.types import (
+    DeckAccessSetting,
+    UserBrief,
+    UserID,
+    DeckID,
+    Status,
+    DeckSource,
+)
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from markji.folder import Folder
+A = TypeVar("A", bound="Deck")
 
 
 @dataclass
@@ -20,119 +25,107 @@ class Deck:
     """
     Deck 卡组
 
-    :param id: 卡组 ID
-    :param name: 卡组名
+    :param id: 卡组ID
+    :param source: 卡组来源
+    :param creator: 创建者ID
+    :param status: 卡组状态
+    :param name: 卡组名称
+    :param authors: 卡组作者
     :param description: 卡组描述
+    :param is_modified: 是否修改过
     :param is_private: 是否私有
+    :param is_searchable: 是否可搜索
+    :param is_semantic_learning: 是否语义学习
+    :param like_count: 点赞数
+    :param revision: 版本号
+    :param card_count: 卡片数
+    :param card_price: 卡片价格
+    :param chapter_count: 章节数
+    :param created_time: 创建时间
+    :param updated_time: 更新时间
+    :param tags: 标签
+    :param is_anki: 是否从 Anki 导入
+    :param root_creator: 根创建者
+    :param access_setting: 访问设置
     """
 
-    id: str
+    id: DeckID
+    source: DeckSource
+    creator: UserID
+    status: Status
     name: str
+    authors: List[UserID]
     description: str
+    is_modified: bool
     is_private: bool
-    _chapters: dict[str, "Chapter"]
-    _folder: "Folder"
-
-    @property
-    def chapter_count(self):
-        """
-        章节数量
-
-        :return: int
-        """
-        return len(self._chapters)
-
-    @property
-    def card_count(self):
-        """
-        卡片数量
-
-        :return: int
-        """
-        count = 0
-        for chapter_id in self._chapters:
-            count += self._chapters[chapter_id].card_count
-
-        return count
+    is_searchable: bool
+    is_semantic_learning: bool
+    like_count: int
+    revision: int
+    card_count: int
+    card_price: int
+    chapter_count: int
+    created_time: datetime
+    updated_time: datetime
+    tags: List
+    is_anki: Optional[bool]
+    root_creator: Optional[UserBrief]
+    access_setting: Optional[DeckAccessSetting]
 
     @classmethod
-    def _from_json(cls, json: dict) -> "Deck":
-        id = json.get("id")
-        name = json.get("name")
-        description = json.get("description")
-        is_private = json.get("is_private")
-        card_count = json.get("card_count")
-        chapter_count = json.get("chapter_count")
-        folder = None
+    def _from_json(cls: Type[A], data: Dict) -> A:
+        """
+        从 JSON 数据创建 Deck 对象
 
-        return cls(
-            id,
-            name,
-            description,
-            is_private,
-            card_count,
-            chapter_count,
-            folder,
+        :param data: JSON 数据
+        :return: Deck 对象
+        """
+        id = cast(DeckID, data.get("id"))
+        source = DeckSource(data.get("source"))
+        creator = cast(UserID, data.get("creator"))
+        status = Status(data.get("status"))
+        name = cast(str, data.get("name"))
+        authors = [author for author in cast(List[UserID], data.get("authors"))]
+        description = cast(str, data.get("description"))
+        is_modified = cast(bool, data.get("is_modified"))
+        is_private = cast(bool, data.get("is_private"))
+        is_searchable = cast(bool, data.get("is_searchable"))
+        is_semantic_learning = cast(bool, data.get("is_semantic_learning"))
+        like_count = cast(int, data.get("like_count"))
+        revision = cast(int, data.get("revision"))
+        card_count = cast(int, data.get("card_count"))
+        card_price = cast(int, data.get("card_price"))
+        chapter_count = cast(int, data.get("chapter_count"))
+        created_time = datetime.fromisoformat(cast(str, data.get("created_time")))
+        updated_time = datetime.fromisoformat(cast(str, data.get("updated_time")))
+        tags = cast(List, data.get("tags"))
+        is_anki = cast(Optional[bool], data.get("is_anki"))
+        root_creator = UserBrief._from_json(cast(Dict, data.get("root_creator")))
+        access_setting = DeckAccessSetting._from_json(
+            cast(Dict, data.get("access_setting"))
         )
 
-    def _session(self):
-        return self._folder._session()
-
-    async def delete(self):
-        """
-        删除卡组
-        """
-        async with self._session() as session:
-            await session.delete(f"{_DECK_URL}/{self.id}")
-            del self._folder._decks[self.id]
-
-    async def update_info(self, name: str, description: str, is_private):
-        """
-        更新卡组信息
-
-        :param name: 卡组名
-        :param description: 卡组描述
-        :param is_private: 是否私有
-        """
-        if len(name) == 0 or len(name) > 48:
-            raise ValueError("Deck name must be between 1 and 48 characters")
-
-        async with self._session() as session:
-            response = await session.post(
-                f"{_DECK_URL}/{self.id}",
-                json={
-                    "name": name,
-                    "description": description,
-                    "is_private": is_private,
-                },
-            )
-            content: dict = await response.json()
-            deck: dict = content["data"]["deck"]
-
-            self.name = deck["name"]
-            self.description = deck["description"]
-            self.is_private = deck["is_private"]
-
-    async def rename(self, name: str):
-        """
-        重命名卡组
-
-        :param name: 新卡组名
-        """
-        self.update_info(name, self.description, self.is_private)
-
-    async def update_description(self, description: str):
-        """
-        更新卡组描述
-
-        :param description: 卡组描述
-        """
-        self.update_info(self.name, description, self.is_private)
-
-    async def update_privacy(self, is_private: bool):
-        """
-        更新卡组隐私
-
-        :param is_private: 是否私有
-        """
-        self.update_info(self.name, self.description, is_private)
+        return cls(
+            id=id,
+            source=source,
+            creator=creator,
+            status=status,
+            name=name,
+            authors=authors,
+            description=description,
+            is_modified=is_modified,
+            is_private=is_private,
+            is_searchable=is_searchable,
+            is_semantic_learning=is_semantic_learning,
+            like_count=like_count,
+            revision=revision,
+            card_count=card_count,
+            card_price=card_price,
+            chapter_count=chapter_count,
+            created_time=created_time,
+            updated_time=updated_time,
+            tags=tags,
+            is_anki=is_anki,
+            root_creator=root_creator,
+            access_setting=access_setting,
+        )

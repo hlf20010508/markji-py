@@ -6,6 +6,7 @@
 """
 
 from enum import Enum
+from typing import Optional
 
 
 class FontColor(Enum):
@@ -56,8 +57,8 @@ class FontWrapper:
         """
         self._content = content
         self._bold: bool = False
-        self._color: FontColor = None
-        self._background: BackgroundColor = None
+        self._color: Optional[FontColor] = None
+        self._background: Optional[BackgroundColor] = None
 
     def bold(self):
         """
@@ -71,7 +72,7 @@ class FontWrapper:
 
         :param color: 颜色
         """
-        self._color = color.value
+        self._color = color
 
     def background(self, color: BackgroundColor):
         """
@@ -79,7 +80,7 @@ class FontWrapper:
 
         :param color: 颜色
         """
-        self._background = color.value
+        self._background = color
 
     def build(self) -> str:
         """
@@ -91,9 +92,9 @@ class FontWrapper:
         if self._bold:
             result += "B,"
         if self._color:
-            result += f"{self._color},"
+            result += f"{self._color.value},"
         if self._background:
-            result += f"{self._background},"
+            result += f"{self._background.value},"
         result.rstrip(",")
         result += f"#{self._content}]"
 

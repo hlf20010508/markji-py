@@ -1,0 +1,299 @@
+"""
+:project: markji-py
+:author: L-ING
+:copyright: (C) 2025 L-ING <hlf01@icloud.com>
+:license: MIT, see LICENSE for more details.
+"""
+
+from typing import Dict, List, Union
+from aiohttp import ClientSession
+from markji.const import API_URL, DECK_URL, FOLDER_URL, PROFILE_URL
+from markji.deck import Deck
+from markji.folder import Folder
+from markji.types import FolderID
+from markji.profile import Profile
+
+
+class Markji:
+    """
+    Markji 客户端
+
+    示例::
+        from markji import Markji
+        from markji.auth import Auth
+
+        auth = Auth("username", "password")
+        token = await auth.login()
+        client = Markji(token)
+    """
+
+    def __init__(self, token: str):
+        """
+        初始化 Markji 客户端
+
+        :param token: 用户令牌
+        """
+        self._token = token
+
+    def _session(self):
+        return ClientSession(base_url=API_URL, headers={"token": self._token})
+
+    async def get_profile(self) -> Profile:
+        """
+        获取用户信息
+        """
+        async with self._session() as session:
+            response = await session.get(PROFILE_URL)
+            if response.status != 200:
+                raise Exception(f"获取用户信息失败: {response}")
+            data: Dict = await response.json()
+
+        return Profile._from_json(data["data"]["profile"])
+
+    async def get_folder(self, folder_id: Union[FolderID, str]) -> Folder:
+        """
+        获取文件夹
+
+        :param folder_id: 文件夹ID
+        :return: Folder
+        """
+        async with self._session() as session:
+            response = await session.get(f"{FOLDER_URL}/{folder_id}")
+            if response.status != 200:
+                raise FileNotFoundError(f"获取文件夹失败: {response}")
+            data: Dict = await response.json()
+
+        return Folder._from_json(data["data"]["folder"])
+
+    async def list_folders(self) -> List[Folder]:
+        """
+        获取用户的所有文件夹
+
+        :return: List[Folder]
+        """
+        async with self._session() as session:
+            response = await session.get(FOLDER_URL)
+            if response.status != 200:
+                raise Exception(f"获取文件夹列表失败: {response}")
+            data: Dict = await response.json()
+            folders = []
+            for folder in data["data"]["folders"]:
+                folder = Folder._from_json(folder)
+                folders.append(folder)
+
+        return folders
+
+    async def new_folder(self, name: str) -> Folder:
+        """
+        创建文件夹
+        文件名长度必须在 2 到 8 个字符之间
+
+        :param name: 文件夹名
+        :return: Folder
+        """
+        if len(name) < 2 or len(name) > 8:
+            raise ValueError("文件夹名必须在 2 到 8 个字符之间")
+
+        folder_count = len(await self.list_folders())
+        async with self._session() as session:
+            response = await session.post(
+                FOLDER_URL,
+                json={"name": name, "order": folder_count - 1},
+            )
+            if response.status != 200:
+                raise Exception(f"创建文件夹失败: {response}")
+            data: Dict = await response.json()
+
+        return Folder._from_json(data["data"]["folder"])
+
+    async def delete_folder(self, folder_id: Union[FolderID, str]):
+        """
+        删除文件夹
+
+        :param folder_id: 文件夹ID
+        """
+        async with self._session() as session:
+            response = await session.delete(f"{FOLDER_URL}/{folder_id}")
+            if response.status != 200:
+                raise Exception(f"删除文件夹失败: {response}")
+
+    async def rename_folder(self, folder_id: Union[FolderID, str], name: str) -> Folder:
+        """
+        重命名文件夹
+
+        :param folder_id: 文件夹ID
+        :param name: 新文件夹名
+        :return: Folder
+        """
+        if len(name) < 2 or len(name) > 8:
+            raise ValueError("文件夹名必须在 2 到 8 个字符之间")
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{FOLDER_URL}/{folder_id}",
+                json={"name": name},
+            )
+            if response.status != 200:
+                raise Exception(f"重命名文件夹失败: {response}")
+            data: Dict = await response.json()
+
+        return Folder._from_json(data["data"]["folder"])
+
+    async def get_deck(self, deck_id: str) -> Deck:
+        """
+        获取卡组
+
+        :param deck_id: 卡组ID
+        :return: Deck
+        """
+        async with self._session() as session:
+            response = await session.get(f"{DECK_URL}/{deck_id}")
+            if response.status != 200:
+                raise FileNotFoundError(f"获取卡组失败: {response}")
+            data: Dict = await response.json()
+
+        return Deck._from_json(data["data"]["deck"])
+
+    async def list_decks(self, folder_id: Union[FolderID, str]) -> List[Deck]:
+        """
+        获取文件夹的所有卡组
+
+        :param folder_id: 文件夹ID
+        :return: List[Deck]
+        """
+        async with self._session() as session:
+            response = await session.get(DECK_URL, params={"folder_id": folder_id})
+            if response.status != 200:
+                raise Exception(f"获取卡组列表失败: {response}")
+            data: Dict = await response.json()
+            decks = []
+            for deck in data["data"]["decks"]:
+                deck = Deck._from_json(deck)
+                decks.append(deck)
+
+        return decks
+
+    async def new_deck(
+        self,
+        folder_id: Union[FolderID, str],
+        name: str,
+        description: str = "",
+        is_private: bool = False,
+    ) -> Deck:
+        """
+        创建卡组
+
+        :param folder_id: 文件夹ID
+        :param name: 卡组名
+        :param description: 卡组描述
+        :param is_private: 是否私有
+        :return: Deck
+        """
+        if len(name) < 2 or len(name) > 48:
+            raise ValueError("卡组名必须在 2 到 48 个字符之间")
+
+        async with self._session() as session:
+            response = await session.post(
+                DECK_URL,
+                json={
+                    "name": name,
+                    "description": description,
+                    "is_private": is_private,
+                    "folder_id": folder_id,
+                },
+            )
+            if response.status != 200:
+                raise Exception(f"创建卡组失败: {response}")
+            data: Dict = await response.json()
+
+        return Deck._from_json(data["data"]["deck"])
+
+    async def delete_deck(self, deck_id: str):
+        """
+        删除卡组
+
+        :param deck_id: 卡组ID
+        """
+        async with self._session() as session:
+            response = await session.delete(f"{DECK_URL}/{deck_id}")
+            if response.status != 200:
+                raise Exception(f"删除卡组失败: {response}")
+
+    async def update_deck_info(
+        self, deck_id: str, name: str, description: str, is_private: bool
+    ) -> Deck:
+        """
+        更新卡组信息
+
+        :param deck_id: 卡组ID
+        :param name: 卡组名
+        :param description: 卡组描述
+        :param is_private: 是否私有
+        :return: Deck
+        """
+        if len(name) < 2 or len(name) > 48:
+            raise ValueError("卡组名必须在 2 到 48 个字符之间")
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{DECK_URL}/{deck_id}",
+                json={
+                    "name": name,
+                    "description": description,
+                    "is_private": is_private,
+                },
+            )
+            if response.status != 200:
+                raise Exception(f"更新卡组信息失败: {response}")
+            data: Dict = await response.json()
+            deck = Deck._from_json(data["data"]["deck"])
+
+        return deck
+
+    async def update_deck_name(self, deck_id: str, name: str) -> Deck:
+        """
+        重命名卡组
+
+        :param deck_id: 卡组ID
+        :param name: 新卡组名
+        :return: Deck
+        """
+        if len(name) < 2 or len(name) > 48:
+            raise ValueError("卡组名必须在 2 到 48 个字符之间")
+
+        old_deck = await self.get_deck(deck_id)
+        deck = await self.update_deck_info(
+            deck_id, name, old_deck.description, old_deck.is_private
+        )
+
+        return deck
+
+    async def update_deck_description(self, deck_id: str, description: str) -> Deck:
+        """
+        更新卡组描述
+
+        :param deck_id: 卡组ID
+        :param description: 卡组描述
+        :return: Deck
+        """
+        old_deck = await self.get_deck(deck_id)
+        deck = await self.update_deck_info(
+            deck_id, old_deck.name, description, old_deck.is_private
+        )
+
+        return deck
+
+    async def update_deck_privacy(self, deck_id: str, is_private: bool) -> Deck:
+        """
+        更新卡组隐私状态
+
+        :param deck_id: 卡组ID
+        :param is_private: 是否私有
+        :return: Deck
+        """
+        old_deck = await self.get_deck(deck_id)
+        deck = await self.update_deck_info(
+            deck_id, old_deck.name, old_deck.description, is_private
+        )
+
+        return deck
