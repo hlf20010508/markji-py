@@ -7,7 +7,7 @@
 
 from dataclasses import dataclass
 from markji.deck import Deck
-from markji.const import DECK_URL, FOLDER_URL
+from markji._const import _DECK_URL, _FOLDER_URL
 
 from typing import TYPE_CHECKING
 
@@ -18,12 +18,16 @@ if TYPE_CHECKING:
 @dataclass
 class Folder:
     id: str
-    decks: dict[str, Deck]
+    _decks: dict[str, Deck]  # deck_id: Deck
     name: str
     user: "User"
 
+    @property
+    def deck_count(self) -> int:
+        return len(self._decks)
+
     @classmethod
-    def from_json(cls, json: dict) -> "Folder":
+    def _from_json(cls, json: dict) -> "Folder":
         id = json.get("id")
         decks = {}
         name = json.get("name")
@@ -31,15 +35,18 @@ class Folder:
 
         return cls(id, decks, name, user)
 
+    def _session(self):
+        return self.user._session()
+
     async def delete(self):
-        async with self.user.auth.session() as session:
-            await session.delete(f"{FOLDER_URL}/{self.id}")
-            del self.user.folders[self.id]
+        async with self._session() as session:
+            await session.delete(f"{_FOLDER_URL}/{self.id}")
+            del self.user._folders[self.id]
 
     async def rename(self, name: str):
-        async with self.user.auth.session() as session:
+        async with self._session() as session:
             response = await session.post(
-                f"{FOLDER_URL}/{self.id}",
+                f"{_FOLDER_URL}/{self.id}",
                 json={"name": name},
             )
             content: dict = await response.json()
@@ -48,9 +55,9 @@ class Folder:
     async def new_deck(
         self, name: str, description: str = "", is_private: bool = False
     ) -> Deck:
-        async with self.user.auth.session() as session:
+        async with self._session() as session:
             response = await session.post(
-                f"{DECK_URL}",
+                f"{_DECK_URL}",
                 json={
                     "name": name,
                     "description": description,
@@ -59,14 +66,8 @@ class Folder:
                 },
             )
             content: dict = await response.json()
-            deck = Deck.from_json(content["data"]["deck"])
+            deck = Deck._from_json(content["data"]["deck"])
             deck.folder = self
-            self.decks[deck.id] = deck
+            self._decks[deck.id] = deck
 
         return deck
-
-    async def delete_deck(self, deck: Deck | str):
-        if isinstance(deck, str):
-            deck = self.decks[deck]
-
-        await deck.delete()

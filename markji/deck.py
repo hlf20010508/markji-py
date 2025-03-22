@@ -7,7 +7,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from markji.const import DECK_URL
+from markji._const import _DECK_URL
 
 from typing import TYPE_CHECKING
 
@@ -42,7 +42,7 @@ class Deck:
     folder: "Folder"
 
     @classmethod
-    def from_json(cls, json: dict) -> "Deck":
+    def _from_json(cls, json: dict) -> "Deck":
         id = json.get("id")
         source = DeckSource.from_str(json.get("source"))
         name = json.get("name")
@@ -65,15 +65,18 @@ class Deck:
             folder,
         )
 
+    def _session(self):
+        return self.folder._session()
+
     async def delete(self):
-        async with self.folder.user.auth.session() as session:
-            await session.delete(f"{DECK_URL}/{self.id}")
-            del self.folder.decks[self.id]
+        async with self._session() as session:
+            await session.delete(f"{_DECK_URL}/{self.id}")
+            del self.folder._decks[self.id]
 
     async def update_info(self, name: str, description: str, is_private):
-        async with self.folder.user.auth.session() as session:
+        async with self._session() as session:
             response = await session.post(
-                f"{DECK_URL}/{self.id}",
+                f"{_DECK_URL}/{self.id}",
                 json={
                     "name": name,
                     "description": description,

@@ -9,56 +9,55 @@ from aiohttp import ClientSession
 from markji.user import User
 from markji.folder import Folder
 from markji.deck import Deck
-from markji.const import API_URL, LOGIN_URL, FOLDER_URL, DECK_URL
+from markji._const import _API_URL, _LOGIN_URL, _FOLDER_URL, _DECK_URL
 
 
 class Auth:
     def __init__(self, username: str, password: str):
-        self.username = username
-        self.password = password
+        self._username = username
+        self._password = password
 
     async def login(self) -> User:
-        async with ClientSession(base_url=API_URL) as session:
+        async with ClientSession(base_url=_API_URL) as session:
             response = await session.post(
-                LOGIN_URL,
+                _LOGIN_URL,
                 json={
-                    "identity": self.username,
-                    "password": self.password,
+                    "identity": self._username,
+                    "password": self._password,
                     "nuencrypt_fields": ["password"],
                 },
             )
             content: dict = await response.json()
-            user = User.from_json(content["data"])
+            user = User._new(self)
 
             self.token: str = content["data"]["token"]
 
-            response = await session.get(FOLDER_URL, headers={"token": self.token})
+            response = await session.get(_FOLDER_URL, headers=self._headers)
             content: dict = await response.json()
             folders = content["data"]["folders"]
             for folder in folders:
                 # useless root folder
                 if "parent_id" not in folder:
                     continue
-                folder = Folder.from_json(folder)
+                folder = Folder._from_json(folder)
 
                 response = await session.get(
-                    DECK_URL,
-                    headers={"token": self.token},
+                    _DECK_URL,
+                    headers=self._headers,
                     params={"folder_id": folder.id},
                 )
                 content: dict = await response.json()
                 decks = content["data"]["decks"]
                 for deck in decks:
-                    deck = Deck.from_json(deck)
+                    deck = Deck._from_json(deck)
                     deck.folder = folder
-                    folder.decks[deck.id] = deck
+                    folder._decks[deck.id] = deck
 
                 folder.user = user
-                user.folders[folder.id] = folder
-
-            user.auth = self
+                user._folders[folder.id] = folder
 
         return user
 
-    def session(self):
-        return ClientSession(base_url=API_URL, headers={"token": self.token})
+    @property
+    def _headers(self):
+        return {"token": self.token}

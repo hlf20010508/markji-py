@@ -6,11 +6,11 @@
 """
 
 import unittest
-from tests.utils import ENV
+from tests import AsyncTestCase, ENV
 from markji.auth import Auth
 
 
-class TestDeck(unittest.IsolatedAsyncioTestCase):
+class TestDeck(AsyncTestCase):
     async def test_update_info(self):
         auth = Auth(ENV.username, ENV.password)
         user = await auth.login()
@@ -30,7 +30,7 @@ class TestDeck(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(deck.description, new_description)
         self.assertEqual(deck.is_private, new_privacy)
 
-        await user.delete_deck(folder, deck.id)
+        await deck.delete()
         await folder.delete()
 
 

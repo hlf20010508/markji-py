@@ -6,11 +6,11 @@
 """
 
 import unittest
-from tests.utils import ENV
+from tests import AsyncTestCase, ENV
 from markji.auth import Auth
 
 
-class TestAuth(unittest.IsolatedAsyncioTestCase):
+class TestAuth(AsyncTestCase):
     async def test_login(self):
         auth = Auth(ENV.username, ENV.password)
         await auth.login()

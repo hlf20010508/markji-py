@@ -6,9 +6,10 @@
 """
 
 from dataclasses import dataclass
+from aiohttp import ClientSession
 from markji.folder import Folder
 from markji.deck import Deck
-from markji.const import FOLDER_URL
+from markji._const import _API_URL, _FOLDER_URL
 
 from typing import TYPE_CHECKING
 
@@ -18,46 +19,35 @@ if TYPE_CHECKING:
 
 @dataclass
 class User:
-    folders: dict[str, Folder]
-    auth: "Auth"
+    _folders: dict[str, Folder]  # folder_id: Folder
+    _auth: "Auth"
+
+    @property
+    def folder_count(self) -> int:
+        return len(self._folders)
 
     @classmethod
-    def from_json(cls, json: dict) -> "User":
-        folders = {}
-        auth = None
+    def _new(cls, auth: "Auth") -> "User":
+        return cls({}, auth)
 
-        return cls(
-            folders,
-            auth,
-        )
+    def _session(self):
+        return ClientSession(base_url=_API_URL, headers=self._auth._headers)
 
     async def new_folder(self, name: str) -> Folder:
         if len(name) == 0 or len(name) > 8:
             raise ValueError("Folder name must be between 1 and 8 characters")
 
-        async with self.auth.session() as session:
+        async with self._session() as session:
             response = await session.post(
-                FOLDER_URL,
-                json={"name": name, "order": len(self.folders)},
+                _FOLDER_URL,
+                json={"name": name, "order": self.folder_count},
             )
             content: dict = await response.json()
-            folder = Folder.from_json(content["data"]["folder"])
+            folder = Folder._from_json(content["data"]["folder"])
             folder.user = self
-            self.folders[folder.id] = folder
+            self._folders[folder.id] = folder
 
         return folder
-
-    async def delete_folder(self, folder: Folder | str):
-        if isinstance(folder, str):
-            folder = self.folders[folder]
-
-        await folder.delete()
-
-    async def rename_folder(self, folder: Folder | str, name: str):
-        if isinstance(folder, str):
-            folder = self.folders[folder]
-
-        await folder.rename(name)
 
     async def new_deck(
         self,
@@ -67,12 +57,6 @@ class User:
         is_private: bool = False,
     ) -> Deck:
         if isinstance(folder, str):
-            folder = self.folders[folder]
+            folder = self._folders[folder]
 
         return await folder.new_deck(name, description, is_private)
-
-    async def delete_deck(self, folder: Folder | str, deck: str):
-        if isinstance(folder, str):
-            folder = self.folders[folder]
-
-        await folder.decks[deck].delete()
