@@ -73,7 +73,7 @@ class Folder:
             )
             content: dict = await response.json()
             deck = Deck._from_json(content["data"]["deck"])
-            deck.folder = self
+            deck._folder = self
             self._decks[deck.id] = deck
 
         return deck

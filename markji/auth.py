@@ -49,8 +49,11 @@ class Auth:
                 content: dict = await response.json()
                 decks = content["data"]["decks"]
                 for deck in decks:
+                    # bypass the forked deck
+                    if deck.get("source") == "FORK":
+                        continue
                     deck = Deck._from_json(deck)
-                    deck.folder = folder
+                    deck._folder = folder
                     folder._decks[deck.id] = deck
 
                 folder.user = user
