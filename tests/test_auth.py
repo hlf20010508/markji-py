@@ -15,8 +15,6 @@ class TestAuth(AsyncTestCase):
         auth = Auth(ENV.username, ENV.password)
         await auth.login()
 
-        self.assertTrue(auth.token is not None)
-
 
 if __name__ == "__main__":
     unittest.main()

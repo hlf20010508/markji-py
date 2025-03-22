@@ -23,6 +23,10 @@ class TestFolder(AsyncTestCase):
 
         self.assertEqual(folder.name, new_folder_name)
 
+        new_folder_name = "t_folder" + "_" * 8
+        with self.assertRaises(ValueError):
+            await folder.rename(new_folder_name)
+
         await folder.delete()
 
 

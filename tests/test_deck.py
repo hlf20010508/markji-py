@@ -30,6 +30,10 @@ class TestDeck(AsyncTestCase):
         self.assertEqual(deck.description, new_description)
         self.assertEqual(deck.is_private, new_privacy)
 
+        new_deck_name = "t_deck" + "_" * 48
+        with self.assertRaises(ValueError):
+            await deck.update_info(new_deck_name, new_description, new_privacy)
+
         await deck.delete()
         await folder.delete()
 

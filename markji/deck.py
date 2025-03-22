@@ -74,6 +74,9 @@ class Deck:
             del self.folder._decks[self.id]
 
     async def update_info(self, name: str, description: str, is_private):
+        if len(name) == 0 or len(name) > 48:
+            raise ValueError("Deck name must be between 1 and 48 characters")
+
         async with self._session() as session:
             response = await session.post(
                 f"{_DECK_URL}/{self.id}",

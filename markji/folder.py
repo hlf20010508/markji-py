@@ -44,6 +44,9 @@ class Folder:
             del self.user._folders[self.id]
 
     async def rename(self, name: str):
+        if len(name) == 0 or len(name) > 8:
+            raise ValueError("Folder name must be between 1 and 8 characters")
+
         async with self._session() as session:
             response = await session.post(
                 f"{_FOLDER_URL}/{self.id}",
@@ -55,6 +58,9 @@ class Folder:
     async def new_deck(
         self, name: str, description: str = "", is_private: bool = False
     ) -> Deck:
+        if len(name) == 0 or len(name) > 48:
+            raise ValueError("Deck name must be between 1 and 48 characters")
+
         async with self._session() as session:
             response = await session.post(
                 f"{_DECK_URL}",
@@ -71,3 +77,14 @@ class Folder:
             self._decks[deck.id] = deck
 
         return deck
+
+    def get_deck_by_id(self, deck_id: str) -> Deck | None:
+        return self._decks.get(deck_id)
+
+    def get_decks_by_name(self, deck_name: str) -> list[Deck]:
+        decks = []
+        for deck in self._decks.values():
+            if deck.name == deck_name:
+                decks.append(deck)
+
+        return decks

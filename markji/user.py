@@ -49,6 +49,17 @@ class User:
 
         return folder
 
+    def get_folder_by_id(self, folder_id: str) -> Folder | None:
+        return self._folders.get(folder_id)
+
+    def get_folders_by_name(self, folder_name: str) -> list[Folder]:
+        folders = []
+        for folder in self._folders.values():
+            if folder.name == folder_name:
+                folders.append(folder)
+
+        return folders
+
     async def new_deck(
         self,
         folder: Folder | str,
@@ -60,3 +71,19 @@ class User:
             folder = self._folders[folder]
 
         return await folder.new_deck(name, description, is_private)
+
+    def get_deck_by_id(self, deck_id: str) -> Deck | None:
+        for folder in self._folders.values():
+            deck = folder.get_deck_by_id(deck_id)
+            if deck:
+                return deck
+
+        return None
+
+    def get_decks_by_name(self, deck_name: str) -> list[Deck]:
+        decks = []
+        for folder in self._folders.values():
+            sub_deck = folder.get_decks_by_name(deck_name)
+            decks.extend(sub_deck)
+
+        return decks
