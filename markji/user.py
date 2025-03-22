@@ -19,11 +19,20 @@ if TYPE_CHECKING:
 
 @dataclass
 class User:
+    """
+    User 用户
+    """
+
     _folders: dict[str, Folder]  # folder_id: Folder
     _auth: "Auth"
 
     @property
     def folder_count(self) -> int:
+        """
+        文件夹数量
+
+        :return: int
+        """
         return len(self._folders)
 
     @classmethod
@@ -34,6 +43,12 @@ class User:
         return ClientSession(base_url=_API_URL, headers=self._auth._headers)
 
     async def new_folder(self, name: str) -> Folder:
+        """
+        新建文件夹
+
+        :param name: 文件夹名
+        :return: Folder
+        """
         if len(name) == 0 or len(name) > 8:
             raise ValueError("Folder name must be between 1 and 8 characters")
 
@@ -50,9 +65,23 @@ class User:
         return folder
 
     def get_folder_by_id(self, folder_id: str) -> Folder | None:
+        """
+        通过文件夹ID获取文件夹
+        若不存在则返回None
+
+        :param folder_id: 文件夹ID
+        :return: Folder | None
+        """
         return self._folders.get(folder_id)
 
     def get_folders_by_name(self, folder_name: str) -> list[Folder]:
+        """
+        通过文件夹名获取文件夹
+        返回类型为列表，若有多个同名文件夹则返回多个
+
+        :param folder_name: 文件夹名
+        :return: list[Folder]
+        """
         folders = []
         for folder in self._folders.values():
             if folder.name == folder_name:
@@ -67,12 +96,28 @@ class User:
         description: str = "",
         is_private: bool = False,
     ) -> Deck:
+        """
+        新建卡组
+
+        :param folder: 文件夹对象或文件夹ID
+        :param name: 卡组名
+        :param description: 卡组描述
+        :param is_private: 是否私有
+        :return: Deck
+        """
         if isinstance(folder, str):
             folder = self._folders[folder]
 
         return await folder.new_deck(name, description, is_private)
 
     def get_deck_by_id(self, deck_id: str) -> Deck | None:
+        """
+        通过卡组ID获取卡组
+        若不存在则返回None
+
+        :param deck_id: 卡组ID
+        :return: Deck | None
+        """
         for folder in self._folders.values():
             deck = folder.get_deck_by_id(deck_id)
             if deck:
@@ -81,6 +126,13 @@ class User:
         return None
 
     def get_decks_by_name(self, deck_name: str) -> list[Deck]:
+        """
+        通过卡组名获取卡组
+        返回类型为列表，若有多个同名卡组则返回多个
+
+        :param deck_name: 卡组名
+        :return: list[Deck]
+        """
         decks = []
         for folder in self._folders.values():
             sub_deck = folder.get_decks_by_name(deck_name)

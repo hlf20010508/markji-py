@@ -17,6 +17,15 @@ if TYPE_CHECKING:
 
 @dataclass
 class Deck:
+    """
+    Deck 卡组
+
+    :param id: 卡组 ID
+    :param name: 卡组名
+    :param description: 卡组描述
+    :param is_private: 是否私有
+    """
+
     id: str
     name: str
     description: str
@@ -26,10 +35,20 @@ class Deck:
 
     @property
     def chapter_count(self):
+        """
+        章节数量
+
+        :return: int
+        """
         return len(self._chapters)
 
     @property
     def card_count(self):
+        """
+        卡片数量
+
+        :return: int
+        """
         count = 0
         for chapter_id in self._chapters:
             count += self._chapters[chapter_id].card_count
@@ -60,11 +79,21 @@ class Deck:
         return self._folder._session()
 
     async def delete(self):
+        """
+        删除卡组
+        """
         async with self._session() as session:
             await session.delete(f"{_DECK_URL}/{self.id}")
             del self._folder._decks[self.id]
 
     async def update_info(self, name: str, description: str, is_private):
+        """
+        更新卡组信息
+
+        :param name: 卡组名
+        :param description: 卡组描述
+        :param is_private: 是否私有
+        """
         if len(name) == 0 or len(name) > 48:
             raise ValueError("Deck name must be between 1 and 48 characters")
 
@@ -85,10 +114,25 @@ class Deck:
             self.is_private = deck["is_private"]
 
     async def rename(self, name: str):
+        """
+        重命名卡组
+
+        :param name: 新卡组名
+        """
         self.update_info(name, self.description, self.is_private)
 
     async def update_description(self, description: str):
+        """
+        更新卡组描述
+
+        :param description: 卡组描述
+        """
         self.update_info(self.name, description, self.is_private)
 
     async def update_privacy(self, is_private: bool):
+        """
+        更新卡组隐私
+
+        :param is_private: 是否私有
+        """
         self.update_info(self.name, self.description, is_private)

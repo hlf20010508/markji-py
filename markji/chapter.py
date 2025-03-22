@@ -16,6 +16,13 @@ if TYPE_CHECKING:
 
 @dataclass
 class Chapter:
+    """
+    Chapter 章节
+
+    :param id: 章节 ID
+    :param name: 章节名
+    """
+
     id: str
     name: str
     _cards: dict[str, "Card"]
@@ -23,4 +30,9 @@ class Chapter:
 
     @property
     def card_count(self):
+        """
+        卡片数量
+
+        :return: int
+        """
         return len(self._cards)

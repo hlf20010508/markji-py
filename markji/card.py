@@ -15,6 +15,15 @@ if TYPE_CHECKING:
 
 @dataclass
 class Card:
+    """
+    Card 卡片
+
+    :param id: 卡片 ID
+    :param content: 卡片内容
+    :param root_id: 卡片根 ID
+    :param grammar_version: 语法版本
+    """
+
     id: str
     content: str
     root_id: str
