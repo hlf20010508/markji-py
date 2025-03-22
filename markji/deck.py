@@ -7,6 +7,7 @@
 
 from dataclasses import dataclass
 from markji._const import _DECK_URL
+from markji.chapter import Chapter
 
 from typing import TYPE_CHECKING
 
@@ -20,9 +21,20 @@ class Deck:
     name: str
     description: str
     is_private: bool
-    card_count: int
-    chapter_count: int
+    _chapters: dict[str, "Chapter"]
     _folder: "Folder"
+
+    @property
+    def chapter_count(self):
+        return len(self._chapters)
+
+    @property
+    def card_count(self):
+        count = 0
+        for chapter_id in self._chapters:
+            count += self._chapters[chapter_id].card_count
+
+        return count
 
     @classmethod
     def _from_json(cls, json: dict) -> "Deck":
