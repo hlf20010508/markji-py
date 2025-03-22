@@ -5,10 +5,11 @@
 :license: MIT, see LICENSE for more details.
 """
 
+from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import StrEnum
-from typing import Dict, List, NewType, Optional, Type, TypeVar, cast
+from typing import Sequence, NewType, Type, cast
 
 # 8位
 # eg. 20251234
@@ -16,6 +17,7 @@ UserID = NewType("UserID", int)
 FolderID = NewType("FolderID", str)
 DeckID = NewType("DeckID", str)
 ChapterID = NewType("ChapterID", str)
+ChapterSetID = NewType("ChapterSetID", str)
 CardID = NewType("CardID", str)
 CardRootID = NewType("CardRootID", str)
 FileID = NewType("FileID", str)
@@ -219,9 +221,6 @@ class FileMIME(StrEnum):
     IMAGE_JPEG = "image/jpeg"
 
 
-A = TypeVar("A", bound="UserLevel")
-
-
 @dataclass
 class UserLevel:
     """
@@ -236,7 +235,7 @@ class UserLevel:
     description: str
 
     @classmethod
-    def _from_json(cls: Type[A], data: Optional[Dict]) -> Optional[A]:
+    def _from_json(cls: Type[UserLevel], data: dict | None) -> UserLevel | None:
         if data is None:
             return None
 
@@ -247,9 +246,6 @@ class UserLevel:
             return cls(level=level, description=description)
         else:
             return None
-
-
-B = TypeVar("B", bound="UserOAuth")
 
 
 @dataclass
@@ -267,7 +263,7 @@ class UserOAuth:
     username: str
 
     @classmethod
-    def _from_json(cls: Type[B], data: Optional[Dict]) -> Optional[B]:
+    def _from_json(cls: Type[UserOAuth], data: dict | None) -> UserOAuth | None:
         if data is None:
             return None
 
@@ -279,9 +275,6 @@ class UserOAuth:
             return cls(type=type, appid=appid, username=username)
         else:
             return None
-
-
-C = TypeVar("C", bound="UserBrief")
 
 
 @dataclass
@@ -299,7 +292,7 @@ class UserBrief:
     id: UserID
 
     @classmethod
-    def _from_json(cls: Type[C], data: Optional[Dict]) -> Optional[C]:
+    def _from_json(cls: Type[UserBrief], data: dict | None) -> UserBrief | None:
         if data is None:
             return None
 
@@ -311,9 +304,6 @@ class UserBrief:
             return cls(nickname=nickname, avatar=avatar, id=id)
         else:
             return None
-
-
-D = TypeVar("D", bound="FolderItem")
 
 
 @dataclass
@@ -329,7 +319,7 @@ class FolderItem:
     object_class: FolderItemObjectClass
 
     @classmethod
-    def _from_json(cls: Type[D], data: Optional[Dict]) -> Optional[D]:
+    def _from_json(cls: Type[FolderItem], data: dict | None) -> FolderItem | None:
         if data is None:
             return None
 
@@ -340,9 +330,6 @@ class FolderItem:
             return cls(object_id=object_id, object_class=object_class)
         else:
             return None
-
-
-E = TypeVar("E", bound="DeckAccessSetting")
 
 
 @dataclass
@@ -356,7 +343,9 @@ class DeckAccessSetting:
     validation_enabled: bool
 
     @classmethod
-    def _from_json(cls: Type[E], data: Optional[Dict]) -> Optional[E]:
+    def _from_json(
+        cls: Type[DeckAccessSetting], data: dict | None
+    ) -> DeckAccessSetting | None:
         if data is None:
             return None
 
@@ -368,9 +357,6 @@ class DeckAccessSetting:
             )
         else:
             return None
-
-
-F = TypeVar("F", bound="TTSInfo")
 
 
 @dataclass
@@ -386,7 +372,7 @@ class TTSInfo:
     locale: LanguageCode
 
     @classmethod
-    def _from_json(cls: Type[F], data: Optional[Dict]) -> Optional[F]:
+    def _from_json(cls: Type[TTSInfo], data: dict | None) -> TTSInfo | None:
         if data is None:
             return None
 
@@ -397,9 +383,6 @@ class TTSInfo:
             return cls(text=text, locale=locale)
         else:
             return None
-
-
-G = TypeVar("G", bound="FileInfo")
 
 
 @dataclass
@@ -414,14 +397,14 @@ class FileInfo:
     :param description: 描述 (图片)
     """
 
-    source: Optional[FileSource]
-    content_slices: Optional[List[TTSInfo]]
-    width: Optional[int]
-    height: Optional[int]
-    description: Optional[str]
+    source: FileSource | None
+    content_slices: Sequence[TTSInfo] | None
+    width: int | None
+    height: int | None
+    description: str | None
 
     @classmethod
-    def _from_json(cls: Type[G], data: Optional[Dict]) -> Optional[G]:
+    def _from_json(cls: Type[FileInfo], data: dict | None) -> FileInfo | None:
         if data is None:
             return None
 
@@ -430,7 +413,7 @@ class FileInfo:
             source = FileSource(source)
         content_slices = [
             cast(TTSInfo, TTSInfo._from_json(tts_info))
-            for tts_info in cast(List, data.get("content_slices", []))
+            for tts_info in cast(Sequence, data.get("content_slices", []))
         ]
         width = cast(int, data.get("width"))
         height = cast(int, data.get("height"))
@@ -446,9 +429,6 @@ class FileInfo:
             )
         else:
             return None
-
-
-H = TypeVar("H", bound="File")
 
 
 @dataclass
@@ -472,7 +452,7 @@ class File:
     expire_time: datetime
 
     @classmethod
-    def _from_json(cls: Type[H], data: Optional[Dict]) -> Optional[H]:
+    def _from_json(cls: Type[File], data: dict | None) -> File | None:
         if data is None:
             return None
 

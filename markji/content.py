@@ -6,7 +6,6 @@
 """
 
 from enum import Enum
-from typing import Optional
 
 
 class FontColor(Enum):
@@ -57,8 +56,8 @@ class FontWrapper:
         """
         self._content = content
         self._bold: bool = False
-        self._color: Optional[FontColor] = None
-        self._background: Optional[BackgroundColor] = None
+        self._color: FontColor | None = None
+        self._background: BackgroundColor | None = None
 
     def bold(self):
         """

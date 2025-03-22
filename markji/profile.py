@@ -5,12 +5,11 @@
 :license: MIT, see LICENSE for more details.
 """
 
+from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Type, TypeVar, cast
+from typing import Sequence, Type, cast
 from markji.types import UserGender, UserID, UserLevel, UserOAuth
-
-A = TypeVar("A", bound="Profile")
 
 
 @dataclass
@@ -43,18 +42,18 @@ class Profile:
     email_verified: bool
     phone: str
     phone_verified: bool
-    oauths: List[UserOAuth]
+    oauths: Sequence[UserOAuth]
     gender: UserGender
     city: str
     school: str
     birthday: datetime
     description: str
     constellation: str
-    alipay_oauth: Dict
+    alipay_oauth: dict
     id: UserID
 
     @classmethod
-    def _from_json(cls: Type[A], data: Dict) -> A:
+    def _from_json(cls: Type[Profile], data: dict) -> Profile:
         """
         从 JSON 数据创建 Profile 对象
 
@@ -64,14 +63,14 @@ class Profile:
 
         nickname = cast(str, data.get("nickname"))
         avatar = cast(str, data.get("avatar"))
-        level = cast(UserLevel, UserLevel._from_json(cast(Dict, data.get("level"))))
+        level = cast(UserLevel, UserLevel._from_json(cast(dict, data.get("level"))))
         email = cast(str, data.get("email"))
         email_verified = cast(bool, data.get("email_verified"))
         phone = cast(str, data.get("phone"))
         phone_verified = cast(bool, data.get("phone_verified"))
         oauths = [
             cast(UserOAuth, UserOAuth._from_json(oauth))
-            for oauth in cast(List, data.get("oauths"))
+            for oauth in cast(Sequence, data.get("oauths"))
         ]
         gender = UserGender(data.get("gender"))
         city = cast(str, data.get("city"))
@@ -79,7 +78,7 @@ class Profile:
         birthday = datetime.fromisoformat(cast(str, data.get("birthday")))
         description = cast(str, data.get("description"))
         constellation = cast(str, data.get("constellation"))
-        alipay_oauth = cast(Dict, data.get("alipay_oauth"))
+        alipay_oauth = cast(dict, data.get("alipay_oauth"))
         id = cast(UserID, data.get("id"))
 
         return cls(

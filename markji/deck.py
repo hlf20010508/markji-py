@@ -5,9 +5,10 @@
 :license: MIT, see LICENSE for more details.
 """
 
+from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional, Type, TypeVar, Union, cast
+from typing import Sequence, Type, cast
 from markji.types import (
     DeckAccessSetting,
     UserBrief,
@@ -16,8 +17,6 @@ from markji.types import (
     Status,
     DeckSource,
 )
-
-A = TypeVar("A", bound="Deck")
 
 
 @dataclass
@@ -54,7 +53,7 @@ class Deck:
     creator: UserID
     status: Status
     name: str
-    authors: List[UserID]
+    authors: Sequence[UserID]
     description: str
     is_modified: bool
     is_private: bool
@@ -67,13 +66,13 @@ class Deck:
     chapter_count: int
     created_time: datetime
     updated_time: datetime
-    tags: List
-    is_anki: Optional[bool]
-    root_creator: Optional[UserBrief]
-    access_setting: Optional[DeckAccessSetting]
+    tags: Sequence
+    is_anki: bool | None
+    root_creator: UserBrief | None
+    access_setting: DeckAccessSetting | None
 
     @classmethod
-    def _from_json(cls: Type[A], data: Dict) -> A:
+    def _from_json(cls: Type[Deck], data: dict) -> Deck:
         """
         从 JSON 数据创建 Deck 对象
 
@@ -85,7 +84,7 @@ class Deck:
         creator = cast(UserID, data.get("creator"))
         status = Status(data.get("status"))
         name = cast(str, data.get("name"))
-        authors = [author for author in cast(List[UserID], data.get("authors"))]
+        authors = [author for author in cast(Sequence[UserID], data.get("authors"))]
         description = cast(str, data.get("description"))
         is_modified = cast(bool, data.get("is_modified"))
         is_private = cast(bool, data.get("is_private"))
@@ -98,11 +97,11 @@ class Deck:
         chapter_count = cast(int, data.get("chapter_count"))
         created_time = datetime.fromisoformat(cast(str, data.get("created_time")))
         updated_time = datetime.fromisoformat(cast(str, data.get("updated_time")))
-        tags = cast(List, data.get("tags"))
-        is_anki = cast(Optional[bool], data.get("is_anki"))
-        root_creator = UserBrief._from_json(cast(Dict, data.get("root_creator")))
+        tags = cast(Sequence, data.get("tags"))
+        is_anki = cast(bool | None, data.get("is_anki"))
+        root_creator = UserBrief._from_json(cast(dict, data.get("root_creator")))
         access_setting = DeckAccessSetting._from_json(
-            cast(Dict, data.get("access_setting"))
+            cast(dict, data.get("access_setting"))
         )
 
         return cls(

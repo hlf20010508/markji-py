@@ -5,12 +5,11 @@
 :license: MIT, see LICENSE for more details.
 """
 
+from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Type, TypeVar, cast
+from typing import Sequence, Type, cast
 from markji.types import CardID, CardRootID, DeckID, DeckSource, File, Status, UserID
-
-A = TypeVar("A", bound="Card")
 
 
 @dataclass
@@ -42,17 +41,17 @@ class Card:
     creator: UserID
     deck_id: DeckID
     root_id: CardRootID
-    files: List[File]
+    files: Sequence[File]
     is_modified: bool
     revision: int
     grammar_version: int
     source: DeckSource
     created_time: datetime
     updated_time: datetime
-    card_rids: List[CardRootID]
+    card_rids: Sequence[CardRootID]
 
     @classmethod
-    def _from_json(cls: Type[A], data: Dict) -> A:
+    def _from_json(cls: Type[Card], data: dict) -> Card:
         id = cast(CardID, data.get("id"))
         content = cast(str, data.get("content"))
         content_type = cast(int, data.get("content_type"))
@@ -61,7 +60,8 @@ class Card:
         deck_id = cast(DeckID, data.get("deck_id"))
         root_id = cast(CardRootID, data.get("root_id"))
         files = [
-            cast(File, File._from_json(file)) for file in cast(List, data.get("files"))
+            cast(File, File._from_json(file))
+            for file in cast(Sequence, data.get("files"))
         ]
         is_modified = cast(bool, data.get("is_modified"))
         revision = cast(int, data.get("revision"))
@@ -69,7 +69,7 @@ class Card:
         source = DeckSource(data.get("source"))
         created_time = datetime.fromisoformat(cast(str, data.get("created_time")))
         updated_time = datetime.fromisoformat(cast(str, data.get("updated_time")))
-        card_rids = cast(List[CardRootID], data.get("card_rids"))
+        card_rids = cast(Sequence[CardRootID], data.get("card_rids"))
 
         return cls(
             id=id,

@@ -5,12 +5,13 @@
 :license: MIT, see LICENSE for more details.
 """
 
-from typing import Dict, List, Union
+from typing import Sequence
 from aiohttp import ClientSession
+from markji.chapter import Chapter, ChapterSet
 from markji.const import API_URL, DECK_URL, FOLDER_URL, PROFILE_URL
 from markji.deck import Deck
 from markji.folder import Folder
-from markji.types import FolderID
+from markji.types import ChapterID, DeckID, FolderID
 from markji.profile import Profile
 
 
@@ -45,12 +46,12 @@ class Markji:
         async with self._session() as session:
             response = await session.get(PROFILE_URL)
             if response.status != 200:
-                raise Exception(f"获取用户信息失败: {response}")
-            data: Dict = await response.json()
+                raise Exception(f"获取用户信息失败: {response}{await response.text()}")
+            data: dict = await response.json()
 
-        return Profile._from_json(data["data"]["profile"])
+        return Profile._from_json(data["data"]["user"])
 
-    async def get_folder(self, folder_id: Union[FolderID, str]) -> Folder:
+    async def get_folder(self, folder_id: FolderID | str) -> Folder:
         """
         获取文件夹
 
@@ -60,22 +61,26 @@ class Markji:
         async with self._session() as session:
             response = await session.get(f"{FOLDER_URL}/{folder_id}")
             if response.status != 200:
-                raise FileNotFoundError(f"获取文件夹失败: {response}")
-            data: Dict = await response.json()
+                raise FileNotFoundError(
+                    f"获取文件夹失败: {response}{await response.text()}"
+                )
+            data: dict = await response.json()
 
         return Folder._from_json(data["data"]["folder"])
 
-    async def list_folders(self) -> List[Folder]:
+    async def list_folders(self) -> Sequence[Folder]:
         """
         获取用户的所有文件夹
 
-        :return: List[Folder]
+        :return: Sequence[Folder]
         """
         async with self._session() as session:
             response = await session.get(FOLDER_URL)
             if response.status != 200:
-                raise Exception(f"获取文件夹列表失败: {response}")
-            data: Dict = await response.json()
+                raise Exception(
+                    f"获取文件夹列表失败: {response}{await response.text()}"
+                )
+            data: dict = await response.json()
             folders = []
             for folder in data["data"]["folders"]:
                 folder = Folder._from_json(folder)
@@ -94,19 +99,18 @@ class Markji:
         if len(name) < 2 or len(name) > 8:
             raise ValueError("文件夹名必须在 2 到 8 个字符之间")
 
-        folder_count = len(await self.list_folders())
         async with self._session() as session:
             response = await session.post(
                 FOLDER_URL,
-                json={"name": name, "order": folder_count - 1},
+                json={"name": name, "order": len(await self.list_folders()) - 1},
             )
             if response.status != 200:
-                raise Exception(f"创建文件夹失败: {response}")
-            data: Dict = await response.json()
+                raise Exception(f"创建文件夹失败: {response}{await response.text()}")
+            data: dict = await response.json()
 
         return Folder._from_json(data["data"]["folder"])
 
-    async def delete_folder(self, folder_id: Union[FolderID, str]):
+    async def delete_folder(self, folder_id: FolderID | str):
         """
         删除文件夹
 
@@ -115,11 +119,12 @@ class Markji:
         async with self._session() as session:
             response = await session.delete(f"{FOLDER_URL}/{folder_id}")
             if response.status != 200:
-                raise Exception(f"删除文件夹失败: {response}")
+                raise Exception(f"删除文件夹失败: {response}{await response.text()}")
 
-    async def rename_folder(self, folder_id: Union[FolderID, str], name: str) -> Folder:
+    async def rename_folder(self, folder_id: FolderID | str, name: str) -> Folder:
         """
         重命名文件夹
+        文件名长度必须在 2 到 8 个字符之间
 
         :param folder_id: 文件夹ID
         :param name: 新文件夹名
@@ -134,8 +139,8 @@ class Markji:
                 json={"name": name},
             )
             if response.status != 200:
-                raise Exception(f"重命名文件夹失败: {response}")
-            data: Dict = await response.json()
+                raise Exception(f"重命名文件夹失败: {response}{await response.text()}")
+            data: dict = await response.json()
 
         return Folder._from_json(data["data"]["folder"])
 
@@ -149,23 +154,25 @@ class Markji:
         async with self._session() as session:
             response = await session.get(f"{DECK_URL}/{deck_id}")
             if response.status != 200:
-                raise FileNotFoundError(f"获取卡组失败: {response}")
-            data: Dict = await response.json()
+                raise FileNotFoundError(
+                    f"获取卡组失败: {response}{await response.text()}"
+                )
+            data: dict = await response.json()
 
         return Deck._from_json(data["data"]["deck"])
 
-    async def list_decks(self, folder_id: Union[FolderID, str]) -> List[Deck]:
+    async def list_decks(self, folder_id: FolderID | str) -> Sequence[Deck]:
         """
         获取文件夹的所有卡组
 
         :param folder_id: 文件夹ID
-        :return: List[Deck]
+        :return: Sequence[Deck]
         """
         async with self._session() as session:
             response = await session.get(DECK_URL, params={"folder_id": folder_id})
             if response.status != 200:
-                raise Exception(f"获取卡组列表失败: {response}")
-            data: Dict = await response.json()
+                raise Exception(f"获取卡组列表失败: {response}{await response.text()}")
+            data: dict = await response.json()
             decks = []
             for deck in data["data"]["decks"]:
                 deck = Deck._from_json(deck)
@@ -175,13 +182,14 @@ class Markji:
 
     async def new_deck(
         self,
-        folder_id: Union[FolderID, str],
+        folder_id: FolderID | str,
         name: str,
         description: str = "",
         is_private: bool = False,
     ) -> Deck:
         """
         创建卡组
+        卡组名长度必须在 2 到 48 个字符之间
 
         :param folder_id: 文件夹ID
         :param name: 卡组名
@@ -203,12 +211,12 @@ class Markji:
                 },
             )
             if response.status != 200:
-                raise Exception(f"创建卡组失败: {response}")
-            data: Dict = await response.json()
+                raise Exception(f"创建卡组失败: {response}{await response.text()}")
+            data: dict = await response.json()
 
         return Deck._from_json(data["data"]["deck"])
 
-    async def delete_deck(self, deck_id: str):
+    async def delete_deck(self, deck_id: DeckID | str):
         """
         删除卡组
 
@@ -217,13 +225,14 @@ class Markji:
         async with self._session() as session:
             response = await session.delete(f"{DECK_URL}/{deck_id}")
             if response.status != 200:
-                raise Exception(f"删除卡组失败: {response}")
+                raise Exception(f"删除卡组失败: {response}{await response.text()}")
 
     async def update_deck_info(
-        self, deck_id: str, name: str, description: str, is_private: bool
+        self, deck_id: DeckID | str, name: str, description: str, is_private: bool
     ) -> Deck:
         """
         更新卡组信息
+        卡组名长度必须在 2 到 48 个字符之间
 
         :param deck_id: 卡组ID
         :param name: 卡组名
@@ -244,15 +253,16 @@ class Markji:
                 },
             )
             if response.status != 200:
-                raise Exception(f"更新卡组信息失败: {response}")
-            data: Dict = await response.json()
+                raise Exception(f"更新卡组信息失败: {response}{await response.text()}")
+            data: dict = await response.json()
             deck = Deck._from_json(data["data"]["deck"])
 
         return deck
 
-    async def update_deck_name(self, deck_id: str, name: str) -> Deck:
+    async def update_deck_name(self, deck_id: DeckID | str, name: str) -> Deck:
         """
         重命名卡组
+        卡组名长度必须在 2 到 48 个字符之间
 
         :param deck_id: 卡组ID
         :param name: 新卡组名
@@ -268,7 +278,9 @@ class Markji:
 
         return deck
 
-    async def update_deck_description(self, deck_id: str, description: str) -> Deck:
+    async def update_deck_description(
+        self, deck_id: DeckID | str, description: str
+    ) -> Deck:
         """
         更新卡组描述
 
@@ -283,7 +295,9 @@ class Markji:
 
         return deck
 
-    async def update_deck_privacy(self, deck_id: str, is_private: bool) -> Deck:
+    async def update_deck_privacy(
+        self, deck_id: DeckID | str, is_private: bool
+    ) -> Deck:
         """
         更新卡组隐私状态
 
@@ -297,3 +311,147 @@ class Markji:
         )
 
         return deck
+
+    async def get_chapter(
+        self, deck_id: DeckID | str, chapter_id: ChapterID | str
+    ) -> Chapter:
+        """
+        获取章节
+
+        :param deck_id: 卡组ID
+        :param chapter_id: 章节ID
+        :return: Chapter
+        """
+        async with self._session() as session:
+            response = await session.get(f"{DECK_URL}/{deck_id}/chapters/{chapter_id}")
+            if response.status != 200:
+                raise FileNotFoundError(
+                    f"获取章节失败: {response}{await response.text()}"
+                )
+            data: dict = await response.json()
+
+        return Chapter._from_json(data["data"]["chapter"])
+
+    async def get_chapter_set(self, deck_id: DeckID | str) -> ChapterSet:
+        """
+        获取章节集合
+
+        :param deck_id: 卡组ID
+        :return: ChapterSet
+        """
+        async with self._session() as session:
+            response = await session.get(f"{DECK_URL}/{deck_id}/chapters")
+            if response.status != 200:
+                raise FileNotFoundError(
+                    f"获取章节集合失败: {response}{await response.text()}"
+                )
+            data: dict = await response.json()
+
+        return ChapterSet._from_json(data["data"]["chapterset"])
+
+    async def list_chapters(self, deck_id: DeckID | str) -> Sequence[Chapter]:
+        """
+        获取卡组的所有章节
+
+        :param deck_id: 卡组ID
+        :return: Sequence[Chapter]
+        """
+        async with self._session() as session:
+            response = await session.get(f"{DECK_URL}/{deck_id}/chapters")
+            if response.status != 200:
+                raise Exception(f"获取章节列表失败: {response}{await response.text()}")
+            data: dict = await response.json()
+            chapters = []
+            for chapter in data["data"]["chapters"]:
+                chapter = Chapter._from_json(chapter)
+                chapters.append(chapter)
+
+        return chapters
+
+    async def new_chapter(self, deck_id: DeckID | str, name: str) -> Chapter:
+        """
+        创建章节
+        章节名长度必须在 1 到 48 个字符之间
+
+        :param name: 章节名
+        :return: Chapter
+        """
+
+        if len(name) < 1 or len(name) > 48:
+            raise ValueError("章节名必须在 1 到 48 个字符之间")
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{DECK_URL}/{deck_id}/chapters",
+                json={
+                    "name": name,
+                    "order": len(await self.list_chapters(deck_id)),
+                },
+            )
+            if response.status != 200:
+                raise Exception(f"创建章节失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return Chapter._from_json(data["data"]["chapter"])
+
+    async def delete_chapter(self, deck_id: DeckID | str, chapter_id: ChapterID | str):
+        """
+        删除章节
+
+        :param deck_id: 卡组ID
+        :param chapter_id: 章节ID
+        """
+        async with self._session() as session:
+            response = await session.delete(
+                f"{DECK_URL}/{deck_id}/chapters/{chapter_id}"
+            )
+            if response.status != 200:
+                raise Exception(f"删除章节失败: {response}{await response.text()}")
+
+    async def rename_chapter(
+        self, deck_id: DeckID | str, chapter_id: ChapterID | str, name: str
+    ) -> Chapter:
+        """
+        重命名章节
+        章节名长度必须在 1 到 48 个字符之间
+
+        :param deck_id: 卡组ID
+        :param chapter_id: 章节ID
+        :param name: 新章节名
+        :return: Chapter
+        """
+        if len(name) < 1 or len(name) > 48:
+            raise ValueError("章节名必须在 1 到 48 个字符之间")
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{DECK_URL}/{deck_id}/chapters/{chapter_id}",
+                json={"name": name},
+            )
+            if response.status != 200:
+                raise Exception(f"重命名章节失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return Chapter._from_json(data["data"]["chapter"])
+
+    async def sort_chapters(
+        self, deck_id: DeckID | str, chapter_ids: Sequence[ChapterID | str]
+    ) -> ChapterSet:
+        """
+        排序章节
+
+        :param deck_id: 卡组ID
+        :param chapter_ids: 排序后的章节ID列表
+        :return: Chapter
+        """
+        chapter_set = await self.get_chapter_set(deck_id)
+        async with self._session() as session:
+            response = await session.post(
+                f"{DECK_URL}/{deck_id}/chapters/sort",
+                json={"chapter_ids": chapter_ids, "revision": chapter_set.revision},
+            )
+            if response.status != 200:
+                raise Exception(f"排序章节失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return ChapterSet._from_json(data["data"]["chapterset"])

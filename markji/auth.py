@@ -6,7 +6,6 @@
 """
 
 from aiohttp import ClientSession
-from typing import Dict
 from markji.const import API_URL, LOGIN_URL
 
 
@@ -48,8 +47,8 @@ class Auth:
                 },
             )
             if response.status != 200:
-                raise Exception(f"登陆失败: {response}")
-            content: Dict = await response.json()
+                raise Exception(f"登陆失败: {response}{await response.text()}")
+            content: dict = await response.json()
             token: str = content["data"]["token"]
 
         return token

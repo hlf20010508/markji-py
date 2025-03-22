@@ -5,12 +5,11 @@
 :license: MIT, see LICENSE for more details.
 """
 
+from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional, Type, TypeVar, cast
+from typing import Sequence, Type, cast
 from markji.types import UserID, FolderID, Status, FolderItem
-
-A = TypeVar("A", bound="Folder")
 
 
 @dataclass
@@ -30,14 +29,14 @@ class Folder:
     id: FolderID
     creator: UserID
     status: Status
-    items: List[FolderItem]
-    parent_id: Optional[FolderID]
+    items: Sequence[FolderItem]
+    parent_id: FolderID | None
     name: str
     created_time: datetime
     updated_time: datetime
 
     @classmethod
-    def _from_json(cls: Type[A], data: Dict) -> A:
+    def _from_json(cls: Type[Folder], data: dict) -> Folder:
         """
         从 JSON 数据创建 Folder 对象
 
@@ -49,9 +48,9 @@ class Folder:
         status = Status(data.get("status"))
         items = [
             cast(FolderItem, FolderItem._from_json(item))
-            for item in cast(List, data.get("items"))
+            for item in cast(Sequence, data.get("items"))
         ]
-        parent_id = cast(Optional[FolderID], data.get("parent_id"))
+        parent_id = cast(FolderID | None, data.get("parent_id"))
         name = cast(str, data.get("name"))
         created_time = datetime.fromisoformat(cast(str, data.get("created_time")))
         updated_time = datetime.fromisoformat(cast(str, data.get("updated_time")))
