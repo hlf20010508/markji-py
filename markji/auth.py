@@ -14,7 +14,8 @@ class Auth:
     """
     Auth 认证登陆
 
-    示例::
+    .. Example::
+    .. code-block:: python
         from markji.auth import Auth
 
         auth = Auth("username", "password")
@@ -25,8 +26,8 @@ class Auth:
         """
         初始化Auth
 
-        :param username: 用户名（手机号、邮箱）
-        :param password: 密码
+        :param str username: 用户名（手机号、邮箱）
+        :param str password: 密码
         """
         self._username = username
         self._password = password
@@ -36,7 +37,7 @@ class Auth:
         登陆
         获取用户token
 
-        :return: str
+        :return str: 用户token
         """
         async with ClientSession(base_url=_API_URL) as session:
             response = await session.post(

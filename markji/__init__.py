@@ -37,7 +37,8 @@ class Markji:
     """
     Markji 客户端
 
-    示例::
+    .. Example::
+    .. code-block:: python
         from markji import Markji
         from markji.auth import Auth
 
@@ -50,7 +51,7 @@ class Markji:
         """
         初始化 Markji 客户端
 
-        :param token: 用户令牌
+        :param str token: 用户令牌
         """
         self._token = token
 
@@ -60,6 +61,8 @@ class Markji:
     async def get_profile(self) -> Profile:
         """
         获取用户信息
+
+        :return Profile: 用户信息
         """
         async with self._session() as session:
             response = await session.get(_PROFILE_ROUTE)
@@ -73,8 +76,8 @@ class Markji:
         """
         获取文件夹
 
-        :param folder_id: 文件夹ID
-        :return: Folder
+        :param FolderID | str folder_id: 文件夹ID
+        :return Folder: 文件夹
         """
         async with self._session() as session:
             response = await session.get(f"{_FOLDER_ROUTE}/{folder_id}")
@@ -90,7 +93,7 @@ class Markji:
         """
         获取根文件夹
 
-        :return: RootFolder
+        :return RootFolder: 根文件夹
         """
         async with self._session() as session:
             response = await session.get(_FOLDER_ROUTE)
@@ -107,7 +110,7 @@ class Markji:
         """
         获取用户的所有文件夹
 
-        :return: Sequence[Folder]
+        :return Sequence[Folder]: 文件夹列表
         """
         async with self._session() as session:
             response = await session.get(_FOLDER_ROUTE)
@@ -131,8 +134,8 @@ class Markji:
         创建文件夹
         文件名长度必须在 2 到 8 个字符之间
 
-        :param name: 文件夹名
-        :return: Folder
+        :param str name: 文件夹名
+        :return Folder: 创建的文件夹
         """
         if len(name) < 2 or len(name) > 8:
             raise ValueError("文件夹名必须在 2 到 8 个字符之间")
@@ -152,7 +155,7 @@ class Markji:
         """
         删除文件夹
 
-        :param folder_id: 文件夹ID
+        :param FolderID | str folder_id: 文件夹ID
         """
         async with self._session() as session:
             response = await session.delete(f"{_FOLDER_ROUTE}/{folder_id}")
@@ -164,9 +167,9 @@ class Markji:
         重命名文件夹
         文件名长度必须在 2 到 8 个字符之间
 
-        :param folder_id: 文件夹ID
-        :param name: 新文件夹名
-        :return: Folder
+        :param FolderID | str folder_id: 文件夹ID
+        :param str name: 新文件夹名
+        :return Folder: 重命名后的文件夹
         """
         if len(name) < 2 or len(name) > 8:
             raise ValueError("文件夹名必须在 2 到 8 个字符之间")
@@ -186,8 +189,8 @@ class Markji:
         """
         排序文件夹
 
-        :param folder_ids: 排序后的文件夹ID列表
-        :return: RootFolder
+        :param Sequence[FolderID | str] folder_ids: 排序后的文件夹ID列表
+        :return RootFolder: 排序后的根文件夹
         """
         root_folder = await self.get_root_folder()
 
@@ -206,8 +209,8 @@ class Markji:
         """
         获取卡组
 
-        :param deck_id: 卡组ID
-        :return: Deck
+        :param str deck_id: 卡组ID
+        :return Deck: 卡组
         """
         async with self._session() as session:
             response = await session.get(f"{_DECK_ROUTE}/{deck_id}")
@@ -223,8 +226,8 @@ class Markji:
         """
         获取文件夹的所有卡组
 
-        :param folder_id: 文件夹ID
-        :return: Sequence[Deck]
+        :param FolderID | str folder_id: 文件夹ID
+        :return Sequence[Deck]: 卡组列表
         """
         async with self._session() as session:
             response = await session.get(_DECK_ROUTE, params={"folder_id": folder_id})
@@ -249,11 +252,11 @@ class Markji:
         创建卡组
         卡组名长度必须在 2 到 48 个字符之间
 
-        :param folder_id: 文件夹ID
-        :param name: 卡组名
-        :param description: 卡组描述
-        :param is_private: 是否私有
-        :return: Deck
+        :param FolderID | str folder_id: 文件夹ID
+        :param str name: 卡组名
+        :param str description: 卡组描述
+        :param bool is_private: 是否私有
+        :return Deck: 创建的卡组
         """
         if len(name) < 2 or len(name) > 48:
             raise ValueError("卡组名必须在 2 到 48 个字符之间")
@@ -273,7 +276,7 @@ class Markji:
         """
         删除卡组
 
-        :param deck_id: 卡组ID
+        :param DeckID | str deck_id: 卡组ID
         """
         async with self._session() as session:
             response = await session.delete(f"{_DECK_ROUTE}/{deck_id}")
@@ -287,11 +290,11 @@ class Markji:
         更新卡组信息
         卡组名长度必须在 2 到 48 个字符之间
 
-        :param deck_id: 卡组ID
-        :param name: 卡组名
-        :param description: 卡组描述
-        :param is_private: 是否私有
-        :return: Deck
+        :param DeckID | str deck_id: 卡组ID
+        :param str name: 卡组名
+        :param str description: 卡组描述
+        :param bool is_private: 是否私有
+        :return Deck: 更新后的卡组
         """
         if len(name) < 2 or len(name) > 48:
             raise ValueError("卡组名必须在 2 到 48 个字符之间")
@@ -313,9 +316,9 @@ class Markji:
         重命名卡组
         卡组名长度必须在 2 到 48 个字符之间
 
-        :param deck_id: 卡组ID
-        :param name: 新卡组名
-        :return: Deck
+        :param DeckID | str deck_id: 卡组ID
+        :param str name: 新卡组名
+        :return Deck: 更新后的卡组
         """
         if len(name) < 2 or len(name) > 48:
             raise ValueError("卡组名必须在 2 到 48 个字符之间")
@@ -333,9 +336,9 @@ class Markji:
         """
         更新卡组描述
 
-        :param deck_id: 卡组ID
-        :param description: 卡组描述
-        :return: Deck
+        :param DeckID | str deck_id: 卡组ID
+        :param str description: 卡组描述
+        :return Deck: 更新后的卡组
         """
         old_deck = await self.get_deck(deck_id)
         deck = await self.update_deck_info(
@@ -350,9 +353,9 @@ class Markji:
         """
         更新卡组隐私状态
 
-        :param deck_id: 卡组ID
-        :param is_private: 是否私有
-        :return: Deck
+        :param DeckID | str deck_id: 卡组ID
+        :param bool is_private: 是否私有
+        :return Deck: 更新后的卡组
         """
         old_deck = await self.get_deck(deck_id)
         deck = await self.update_deck_info(
@@ -367,9 +370,9 @@ class Markji:
         """
         排序卡组
 
-        :param folder_id: 文件夹ID
-        :param deck_ids: 排序后的卡组ID列表
-        :return: Folder
+        :param FolderID | str folder_id: 文件夹ID
+        :param Sequence[DeckID | str] deck_ids: 排序后的卡组ID列表
+        :return Folder: 排序后的文件夹
         """
         folder = await self.get_folder(folder_id)
 
@@ -390,9 +393,9 @@ class Markji:
         """
         获取章节
 
-        :param deck_id: 卡组ID
-        :param chapter_id: 章节ID
-        :return: Chapter
+        :param DeckID | str deck_id: 卡组ID
+        :param ChapterID | str chapter_id: 章节ID
+        :return Chapter: 章节
         """
         async with self._session() as session:
             response = await session.get(
@@ -410,8 +413,8 @@ class Markji:
         """
         获取章节集合
 
-        :param deck_id: 卡组ID
-        :return: ChapterSet
+        :param DeckID | str deck_id: 卡组ID
+        :return ChapterSet: 章节集合
         """
         async with self._session() as session:
             response = await session.get(f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}")
@@ -427,8 +430,8 @@ class Markji:
         """
         获取卡组的所有章节
 
-        :param deck_id: 卡组ID
-        :return: Sequence[Chapter]
+        :param DeckID | str deck_id: 卡组ID
+        :return Sequence[Chapter]: 章节列表
         """
         async with self._session() as session:
             response = await session.get(f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}")
@@ -447,8 +450,9 @@ class Markji:
         创建章节
         章节名长度必须在 1 到 48 个字符之间
 
-        :param name: 章节名
-        :return: Chapter
+        :param DeckID | str deck_id: 卡组ID
+        :param str name: 章节名
+        :return Chapter: 创建的章节
         """
 
         if len(name) < 1 or len(name) > 48:
@@ -471,8 +475,8 @@ class Markji:
         """
         删除章节
 
-        :param deck_id: 卡组ID
-        :param chapter_id: 章节ID
+        :param DeckID | str deck_id: 卡组ID
+        :param ChapterID | str chapter_id: 章节ID
         """
         async with self._session() as session:
             response = await session.delete(
@@ -488,10 +492,10 @@ class Markji:
         重命名章节
         章节名长度必须在 1 到 48 个字符之间
 
-        :param deck_id: 卡组ID
-        :param chapter_id: 章节ID
-        :param name: 新章节名
-        :return: Chapter
+        :param DeckID | str deck_id: 卡组ID
+        :param ChapterID | str chapter_id: 章节ID
+        :param str name: 新章节名
+        :return Chapter: 重命名后的章节
         """
         if len(name) < 1 or len(name) > 48:
             raise ValueError("章节名必须在 1 到 48 个字符之间")
@@ -513,9 +517,9 @@ class Markji:
         """
         排序章节
 
-        :param deck_id: 卡组ID
-        :param chapter_ids: 排序后的章节ID列表
-        :return: Chapter
+        :param DeckID | str deck_id: 卡组ID
+        :param Sequence[ChapterID | str] chapter_ids: 排序后的章节ID列表
+        :return ChapterSet: 排序后的章节集合
         """
         chapter_set = await self.get_chapter_set(deck_id)
         async with self._session() as session:

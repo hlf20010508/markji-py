@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin, config
 from typing import Sequence
 from markji.types import (
-    _Datetime,
+    Datetime,
     ChapterID,
     DeckID,
     FolderID,
@@ -47,7 +47,7 @@ class _SortFoldersForm(DataClassJsonMixin):
             ]
         ),
     )
-    updated_time: _Datetime = _Datetime._field()
+    updated_time: Datetime = Datetime._field()
 
 
 @dataclass
@@ -74,7 +74,7 @@ class _SortDecksForm(DataClassJsonMixin):
             ]
         ),
     )
-    updated_time: _Datetime = _Datetime._field()
+    updated_time: Datetime = Datetime._field()
 
 
 @dataclass

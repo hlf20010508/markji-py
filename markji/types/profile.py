@@ -8,7 +8,7 @@
 from dataclasses import dataclass
 from dataclasses_json import DataClassJsonMixin
 from typing import Sequence
-from markji.types import _Datetime, UserGender, UserID, UserLevel, UserOAuth
+from markji.types import Datetime, UserGender, UserID, UserLevel, UserOAuth
 
 
 @dataclass
@@ -16,22 +16,22 @@ class Profile(DataClassJsonMixin):
     """
     Profile 用户信息
 
-    :param nickname: 昵称
-    :param avatar: 头像Url
-    :param level: 用户等级信息
-    :param email: 邮箱
-    :param email_verified: 邮箱是否验证
-    :param phone: 手机号
-    :param phone_verified: 手机号是否验证
-    :param oauths: 第三方登录信息
-    :param gender: 性别
-    :param city: 城市
-    :param school: 学校
-    :param birthday: 生日
-    :param description: 个人描述
-    :param constellation: 星座 (暂无)
-    :param alipay_oauth: 支付宝信息 (暂无)
-    :param id: 用户ID
+    :param str nickname: 昵称
+    :param str avatar: 头像
+    :param UserLevel level: 等级
+    :param str email: 邮箱
+    :param bool email_verified: 邮箱是否验证
+    :param str phone: 手机号
+    :param bool phone_verified: 手机号是否验证
+    :param Sequence[UserOAuth] oauths: OAuth信息
+    :param UserGender gender: 性别
+    :param str city: 城市
+    :param str school: 学校
+    :param str description: 描述
+    :param str constellation: 星座 (暂无)
+    :param dict alipay_oauth: 支付宝信息 (暂无)
+    :param UserID id: 用户ID
+    :param Datetime birthday: 生日
     """
 
     nickname: str
@@ -49,4 +49,4 @@ class Profile(DataClassJsonMixin):
     constellation: str
     alipay_oauth: dict
     id: UserID
-    birthday: _Datetime = _Datetime._field()
+    birthday: Datetime = Datetime._field()

@@ -11,6 +11,14 @@ from enum import Enum
 class FontColor(Enum):
     """
     字体颜色
+
+    * RED: 红色
+    * ORANGE: 橙色
+    * YELLOW: 黄色
+    * GREEN: 绿色
+    * BLUE: 蓝色
+    * PURPLE: 紫色
+    * GRAY: 灰色
     """
 
     RED = "!d16056"
@@ -25,6 +33,14 @@ class FontColor(Enum):
 class BackgroundColor(Enum):
     """
     背景颜色
+
+    * RED: 红色
+    * ORANGE: 橙色
+    * YELLOW: 黄色
+    * GREEN: 绿色
+    * BLUE: 蓝色
+    * PURPLE: 紫色
+    * GRAY: 灰色
     """
 
     RED = "!!fbc0bc"
@@ -40,7 +56,8 @@ class FontWrapper:
     """
     字体包装器
 
-    示例::
+    .. Example::
+    .. code-block:: python
         from markji.content import FontWrapper, FontColor, BackgroundColor
 
         FontWrapper("Hello, World!").bold().color(FontColor.RED).background(
@@ -52,7 +69,7 @@ class FontWrapper:
         """
         初始化
 
-        :param content: 内容
+        :param str content: 内容
         """
         self._content = content
         self._bold: bool = False
@@ -69,7 +86,7 @@ class FontWrapper:
         """
         字体颜色
 
-        :param color: 颜色
+        :param FontColor color: 颜色
         """
         self._color = color
 
@@ -77,7 +94,7 @@ class FontWrapper:
         """
         背景颜色
 
-        :param color: 颜色
+        :param BackgroundColor color: 颜色
         """
         self._background = color
 
@@ -85,7 +102,7 @@ class FontWrapper:
         """
         构建
 
-        :return: str
+        :return str: 包装后的内容
         """
         result = "[T#"
         if self._bold:

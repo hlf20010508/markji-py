@@ -28,9 +28,9 @@ class UserGender(StrEnum):
     """
     Enum 用户性别
 
-    MALE: 男
-    FEMALE: 女
-    SECRECY: 保密
+    * MALE: 男
+    * FEMALE: 女
+    * SECRECY: 保密
     """
 
     MALE = "MALE"
@@ -42,7 +42,7 @@ class Status(StrEnum):
     """
     Enum 文件夹状态
 
-    NORMAL: 正常
+    * NORMAL: 正常
     """
 
     NORMAL = "NORMAL"
@@ -52,8 +52,8 @@ class FolderItemObjectClass(StrEnum):
     """
     Enum 文件夹项目对象类
 
-    FOLDER: 文件夹
-    DECK: 卡组
+    * FOLDER: 文件夹
+    * DECK: 卡组
     """
 
     FOLDER = "FOLDER"
@@ -64,8 +64,8 @@ class DeckSource(StrEnum):
     """
     Enum 卡组来源
 
-    SELF: 自己创建
-    FORK: 收藏他人
+    * SELF: 自己创建
+    * FORK: 收藏他人
     """
 
     SELF = "SELF"
@@ -76,8 +76,8 @@ class FileSource(StrEnum):
     """
     Enum 文件来源 (语音)
 
-    UPLOAD: 上传
-    TTS: 语音合成
+    * UPLOAD: 上传
+    * TTS: 语音合成
     """
 
     UPLOAD = "UPLOAD"
@@ -87,6 +87,126 @@ class FileSource(StrEnum):
 class LanguageCode(StrEnum):
     """
     Enum 语言代码
+
+    * AR_DZ: 阿拉伯语 (阿尔及利亚)
+    * AR_AE: 阿拉伯语 (阿联酋)
+    * AR_EG: 阿拉伯语 (埃及)
+    * AR_BH: 阿拉伯语 (巴林)
+    * AR_QA: 阿拉伯语 (卡塔尔)
+    * AR_KW: 阿拉伯语 (科威特)
+    * AR_LY: 阿拉伯语 (利比亚)
+    * AR_MA: 阿拉伯语 (摩洛哥)
+    * AR_SA: 阿拉伯语 (沙特阿拉伯)
+    * AR_TN: 阿拉伯语 (突尼斯)
+    * AR_SY: 阿拉伯语 (叙利亚)
+    * AR_YE: 阿拉伯语 (也门)
+    * AR_IQ: 阿拉伯语 (伊拉克)
+    * AR_JO: 阿拉伯语 (约旦)
+    * AM_ET: 阿姆哈拉语 (埃塞俄比亚)
+    * GA_IE: 爱尔兰语 (爱尔兰)
+    * ET_EE: 爱沙尼亚语 (爱沙尼亚)
+    * BG_BG: 保加利亚语 (保加利亚)
+    * PL_PL: 波兰语 (波兰)
+    * FA_IR: 波斯语 (伊朗)
+    * DA_DK: 丹麦语 (丹麦)
+    * DE_AT: 德语 (奥地利)
+    * DE_DE: 德语 (德国)
+    * DE_CH: 德语 (瑞士)
+    * RU_RU: 俄语 (俄罗斯)
+    * FR_BE: 法语 (比利时)
+    * FR_FR: 法语 (法国)
+    * FR_CA: 法语 (加拿大)
+    * FR_CH: 法语 (瑞士)
+    * FIL_PH: 菲律宾语 (菲律宾)
+    * FI_FI: 芬兰语 (芬兰)
+    * KM_KH: 高棉语 (柬埔寨)
+    * GU_IN: 古吉拉特语 (印度)
+    * KO_KR: 韩语 (韩国)
+    * NL_BE: 荷兰语 (比利时)
+    * NL_NL: 荷兰语 (荷兰)
+    * GL_ES: 加利西亚语 (西班牙)
+    * CA_ES: 加泰罗尼亚语 (西班牙)
+    * CS_CZ: 捷克语 (捷克)
+    * HR_HR: 克罗地亚语 (克罗地亚)
+    * LV_LV: 拉脱维亚语 (拉脱维亚)
+    * LT_LT: 立陶宛语 (立陶宛)
+    * RO_RO: 罗马尼亚语 (罗马尼亚)
+    * MT_MT: 马耳他语 (马耳他)
+    * MR_IN: 马拉地语 (印度)
+    * MS_MY: 马来语 (马来西亚)
+    * BN_BD: 孟加拉语 (孟加拉国)
+    * MY_MM: 缅甸语 (缅甸)
+    * AF_ZA: 南非荷兰语 (南非)
+    * NB_NO: 挪威博克马尔语 (挪威)
+    * PT_BR: 葡萄牙语 (巴西)
+    * PT_PT: 葡萄牙语 (葡萄牙)
+    * JA_JP: 日语 (日本)
+    * SV_SE: 瑞典语 (瑞典)
+    * SK_SK: 斯洛伐克语 (斯洛伐克)
+    * SL_SI: 斯洛文尼亚语 (斯洛文尼亚)
+    * SW_KE: 斯瓦希里语 (肯尼亚)
+    * SW_TZ: 斯瓦希里语 (坦桑尼亚)
+    * SO_SO: 索马里语 (索马里)
+    * TE_IN: 泰卢固语 (印度)
+    * TA_LK: 泰米尔语 (斯里兰卡)
+    * TA_SG: 泰米尔语 (新加坡)
+    * TA_IN: 泰米尔语 (印度)
+    * TH_TH: 泰语 (泰国)
+    * TR_TR: 土耳其语 (土耳其)
+    * CY_GB: 威尔士语 (英国)
+    * UR_PK: 乌尔都语 (巴基斯坦)
+    * UR_IN: 乌尔都语 (印度)
+    * UK_UA: 乌克兰语 (乌克兰)
+    * UZ_UZ: 乌兹别克语 (乌兹别克斯坦)
+    * ES_NI: 西班牙语 (尼加拉瓜)
+    * ES_AR: 西班牙语 (阿根廷)
+    * ES_PY: 西班牙语 (巴拉圭)
+    * ES_PA: 西班牙语 (巴拿马)
+    * ES_PR: 西班牙语 (波多黎各)
+    * ES_BO: 西班牙语 (玻利维亚)
+    * ES_GQ: 西班牙语 (赤道几内亚)
+    * ES_DO: 西班牙语 (多米尼加共和国)
+    * ES_EC: 西班牙语 (厄瓜多尔)
+    * ES_CO: 西班牙语 (哥伦比亚)
+    * ES_CR: 西班牙语 (哥斯达黎加)
+    * ES_CU: 西班牙语 (古巴)
+    * ES_HN: 西班牙语 (洪都拉斯)
+    * ES_US: 西班牙语 (美国)
+    * ES_PE: 西班牙语 (秘鲁)
+    * ES_MX: 西班牙语 (墨西哥)
+    * ES_SV: 西班牙语 (萨尔瓦多)
+    * ES_GT: 西班牙语 (危地马拉)
+    * ES_VE: 西班牙语 (委内瑞拉)
+    * ES_UY: 西班牙语 (乌拉圭)
+    * ES_ES: 西班牙语 (西班牙)
+    * ES_CL: 西班牙语 (智利)
+    * HE_IL: 希伯来语 (以色列)
+    * EL_GR: 希腊语 (希腊)
+    * HU_HU: 匈牙利语 (匈牙利)
+    * SU_ID: 巽他语 (印度尼西亚)
+    * IT_IT: 意大利语 (意大利)
+    * HI_IN: 印地语 (印度)
+    * ID_ID: 印尼语 (印度尼西亚)
+    * EN_IE: 英语 (爱尔兰)
+    * EN_AU: 英语 (澳大利亚)
+    * EN_PH: 英语 (菲律宾)
+    * EN_CA: 英语 (加拿大)
+    * EN_KE: 英语 (肯尼亚)
+    * EN_US: 英语 (美国)
+    * EN_ZA: 英语 (南非)
+    * EN_NG: 英语 (尼日利亚)
+    * EN_TZ: 英语 (坦桑尼亚)
+    * EN_HK: 英语 (香港)
+    * EN_SG: 英语 (新加坡)
+    * EN_NZ: 英语 (新西兰)
+    * EN_IN: 英语 (印度)
+    * EN_GB: 英语 (英国)
+    * VI_VN: 越南语 (越南)
+    * JV_ID: 爪哇语 (印度尼西亚)
+    * ZH_CN: 中文 (中国)
+    * ZH_TW: 中文 (台湾)
+    * ZH_HK: 中文 (香港)
+    * ZU_ZA: 祖鲁语 (南非)
     """
 
     AR_DZ = "ar-DZ"
@@ -214,21 +334,25 @@ class FileMIME(StrEnum):
     """
     Enum 文件MIME类型
 
-    AUDIO_MPEG: 音频
-    IMAGE_JPEG: 图片
+    * AUDIO_MPEG: 音频
+    * IMAGE_JPEG: 图片
     """
 
     AUDIO_MPEG = "audio/mpeg"
     IMAGE_JPEG = "image/jpeg"
 
 
-class _Datetime(datetime):
+class Datetime(datetime):
+    """
+    继承自datetime.datetime
+    """
+
     def _to_str(self) -> str:
         # 2025-12-34T12:34:56.789Z
         return self.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
     @classmethod
-    def _field(cls: Type[_Datetime]):
+    def _field(cls: Type[Datetime]):
         # default serialize and deserialize methods
         return field(
             metadata=config(encoder=lambda dt: dt._to_str(), decoder=cls.fromisoformat),
@@ -241,8 +365,8 @@ class UserLevel(DataClassJsonMixin):
     Enum
     用户等级
 
-    :param level: 等级
-    :param description: 等级描述
+    :param int level: 等级
+    :param str description: 等级描述
     """
 
     level: int
@@ -254,9 +378,9 @@ class UserOAuth(DataClassJsonMixin):
     """
     用户授权
 
-    :param type: 授权类型
-    :param appid: 授权AppID
-    :param username: 用户名
+    :param str type: 授权类型
+    :param str appid: 授权AppID
+    :param str username: 用户名
     """
 
     type: str
@@ -269,9 +393,9 @@ class UserBrief(DataClassJsonMixin):
     """
     用户简要信息
 
-    :param nickname: 昵称
-    :param avatar: 头像Url
-    :param id: 用户ID
+    :param str nickname: 昵称
+    :param str avatar: 头像Url
+    :param UserID id: 用户ID
     """
 
     nickname: str
@@ -284,8 +408,8 @@ class FolderItem(DataClassJsonMixin):
     """
     FolderItems 文件夹项目
 
-    :param object_id: 对象ID
-    :param object_class: 对象类
+    :param str object_id: 对象ID
+    :param FolderItemObjectClass object_class: 对象类
     """
 
     object_id: str
@@ -297,7 +421,7 @@ class DeckAccessSetting(DataClassJsonMixin):
     """
     卡组访问设置
 
-    :param validation_enabled: 是否启用验证
+    :param bool validation_enabled: 是否启用验证
     """
 
     validation_enabled: bool
@@ -308,8 +432,8 @@ class TTSInfo(DataClassJsonMixin):
     """
     语音合成信息
 
-    :param text: 文本
-    :param locale: 语言代码
+    :param str text: 文本
+    :param LanguageCode locale: 语言代码
     """
 
     text: str
@@ -321,11 +445,11 @@ class FileInfo(DataClassJsonMixin):
     """
     文件信息
 
-    :param source: 文件来源 (语音)
-    :param content_slices: 语音合成信息
-    :param width: 宽度 (图片)
-    :param height: 高度 (图片)
-    :param description: 描述 (图片)
+    :param FileSource | None source: 文件来源 (语音)
+    :param Sequence[TTSInfo] | None content_slices: 语音合成信息
+    :param int | None width: 宽度 (图片)
+    :param int | None height: 高度 (图片)
+    :param str | None description: 描述 (图片)
     """
 
     source: FileSource | None = None
@@ -340,12 +464,12 @@ class File(DataClassJsonMixin):
     """
     文件
 
-    :param info: 文件信息
-    :param size: 文件大小
-    :param mime: MIME类型
-    :param url: 文件Url
-    :param id: 文件ID
-    :param expire_time: 过期时间
+    :param FileInfo info: 文件信息
+    :param int size: 文件大小
+    :param FileMIME mime: MIME类型
+    :param str url: 文件Url
+    :param FileID id: 文件ID
+    :param Datetime expire_time: 过期时间
     """
 
     info: FileInfo
@@ -353,4 +477,4 @@ class File(DataClassJsonMixin):
     mime: FileMIME
     url: str
     id: FileID
-    expire_time: _Datetime = _Datetime._field()
+    expire_time: Datetime = Datetime._field()
