@@ -7,12 +7,12 @@
 
 from typing import Sequence
 from aiohttp import ClientSession
-from markji.chapter import Chapter, ChapterSet
+from markji.types.chapter import Chapter, ChapterSet
 from markji.const import API_URL, DECK_URL, FOLDER_URL, PROFILE_URL
-from markji.deck import Deck
-from markji.folder import Folder
+from markji.types.deck import Deck
+from markji.types.folder import Folder, RootFolder
 from markji.types import ChapterID, DeckID, FolderID
-from markji.profile import Profile
+from markji.types.profile import Profile
 
 
 class Markji:
@@ -68,6 +68,23 @@ class Markji:
 
         return Folder._from_json(data["data"]["folder"])
 
+    async def get_root_folder(self) -> RootFolder:
+        """
+        获取根文件夹
+
+        :return: RootFolder
+        """
+        async with self._session() as session:
+            response = await session.get(FOLDER_URL)
+            if response.status != 200:
+                raise Exception(f"获取根文件夹失败: {response}{await response.text()}")
+            data: dict = await response.json()
+            for folder in data["data"]["folders"]:
+                if "parent_id" not in folder:
+                    return RootFolder._from_json(folder)
+
+        raise FileNotFoundError("未找到根文件夹")
+
     async def list_folders(self) -> Sequence[Folder]:
         """
         获取用户的所有文件夹
@@ -83,6 +100,9 @@ class Markji:
             data: dict = await response.json()
             folders = []
             for folder in data["data"]["folders"]:
+                # bypass root folder
+                if "parent_id" not in folder:
+                    continue
                 folder = Folder._from_json(folder)
                 folders.append(folder)
 
@@ -102,7 +122,7 @@ class Markji:
         async with self._session() as session:
             response = await session.post(
                 FOLDER_URL,
-                json={"name": name, "order": len(await self.list_folders()) - 1},
+                json={"name": name, "order": len(await self.list_folders())},
             )
             if response.status != 200:
                 raise Exception(f"创建文件夹失败: {response}{await response.text()}")
@@ -143,6 +163,31 @@ class Markji:
             data: dict = await response.json()
 
         return Folder._from_json(data["data"]["folder"])
+
+    async def sort_folders(self, folder_ids: Sequence[FolderID | str]) -> RootFolder:
+        """
+        排序文件夹
+
+        :param folder_ids: 排序后的文件夹ID列表
+        :return: RootFolder
+        """
+        root_folder = await self.get_root_folder()
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{FOLDER_URL}/{root_folder.id}/sort",
+                json={
+                    "items": [
+                        {"object_id": i, "object_class": "FOLDER"} for i in folder_ids
+                    ],
+                    "updated_time": root_folder.updated_time._to_str(),
+                },
+            )
+            if response.status != 200:
+                raise Exception(f"排序文件夹失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return RootFolder._from_json(data["data"]["folder"])
 
     async def get_deck(self, deck_id: str) -> Deck:
         """

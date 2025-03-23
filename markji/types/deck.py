@@ -7,9 +7,9 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Sequence, Type, cast
 from markji.types import (
+    _Datetime,
     DeckAccessSetting,
     UserBrief,
     UserID,
@@ -64,8 +64,8 @@ class Deck:
     card_count: int
     card_price: int
     chapter_count: int
-    created_time: datetime
-    updated_time: datetime
+    created_time: _Datetime
+    updated_time: _Datetime
     tags: Sequence
     is_anki: bool | None
     root_creator: UserBrief | None
@@ -95,8 +95,8 @@ class Deck:
         card_count = cast(int, data.get("card_count"))
         card_price = cast(int, data.get("card_price"))
         chapter_count = cast(int, data.get("chapter_count"))
-        created_time = datetime.fromisoformat(cast(str, data.get("created_time")))
-        updated_time = datetime.fromisoformat(cast(str, data.get("updated_time")))
+        created_time = _Datetime.fromisoformat(cast(str, data.get("created_time")))
+        updated_time = _Datetime.fromisoformat(cast(str, data.get("updated_time")))
         tags = cast(Sequence, data.get("tags"))
         is_anki = cast(bool | None, data.get("is_anki"))
         root_creator = UserBrief._from_json(cast(dict, data.get("root_creator")))

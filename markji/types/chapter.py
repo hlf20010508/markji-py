@@ -7,9 +7,8 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Sequence, Type, cast
-from markji.types import CardID, ChapterID, ChapterSetID, DeckID, UserID
+from markji.types import _Datetime, CardID, ChapterID, ChapterSetID, DeckID, UserID
 
 
 @dataclass
@@ -35,8 +34,8 @@ class Chapter:
     revision: int
     card_ids: Sequence[CardID]
     is_modified: bool
-    created_time: datetime
-    updated_time: datetime
+    created_time: _Datetime
+    updated_time: _Datetime
 
     @classmethod
     def _from_json(cls: Type[Chapter], data: dict) -> Chapter:
@@ -47,8 +46,8 @@ class Chapter:
         revision = cast(int, data.get("revision"))
         card_ids = cast(Sequence[CardID], data.get("card_ids"))
         is_modified = cast(bool, data.get("is_modified"))
-        created_time = datetime.fromisoformat(cast(str, data.get("created_time")))
-        updated_time = datetime.fromisoformat(cast(str, data.get("updated_time")))
+        created_time = _Datetime.fromisoformat(cast(str, data.get("created_time")))
+        updated_time = _Datetime.fromisoformat(cast(str, data.get("updated_time")))
 
         return cls(
             id=id,
@@ -82,8 +81,8 @@ class ChapterSet:
     revision: int
     chapter_ids: Sequence[ChapterID]
     is_modified: bool
-    created_time: datetime
-    updated_time: datetime
+    created_time: _Datetime
+    updated_time: _Datetime
 
     @classmethod
     def _from_json(cls: Type[ChapterSet], data: dict) -> ChapterSet:
@@ -95,8 +94,8 @@ class ChapterSet:
         revision = cast(int, data.get("revision"))
         chapter_ids = cast(Sequence[ChapterID], data.get("chapter_ids"))
         is_modified = cast(bool, data.get("is_modified"))
-        created_time = datetime.fromisoformat(cast(str, data.get("created_time")))
-        updated_time = datetime.fromisoformat(cast(str, data.get("updated_time")))
+        created_time = _Datetime.fromisoformat(cast(str, data.get("created_time")))
+        updated_time = _Datetime.fromisoformat(cast(str, data.get("updated_time")))
 
         return cls(
             id=id,

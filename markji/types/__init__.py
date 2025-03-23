@@ -221,6 +221,12 @@ class FileMIME(StrEnum):
     IMAGE_JPEG = "image/jpeg"
 
 
+class _Datetime(datetime):
+    def _to_str(self) -> str:
+        # 2025-12-34T12:34:56.789Z
+        return self.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+
+
 @dataclass
 class UserLevel:
     """
@@ -449,7 +455,7 @@ class File:
     mime: FileMIME
     url: str
     id: FileID
-    expire_time: datetime
+    expire_time: _Datetime
 
     @classmethod
     def _from_json(cls: Type[File], data: dict | None) -> File | None:
@@ -461,7 +467,7 @@ class File:
         mime = FileMIME(data.get("mime"))
         url = cast(str, data.get("url"))
         id = cast(FileID, data.get("id"))
-        expire_time = datetime.fromisoformat(cast(str, data.get("expire_time")))
+        expire_time = _Datetime.fromisoformat(cast(str, data.get("expire_time")))
 
         return cls(
             info=info,

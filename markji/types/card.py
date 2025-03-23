@@ -7,9 +7,17 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Sequence, Type, cast
-from markji.types import CardID, CardRootID, DeckID, DeckSource, File, Status, UserID
+from markji.types import (
+    _Datetime,
+    CardID,
+    CardRootID,
+    DeckID,
+    DeckSource,
+    File,
+    Status,
+    UserID,
+)
 
 
 @dataclass
@@ -46,8 +54,8 @@ class Card:
     revision: int
     grammar_version: int
     source: DeckSource
-    created_time: datetime
-    updated_time: datetime
+    created_time: _Datetime
+    updated_time: _Datetime
     card_rids: Sequence[CardRootID]
 
     @classmethod
@@ -67,8 +75,8 @@ class Card:
         revision = cast(int, data.get("revision"))
         grammar_version = cast(int, data.get("grammar_version"))
         source = DeckSource(data.get("source"))
-        created_time = datetime.fromisoformat(cast(str, data.get("created_time")))
-        updated_time = datetime.fromisoformat(cast(str, data.get("updated_time")))
+        created_time = _Datetime.fromisoformat(cast(str, data.get("created_time")))
+        updated_time = _Datetime.fromisoformat(cast(str, data.get("updated_time")))
         card_rids = cast(Sequence[CardRootID], data.get("card_rids"))
 
         return cls(

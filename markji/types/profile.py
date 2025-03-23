@@ -7,9 +7,8 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Sequence, Type, cast
-from markji.types import UserGender, UserID, UserLevel, UserOAuth
+from markji.types import _Datetime, UserGender, UserID, UserLevel, UserOAuth
 
 
 @dataclass
@@ -46,7 +45,7 @@ class Profile:
     gender: UserGender
     city: str
     school: str
-    birthday: datetime
+    birthday: _Datetime
     description: str
     constellation: str
     alipay_oauth: dict
@@ -75,7 +74,7 @@ class Profile:
         gender = UserGender(data.get("gender"))
         city = cast(str, data.get("city"))
         school = cast(str, data.get("school"))
-        birthday = datetime.fromisoformat(cast(str, data.get("birthday")))
+        birthday = _Datetime.fromisoformat(cast(str, data.get("birthday")))
         description = cast(str, data.get("description"))
         constellation = cast(str, data.get("constellation"))
         alipay_oauth = cast(dict, data.get("alipay_oauth"))
