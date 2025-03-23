@@ -10,6 +10,8 @@ class FormulaBuilder:
 
     使用LaTex语法构建公式
 
+    :param str content: 内容
+
     .. code-block:: python
 
         from markji.editor import FormulaBuilder
@@ -19,7 +21,9 @@ class FormulaBuilder:
 
     def __init__(self, content: str):
         """
-        初始化
+        公式构建器
+
+        使用LaTex语法构建公式
 
         :param str content: 内容
         """

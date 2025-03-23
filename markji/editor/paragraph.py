@@ -11,6 +11,8 @@ class ParagraphBuilder:
     """
     段落构建器
 
+    :param str | FontBuilder content: 内容
+
     纯文字段落
 
     .. code-block:: python
@@ -44,7 +46,7 @@ class ParagraphBuilder:
 
     def __init__(self, content: str | FontBuilder | ClozeBuilder):
         """
-        初始化
+        段落构建器
 
         :param str | FontBuilder content: 内容
         """

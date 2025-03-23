@@ -12,6 +12,9 @@ class Auth:
     """
     Auth 认证登陆
 
+    :param str username: 用户名（手机号、邮箱）
+    :param str password: 密码
+
     .. code-block:: python
 
         from markji.auth import Auth
@@ -22,7 +25,7 @@ class Auth:
 
     def __init__(self, username: str, password: str):
         """
-        初始化Auth
+        Auth 认证登陆
 
         :param str username: 用户名（手机号、邮箱）
         :param str password: 密码

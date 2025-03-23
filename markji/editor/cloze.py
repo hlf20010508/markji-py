@@ -8,6 +8,8 @@ class ClozeBuilder:
     """
     完形填空构建器
 
+    :param str content: 内容
+
     .. code-block:: python
 
         from markji.editor import ClozeBuilder
@@ -17,7 +19,7 @@ class ClozeBuilder:
 
     def __init__(self, content: str):
         """
-        初始化
+        完形填空构建器
 
         :param str content: 内容
         """

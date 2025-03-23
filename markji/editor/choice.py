@@ -9,11 +9,14 @@ from typing import Sequence
 class ChoiceItem:
     """
     选择题选项
+
+    :param str content: 内容
+    :param bool chosen: 是否选取
     """
 
     def __init__(self, content: str, chosen: bool):
         """
-        初始化
+        选择题选项
 
         :param str content: 内容
         :param bool chosen: 是否选取
@@ -34,6 +37,8 @@ class ChoiceBuilder:
     """
     选择题构建器
 
+    :param Sequence[ChoiceItem] choices: 选项
+
     .. code-block:: python
 
         from markji.editor import ChoiceBuilder, ChoiceItem
@@ -50,7 +55,7 @@ class ChoiceBuilder:
 
     def __init__(self, choices: Sequence[ChoiceItem]):
         """
-        初始化
+        选择题构建器
 
         :param Sequence[ChoiceItem] choices: 选项
         """

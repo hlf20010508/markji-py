@@ -66,6 +66,8 @@ class FontBuilder:
     """
     字体构建器
 
+    :param str content: 内容
+
     .. code-block:: python
 
         from markji.editor import FontBuilder, FontColor, FontBackgroundColor, FontScript
@@ -77,7 +79,7 @@ class FontBuilder:
 
     def __init__(self, content: str):
         """
-        初始化
+        字体构建器
 
         :param str content: 内容
         """

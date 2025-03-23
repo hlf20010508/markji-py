@@ -46,6 +46,8 @@ class Markji:
     """
     Markji 客户端
 
+    :param str token: 用户令牌
+
     .. code-block:: python
 
         from markji import Markji
@@ -58,7 +60,7 @@ class Markji:
 
     def __init__(self, token: str):
         """
-        初始化 Markji 客户端
+        Markji 客户端
 
         :param str token: 用户令牌
         """

@@ -10,8 +10,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Sequence, NewType, Type
 
-# 8位
-# eg. 20251234
+# 8位 eg. 20251234
 UserID = NewType("UserID", int)
 FolderID = NewType("FolderID", str)
 DeckID = NewType("DeckID", str)
@@ -342,7 +341,7 @@ class FileMIME(StrEnum):
 
 class Datetime(datetime):
     """
-    继承自datetime.datetime
+    继承自 `datetime.datetime`
     """
 
     def _to_str(self) -> str:
@@ -360,7 +359,6 @@ class Datetime(datetime):
 @dataclass
 class UserLevel(DataClassJsonMixin):
     """
-    Enum
     用户等级
 
     :param int level: 等级
