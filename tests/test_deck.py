@@ -6,6 +6,7 @@
 """
 
 import unittest
+from markji.types import deck
 from tests import AsyncTestCase, ENV
 from markji import Markji
 from markji.auth import Auth
@@ -204,6 +205,37 @@ class TestDeck(AsyncTestCase):
         await client.delete_deck(deck1.id)
         await client.delete_deck(deck2.id)
         await client.delete_folder(folder.id)
+
+    async def test_move(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        folder_name1 = "t_f1"
+        folder1 = await client.new_folder(folder_name1)
+        deck_name1 = "t_deck1"
+        deck1 = await client.new_deck(folder1.id, deck_name1)
+
+        folder_name2 = "t_f2"
+        folder2 = await client.new_folder(folder_name2)
+        deck_name2 = "t_deck2"
+        deck2 = await client.new_deck(folder2.id, deck_name2)
+        deck_name3 = "t_deck3"
+        deck3 = await client.new_deck(folder2.id, deck_name3)
+
+        folder_diff = await client.move_decks(folder2.id, folder1.id, [deck3.id], 0)
+
+        deck_ids1 = [deck3.id, deck1.id]
+        deck_ids2 = [deck2.id]
+
+        self.assertEqual([i.object_id for i in folder_diff.new_folder.items], deck_ids1)
+        self.assertEqual([i.object_id for i in folder_diff.old_folder.items], deck_ids2)
+
+        await client.delete_deck(deck1.id)
+        await client.delete_deck(deck2.id)
+        await client.delete_deck(deck3.id)
+        await client.delete_folder(folder1.id)
+        await client.delete_folder(folder2.id)
 
 
 if __name__ == "__main__":

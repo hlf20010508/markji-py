@@ -79,6 +79,19 @@ class _SortDecksForm(DataClassJsonMixin):
 
 
 @dataclass
+class _MoveDecksForm(DataClassJsonMixin):
+    items: Sequence[DeckID | str] = field(
+        metadata=config(
+            encoder=lambda ids: [
+                FolderItem(i, FolderItemObjectClass.DECK).to_dict() for i in ids
+            ]
+        ),
+    )
+    to_folder_id: FolderID | str
+    order: int
+
+
+@dataclass
 class _NewChapterForm(DataClassJsonMixin):
     name: str
     order: int

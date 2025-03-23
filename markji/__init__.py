@@ -23,6 +23,7 @@ from markji.types._form import (
     _EditCardForm,
     _ListCardsForm,
     _MoveCardsForm,
+    _MoveDecksForm,
     _NewCardForm,
     _NewChapterForm,
     _NewDeckForm,
@@ -39,7 +40,7 @@ from markji.types import CardID, ChapterID, DeckID, FolderID
 from markji.types.card import Card
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
 from markji.types.deck import Deck
-from markji.types.folder import Folder, RootFolder
+from markji.types.folder import Folder, FolderDiff, RootFolder
 from markji.types.profile import Profile
 
 
@@ -408,6 +409,37 @@ class Markji:
             data: dict = await response.json()
 
         return Folder.from_dict(data["data"]["folder"])
+
+    async def move_decks(
+        self,
+        folder_id_from: FolderID | str,
+        folder_id_to: FolderID | str,
+        deck_ids: Sequence[DeckID | str],
+        order: int | None = None,
+    ) -> FolderDiff:
+        """
+        移动卡组
+
+        :param FolderID | str folder_id_from: 旧文件夹ID
+        :param FolderID | str folder_id_to: 新文件夹ID
+        :param Sequence[DeckID | str] deck_ids: 卡组ID列表
+        :param int order: 排序
+        :return FolderDiff: 文件夹变化
+        """
+
+        if order is None:
+            order = len(await self.list_decks(folder_id_to))
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{_FOLDER_ROUTE}/{folder_id_from}/{_MOVE_ROUTE}",
+                json=_MoveDecksForm(deck_ids, folder_id_to, order).to_dict(),
+            )
+            if response.status != 200:
+                raise Exception(f"移动卡组失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return FolderDiff.from_dict(data["data"])
 
     async def get_chapter(
         self, deck_id: DeckID | str, chapter_id: ChapterID | str

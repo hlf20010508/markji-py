@@ -56,3 +56,16 @@ class Folder(DataClassJsonMixin):
     name: str
     created_time: Datetime = Datetime._field()
     updated_time: Datetime = Datetime._field()
+
+
+@dataclass
+class FolderDiff(DataClassJsonMixin):
+    """
+    FolderDiff 文件夹差异
+
+    :param Folder new_folder: 新文件夹
+    :param Folder old_folder: 旧文件夹
+    """
+
+    new_folder: Folder
+    old_folder: Folder
