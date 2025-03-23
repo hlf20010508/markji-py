@@ -9,25 +9,35 @@ from typing import Sequence
 from aiohttp import ClientSession
 from markji._const import (
     _API_URL,
+    _CARD_ROUTE,
     _CHAPTER_ROUTE,
     _DECK_ROUTE,
     _FOLDER_ROUTE,
+    _MOVE_ROUTE,
     _PROFILE_ROUTE,
+    _QUERY_ROUTE,
     _SORT_ROUTE,
 )
 from markji.types._form import (
+    _ContentInfo,
+    _EditCardForm,
+    _ListCardsForm,
+    _MoveCardsForm,
+    _NewCardForm,
     _NewChapterForm,
     _NewDeckForm,
     _NewFolderForm,
     _RenameChapterForm,
     _RenameFolderForm,
+    _SortCardsForm,
     _SortChaptersForm,
     _SortDecksForm,
     _SortFoldersForm,
     _UpdateDeckInfoForm,
 )
-from markji.types import ChapterID, DeckID, FolderID
-from markji.types.chapter import Chapter, ChapterSet
+from markji.types import CardID, ChapterID, DeckID, FolderID
+from markji.types.card import Card
+from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
 from markji.types.deck import Deck
 from markji.types.folder import Folder, RootFolder
 from markji.types.profile import Profile
@@ -67,7 +77,9 @@ class Markji:
         async with self._session() as session:
             response = await session.get(_PROFILE_ROUTE)
             if response.status != 200:
-                raise Exception(f"获取用户信息失败: {response}{await response.text()}")
+                raise FileNotFoundError(
+                    f"获取用户信息失败: {response}{await response.text()}"
+                )
             data: dict = await response.json()
 
         return Profile.from_dict(data["data"]["user"])
@@ -98,7 +110,9 @@ class Markji:
         async with self._session() as session:
             response = await session.get(_FOLDER_ROUTE)
             if response.status != 200:
-                raise Exception(f"获取根文件夹失败: {response}{await response.text()}")
+                raise FileNotFoundError(
+                    f"获取根文件夹失败: {response}{await response.text()}"
+                )
             data: dict = await response.json()
             for folder in data["data"]["folders"]:
                 if "parent_id" not in folder:
@@ -151,16 +165,22 @@ class Markji:
 
         return Folder.from_dict(data["data"]["folder"])
 
-    async def delete_folder(self, folder_id: FolderID | str):
+    async def delete_folder(self, folder_id: FolderID | str) -> RootFolder:
         """
         删除文件夹
 
         :param FolderID | str folder_id: 文件夹ID
+        :return RootFolder: 删除后的根文件
         """
         async with self._session() as session:
             response = await session.delete(f"{_FOLDER_ROUTE}/{folder_id}")
             if response.status != 200:
-                raise Exception(f"删除文件夹失败: {response}{await response.text()}")
+                raise FileNotFoundError(
+                    f"删除文件夹失败: {response}{await response.text()}"
+                )
+            data: dict = await response.json()
+
+        return RootFolder.from_dict(data["data"]["parent_folder"])
 
     async def rename_folder(self, folder_id: FolderID | str, name: str) -> Folder:
         """
@@ -281,7 +301,9 @@ class Markji:
         async with self._session() as session:
             response = await session.delete(f"{_DECK_ROUTE}/{deck_id}")
             if response.status != 200:
-                raise Exception(f"删除卡组失败: {response}{await response.text()}")
+                raise FileNotFoundError(
+                    f"删除卡组失败: {response}{await response.text()}"
+                )
 
     async def update_deck_info(
         self, deck_id: DeckID | str, name: str, description: str, is_private: bool
@@ -471,19 +493,27 @@ class Markji:
 
         return Chapter.from_dict(data["data"]["chapter"])
 
-    async def delete_chapter(self, deck_id: DeckID | str, chapter_id: ChapterID | str):
+    async def delete_chapter(
+        self, deck_id: DeckID | str, chapter_id: ChapterID | str
+    ) -> ChapterSet:
         """
         删除章节
 
         :param DeckID | str deck_id: 卡组ID
         :param ChapterID | str chapter_id: 章节ID
+        :return ChapterSet: 删除后的章节集
         """
         async with self._session() as session:
             response = await session.delete(
                 f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}/{chapter_id}"
             )
             if response.status != 200:
-                raise Exception(f"删除章节失败: {response}{await response.text()}")
+                raise FileNotFoundError(
+                    f"删除章节失败: {response}{await response.text()}"
+                )
+            data: dict = await response.json()
+
+        return ChapterSet.from_dict(data["data"]["chapterset"])
 
     async def rename_chapter(
         self, deck_id: DeckID | str, chapter_id: ChapterID | str, name: str
@@ -532,3 +562,197 @@ class Markji:
             data: dict = await response.json()
 
         return ChapterSet.from_dict(data["data"]["chapterset"])
+
+    async def get_card(self, deck_id: DeckID | str, card_id: str) -> Card:
+        """
+        获取卡片
+
+        :param DeckID | str deck_id: 卡组ID
+        :param str card_id: 卡片ID
+        :return Card: 卡片
+        """
+        async with self._session() as session:
+            response = await session.get(
+                f"{_DECK_ROUTE}/{deck_id}/{_CARD_ROUTE}/{card_id}"
+            )
+            if response.status != 200:
+                raise FileNotFoundError(
+                    f"获取卡片失败: {response}{await response.text()}"
+                )
+            data: dict = await response.json()
+
+        return Card.from_dict(data["data"]["card"])
+
+    async def list_cards(
+        self, deck_id: DeckID | str, chapter_id: ChapterID | str
+    ) -> Sequence[Card]:
+        """
+        获取章节的所有卡片
+
+        :param DeckID | str deck_id: 卡组ID
+        :param ChapterID | str chapter_id: 章节ID
+        :return Sequence[Card]: 卡片列表
+        """
+        chapter = await self.get_chapter(deck_id, chapter_id)
+        if len(chapter.card_ids) == 0:
+            return []
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{_DECK_ROUTE}/{deck_id}/{_CARD_ROUTE}/{_QUERY_ROUTE}",
+                json=_ListCardsForm(chapter.card_ids).to_dict(),
+            )
+            if response.status != 200:
+                raise Exception(f"获取卡片列表失败: {response}{await response.text()}")
+            data: dict = await response.json()
+            cards = []
+            for card in data["data"]["cards"]:
+                card = Card.from_dict(card)
+                cards.append(card)
+
+        return cards
+
+    async def new_card(
+        self,
+        deck_id: DeckID | str,
+        chapter_id: ChapterID | str,
+        content: str,
+        grammar_version: int = 3,
+    ) -> Card:
+        """
+        创建卡片
+        卡片内容长度必须在 1 到 2500 个字符之间
+
+        :param DeckID | str deck_id: 卡组ID
+        :param ChapterID | str chapter_id: 章节ID
+        :param str content: 卡片内容
+        :param int grammar_version: 语法版本
+        :return Card: 创建的卡片
+        """
+        if len(content) < 1 or len(content) > 2500:
+            raise ValueError("卡片内容必须在 1 到 2500 个字符之间")
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}/{chapter_id}/{_CARD_ROUTE}",
+                json=_NewCardForm(
+                    len(await self.list_cards(deck_id, chapter_id)),
+                    _ContentInfo(content, grammar_version),
+                ).to_dict(),
+            )
+            if response.status != 200:
+                raise Exception(f"创建卡片失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return Card.from_dict(data["data"]["card"])
+
+    async def delete_card(
+        self, chapter_id: ChapterID | str, deck_id: DeckID | str, card_id: str
+    ) -> Chapter:
+        """
+        删除卡片
+
+        :param DeckID | str
+        :param str card_id: 卡片ID
+        :return Chapter: 删除后的章节
+        """
+        async with self._session() as session:
+            response = await session.delete(
+                f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}/{chapter_id}/{_CARD_ROUTE}/{card_id}"
+            )
+            if response.status != 200:
+                raise FileNotFoundError(
+                    f"删除卡片失败: {response}{await response.text()}"
+                )
+            data: dict = await response.json()
+
+        return Chapter.from_dict(data["data"]["chapter"])
+
+    async def edit_card(
+        self,
+        deck_id: DeckID | str,
+        card_id: str,
+        content: str,
+        grammar_version: int = 3,
+    ) -> Card:
+        """
+        编辑卡片
+        卡片内容长度必须在 1 到 2500 个字符之间
+
+        :param DeckID | str deck_id: 卡组ID
+        :param str card_id: 卡片ID
+        :param str content: 卡片内容
+        :param int grammar_version: 语法版本
+        :return Card: 编辑后的卡片
+        """
+        if len(content) < 1 or len(content) > 2500:
+            raise ValueError("卡片内容必须在 1 到 2500 个字符之间")
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{_DECK_ROUTE}/{deck_id}/{_CARD_ROUTE}/{card_id}",
+                json=_EditCardForm(_ContentInfo(content, grammar_version)).to_dict(),
+            )
+            if response.status != 200:
+                raise Exception(f"编辑卡片失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return Card.from_dict(data["data"]["card"])
+
+    async def sort_cards(
+        self,
+        deck_id: DeckID | str,
+        chapter_id: ChapterID | str,
+        card_ids: Sequence[CardID | str],
+    ) -> Chapter:
+        """
+        排序卡片
+
+        :param DeckID | str deck_id: 卡组ID
+        :param ChapterID | str chapter_id: 章节ID
+        :param Sequence[str] card_ids: 排序后的卡片ID列表
+        :return Chapter: 排序后的章节
+        """
+        chapter = await self.get_chapter(deck_id, chapter_id)
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}/{chapter_id}/{_CARD_ROUTE}/{_SORT_ROUTE}",
+                json=_SortCardsForm(card_ids, chapter.revision).to_dict(),
+            )
+            if response.status != 200:
+                raise Exception(f"排序卡片失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return Chapter.from_dict(data["data"]["chapter"])
+
+    async def move_cards(
+        self,
+        deck_id: DeckID | str,
+        chapter_id_from: ChapterID | str,
+        chapter_id_to: ChapterID | str,
+        card_ids: Sequence[CardID | str],
+        order: int | None = None,
+    ) -> ChapterDiff:
+        """
+        移动卡片
+
+        :param DeckID | str deck_id: 卡组ID
+        :param ChapterID | str chapter_id: 章节ID
+        :param CardID | str card_id: 卡片ID
+        :param ChapterID | str new_chapter_id: 新章节ID
+        :return ChapterDiff: 章节变化
+        """
+        if order is None:
+            order = len(await self.list_cards(deck_id, chapter_id_to))
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}/{chapter_id_from}/{_CARD_ROUTE}/{_MOVE_ROUTE}",
+                json=_MoveCardsForm(chapter_id_to, order, card_ids).to_dict(),
+            )
+            if response.status != 200:
+                raise Exception(f"移动卡片失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return ChapterDiff.from_dict(data["data"])

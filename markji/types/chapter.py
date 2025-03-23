@@ -59,3 +59,16 @@ class ChapterSet(DataClassJsonMixin):
     is_modified: bool
     created_time: Datetime = Datetime._field()
     updated_time: Datetime = Datetime._field()
+
+
+@dataclass
+class ChapterDiff(DataClassJsonMixin):
+    """
+    章节变化
+
+    :param Chapter new_chapter: 新章节
+    :param Chapter old_chapter: 旧章节
+    """
+
+    new_chapter: Chapter
+    old_chapter: Chapter

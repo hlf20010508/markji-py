@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin, config
 from typing import Sequence
 from markji.types import (
+    CardID,
     Datetime,
     ChapterID,
     DeckID,
@@ -92,3 +93,38 @@ class _RenameChapterForm(DataClassJsonMixin):
 class _SortChaptersForm(DataClassJsonMixin):
     chapter_ids: Sequence[ChapterID | str]
     revision: int
+
+
+@dataclass
+class _ContentInfo(DataClassJsonMixin):
+    content: str
+    grammar_version: int
+
+
+@dataclass
+class _NewCardForm(DataClassJsonMixin):
+    order: int
+    card: _ContentInfo
+
+
+@dataclass
+class _ListCardsForm(DataClassJsonMixin):
+    card_ids: Sequence[CardID]
+
+
+@dataclass
+class _EditCardForm(DataClassJsonMixin):
+    card: _ContentInfo
+
+
+@dataclass
+class _SortCardsForm(DataClassJsonMixin):
+    card_ids: Sequence[CardID | str]
+    revision: int
+
+
+@dataclass
+class _MoveCardsForm(DataClassJsonMixin):
+    to_chapter_id: ChapterID | str
+    order: int
+    card_ids: Sequence[CardID | str]
