@@ -5,14 +5,14 @@
 :license: MIT, see LICENSE for more details.
 """
 
-from __future__ import annotations
 from dataclasses import dataclass
-from typing import Sequence, Type, cast
+from dataclasses_json import DataClassJsonMixin
+from typing import Sequence
 from markji.types import _Datetime, UserGender, UserID, UserLevel, UserOAuth
 
 
 @dataclass
-class Profile:
+class Profile(DataClassJsonMixin):
     """
     Profile 用户信息
 
@@ -45,56 +45,8 @@ class Profile:
     gender: UserGender
     city: str
     school: str
-    birthday: _Datetime
     description: str
     constellation: str
     alipay_oauth: dict
     id: UserID
-
-    @classmethod
-    def _from_json(cls: Type[Profile], data: dict) -> Profile:
-        """
-        从 JSON 数据创建 Profile 对象
-
-        :param data: JSON 数据
-        :return: Profile
-        """
-
-        nickname = cast(str, data.get("nickname"))
-        avatar = cast(str, data.get("avatar"))
-        level = cast(UserLevel, UserLevel._from_json(cast(dict, data.get("level"))))
-        email = cast(str, data.get("email"))
-        email_verified = cast(bool, data.get("email_verified"))
-        phone = cast(str, data.get("phone"))
-        phone_verified = cast(bool, data.get("phone_verified"))
-        oauths = [
-            cast(UserOAuth, UserOAuth._from_json(oauth))
-            for oauth in cast(Sequence, data.get("oauths"))
-        ]
-        gender = UserGender(data.get("gender"))
-        city = cast(str, data.get("city"))
-        school = cast(str, data.get("school"))
-        birthday = _Datetime.fromisoformat(cast(str, data.get("birthday")))
-        description = cast(str, data.get("description"))
-        constellation = cast(str, data.get("constellation"))
-        alipay_oauth = cast(dict, data.get("alipay_oauth"))
-        id = cast(UserID, data.get("id"))
-
-        return cls(
-            nickname=nickname,
-            avatar=avatar,
-            level=level,
-            email=email,
-            email_verified=email_verified,
-            phone=phone,
-            phone_verified=phone_verified,
-            oauths=oauths,
-            gender=gender,
-            city=city,
-            school=school,
-            birthday=birthday,
-            description=description,
-            constellation=constellation,
-            alipay_oauth=alipay_oauth,
-            id=id,
-        )
+    birthday: _Datetime = _Datetime._field()

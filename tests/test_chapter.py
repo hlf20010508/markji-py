@@ -174,7 +174,7 @@ class TestChapter(AsyncTestCase):
         chapter_ids.extend(default_chapter_ids)
         chapter_set = await client.sort_chapters(deck.id, chapter_ids)
 
-        self.assertEqual(chapter_set.chapter_ids, chapter_ids)
+        self.assertListEqual(list(chapter_set.chapter_ids), chapter_ids)
 
         await client.delete_deck(deck.id)
         await client.delete_folder(folder.id)

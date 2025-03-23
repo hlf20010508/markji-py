@@ -7,11 +7,28 @@
 
 from typing import Sequence
 from aiohttp import ClientSession
+from markji._const import (
+    _API_URL,
+    _CHAPTER_ROUTE,
+    _DECK_ROUTE,
+    _FOLDER_ROUTE,
+    _PROFILE_ROUTE,
+    _SORT_ROUTE,
+)
+from markji.types._form import (
+    _NewChapterForm,
+    _NewDeckForm,
+    _NewFolderForm,
+    _RenameChapterForm,
+    _RenameFolderForm,
+    _SortChaptersForm,
+    _SortFoldersForm,
+    _UpdateDeckInfoForm,
+)
+from markji.types import ChapterID, DeckID, FolderID
 from markji.types.chapter import Chapter, ChapterSet
-from markji.const import API_URL, DECK_URL, FOLDER_URL, PROFILE_URL
 from markji.types.deck import Deck
 from markji.types.folder import Folder, RootFolder
-from markji.types import ChapterID, DeckID, FolderID
 from markji.types.profile import Profile
 
 
@@ -37,19 +54,19 @@ class Markji:
         self._token = token
 
     def _session(self):
-        return ClientSession(base_url=API_URL, headers={"token": self._token})
+        return ClientSession(base_url=_API_URL, headers={"token": self._token})
 
     async def get_profile(self) -> Profile:
         """
         获取用户信息
         """
         async with self._session() as session:
-            response = await session.get(PROFILE_URL)
+            response = await session.get(_PROFILE_ROUTE)
             if response.status != 200:
                 raise Exception(f"获取用户信息失败: {response}{await response.text()}")
             data: dict = await response.json()
 
-        return Profile._from_json(data["data"]["user"])
+        return Profile.from_dict(data["data"]["user"])
 
     async def get_folder(self, folder_id: FolderID | str) -> Folder:
         """
@@ -59,14 +76,14 @@ class Markji:
         :return: Folder
         """
         async with self._session() as session:
-            response = await session.get(f"{FOLDER_URL}/{folder_id}")
+            response = await session.get(f"{_FOLDER_ROUTE}/{folder_id}")
             if response.status != 200:
                 raise FileNotFoundError(
                     f"获取文件夹失败: {response}{await response.text()}"
                 )
             data: dict = await response.json()
 
-        return Folder._from_json(data["data"]["folder"])
+        return Folder.from_dict(data["data"]["folder"])
 
     async def get_root_folder(self) -> RootFolder:
         """
@@ -75,13 +92,13 @@ class Markji:
         :return: RootFolder
         """
         async with self._session() as session:
-            response = await session.get(FOLDER_URL)
+            response = await session.get(_FOLDER_ROUTE)
             if response.status != 200:
                 raise Exception(f"获取根文件夹失败: {response}{await response.text()}")
             data: dict = await response.json()
             for folder in data["data"]["folders"]:
                 if "parent_id" not in folder:
-                    return RootFolder._from_json(folder)
+                    return RootFolder.from_dict(folder)
 
         raise FileNotFoundError("未找到根文件夹")
 
@@ -92,7 +109,7 @@ class Markji:
         :return: Sequence[Folder]
         """
         async with self._session() as session:
-            response = await session.get(FOLDER_URL)
+            response = await session.get(_FOLDER_ROUTE)
             if response.status != 200:
                 raise Exception(
                     f"获取文件夹列表失败: {response}{await response.text()}"
@@ -103,7 +120,7 @@ class Markji:
                 # bypass root folder
                 if "parent_id" not in folder:
                     continue
-                folder = Folder._from_json(folder)
+                folder = Folder.from_dict(folder)
                 folders.append(folder)
 
         return folders
@@ -121,14 +138,14 @@ class Markji:
 
         async with self._session() as session:
             response = await session.post(
-                FOLDER_URL,
-                json={"name": name, "order": len(await self.list_folders())},
+                _FOLDER_ROUTE,
+                json=_NewFolderForm(name, len(await self.list_folders())).to_dict(),
             )
             if response.status != 200:
                 raise Exception(f"创建文件夹失败: {response}{await response.text()}")
             data: dict = await response.json()
 
-        return Folder._from_json(data["data"]["folder"])
+        return Folder.from_dict(data["data"]["folder"])
 
     async def delete_folder(self, folder_id: FolderID | str):
         """
@@ -137,7 +154,7 @@ class Markji:
         :param folder_id: 文件夹ID
         """
         async with self._session() as session:
-            response = await session.delete(f"{FOLDER_URL}/{folder_id}")
+            response = await session.delete(f"{_FOLDER_ROUTE}/{folder_id}")
             if response.status != 200:
                 raise Exception(f"删除文件夹失败: {response}{await response.text()}")
 
@@ -155,14 +172,14 @@ class Markji:
 
         async with self._session() as session:
             response = await session.post(
-                f"{FOLDER_URL}/{folder_id}",
-                json={"name": name},
+                f"{_FOLDER_ROUTE}/{folder_id}",
+                json=_RenameFolderForm(name).to_dict(),
             )
             if response.status != 200:
                 raise Exception(f"重命名文件夹失败: {response}{await response.text()}")
             data: dict = await response.json()
 
-        return Folder._from_json(data["data"]["folder"])
+        return Folder.from_dict(data["data"]["folder"])
 
     async def sort_folders(self, folder_ids: Sequence[FolderID | str]) -> RootFolder:
         """
@@ -175,19 +192,14 @@ class Markji:
 
         async with self._session() as session:
             response = await session.post(
-                f"{FOLDER_URL}/{root_folder.id}/sort",
-                json={
-                    "items": [
-                        {"object_id": i, "object_class": "FOLDER"} for i in folder_ids
-                    ],
-                    "updated_time": root_folder.updated_time._to_str(),
-                },
+                f"{_FOLDER_ROUTE}/{root_folder.id}/{_SORT_ROUTE}",
+                json=_SortFoldersForm(folder_ids, root_folder.updated_time).to_dict(),
             )
             if response.status != 200:
                 raise Exception(f"排序文件夹失败: {response}{await response.text()}")
             data: dict = await response.json()
 
-        return RootFolder._from_json(data["data"]["folder"])
+        return RootFolder.from_dict(data["data"]["folder"])
 
     async def get_deck(self, deck_id: str) -> Deck:
         """
@@ -197,14 +209,14 @@ class Markji:
         :return: Deck
         """
         async with self._session() as session:
-            response = await session.get(f"{DECK_URL}/{deck_id}")
+            response = await session.get(f"{_DECK_ROUTE}/{deck_id}")
             if response.status != 200:
                 raise FileNotFoundError(
                     f"获取卡组失败: {response}{await response.text()}"
                 )
             data: dict = await response.json()
 
-        return Deck._from_json(data["data"]["deck"])
+        return Deck.from_dict(data["data"]["deck"])
 
     async def list_decks(self, folder_id: FolderID | str) -> Sequence[Deck]:
         """
@@ -214,13 +226,13 @@ class Markji:
         :return: Sequence[Deck]
         """
         async with self._session() as session:
-            response = await session.get(DECK_URL, params={"folder_id": folder_id})
+            response = await session.get(_DECK_ROUTE, params={"folder_id": folder_id})
             if response.status != 200:
                 raise Exception(f"获取卡组列表失败: {response}{await response.text()}")
             data: dict = await response.json()
             decks = []
             for deck in data["data"]["decks"]:
-                deck = Deck._from_json(deck)
+                deck = Deck.from_dict(deck)
                 decks.append(deck)
 
         return decks
@@ -247,19 +259,14 @@ class Markji:
 
         async with self._session() as session:
             response = await session.post(
-                DECK_URL,
-                json={
-                    "name": name,
-                    "description": description,
-                    "is_private": is_private,
-                    "folder_id": folder_id,
-                },
+                _DECK_ROUTE,
+                json=_NewDeckForm(name, description, is_private, folder_id).to_dict(),
             )
             if response.status != 200:
                 raise Exception(f"创建卡组失败: {response}{await response.text()}")
             data: dict = await response.json()
 
-        return Deck._from_json(data["data"]["deck"])
+        return Deck.from_dict(data["data"]["deck"])
 
     async def delete_deck(self, deck_id: DeckID | str):
         """
@@ -268,7 +275,7 @@ class Markji:
         :param deck_id: 卡组ID
         """
         async with self._session() as session:
-            response = await session.delete(f"{DECK_URL}/{deck_id}")
+            response = await session.delete(f"{_DECK_ROUTE}/{deck_id}")
             if response.status != 200:
                 raise Exception(f"删除卡组失败: {response}{await response.text()}")
 
@@ -290,17 +297,13 @@ class Markji:
 
         async with self._session() as session:
             response = await session.post(
-                f"{DECK_URL}/{deck_id}",
-                json={
-                    "name": name,
-                    "description": description,
-                    "is_private": is_private,
-                },
+                f"{_DECK_ROUTE}/{deck_id}",
+                json=_UpdateDeckInfoForm(name, description, is_private).to_dict(),
             )
             if response.status != 200:
                 raise Exception(f"更新卡组信息失败: {response}{await response.text()}")
             data: dict = await response.json()
-            deck = Deck._from_json(data["data"]["deck"])
+            deck = Deck.from_dict(data["data"]["deck"])
 
         return deck
 
@@ -368,14 +371,16 @@ class Markji:
         :return: Chapter
         """
         async with self._session() as session:
-            response = await session.get(f"{DECK_URL}/{deck_id}/chapters/{chapter_id}")
+            response = await session.get(
+                f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}/{chapter_id}"
+            )
             if response.status != 200:
                 raise FileNotFoundError(
                     f"获取章节失败: {response}{await response.text()}"
                 )
             data: dict = await response.json()
 
-        return Chapter._from_json(data["data"]["chapter"])
+        return Chapter.from_dict(data["data"]["chapter"])
 
     async def get_chapter_set(self, deck_id: DeckID | str) -> ChapterSet:
         """
@@ -385,14 +390,14 @@ class Markji:
         :return: ChapterSet
         """
         async with self._session() as session:
-            response = await session.get(f"{DECK_URL}/{deck_id}/chapters")
+            response = await session.get(f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}")
             if response.status != 200:
                 raise FileNotFoundError(
                     f"获取章节集合失败: {response}{await response.text()}"
                 )
             data: dict = await response.json()
 
-        return ChapterSet._from_json(data["data"]["chapterset"])
+        return ChapterSet.from_dict(data["data"]["chapterset"])
 
     async def list_chapters(self, deck_id: DeckID | str) -> Sequence[Chapter]:
         """
@@ -402,13 +407,13 @@ class Markji:
         :return: Sequence[Chapter]
         """
         async with self._session() as session:
-            response = await session.get(f"{DECK_URL}/{deck_id}/chapters")
+            response = await session.get(f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}")
             if response.status != 200:
                 raise Exception(f"获取章节列表失败: {response}{await response.text()}")
             data: dict = await response.json()
             chapters = []
             for chapter in data["data"]["chapters"]:
-                chapter = Chapter._from_json(chapter)
+                chapter = Chapter.from_dict(chapter)
                 chapters.append(chapter)
 
         return chapters
@@ -427,17 +432,16 @@ class Markji:
 
         async with self._session() as session:
             response = await session.post(
-                f"{DECK_URL}/{deck_id}/chapters",
-                json={
-                    "name": name,
-                    "order": len(await self.list_chapters(deck_id)),
-                },
+                f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}",
+                json=_NewChapterForm(
+                    name, len(await self.list_chapters(deck_id))
+                ).to_dict(),
             )
             if response.status != 200:
                 raise Exception(f"创建章节失败: {response}{await response.text()}")
             data: dict = await response.json()
 
-        return Chapter._from_json(data["data"]["chapter"])
+        return Chapter.from_dict(data["data"]["chapter"])
 
     async def delete_chapter(self, deck_id: DeckID | str, chapter_id: ChapterID | str):
         """
@@ -448,7 +452,7 @@ class Markji:
         """
         async with self._session() as session:
             response = await session.delete(
-                f"{DECK_URL}/{deck_id}/chapters/{chapter_id}"
+                f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}/{chapter_id}"
             )
             if response.status != 200:
                 raise Exception(f"删除章节失败: {response}{await response.text()}")
@@ -470,14 +474,14 @@ class Markji:
 
         async with self._session() as session:
             response = await session.post(
-                f"{DECK_URL}/{deck_id}/chapters/{chapter_id}",
-                json={"name": name},
+                f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}/{chapter_id}",
+                json=_RenameChapterForm(name).to_dict(),
             )
             if response.status != 200:
                 raise Exception(f"重命名章节失败: {response}{await response.text()}")
             data: dict = await response.json()
 
-        return Chapter._from_json(data["data"]["chapter"])
+        return Chapter.from_dict(data["data"]["chapter"])
 
     async def sort_chapters(
         self, deck_id: DeckID | str, chapter_ids: Sequence[ChapterID | str]
@@ -492,11 +496,11 @@ class Markji:
         chapter_set = await self.get_chapter_set(deck_id)
         async with self._session() as session:
             response = await session.post(
-                f"{DECK_URL}/{deck_id}/chapters/sort",
-                json={"chapter_ids": chapter_ids, "revision": chapter_set.revision},
+                f"{_DECK_ROUTE}/{deck_id}/{_CHAPTER_ROUTE}/{_SORT_ROUTE}",
+                json=_SortChaptersForm(chapter_ids, chapter_set.revision).to_dict(),
             )
             if response.status != 200:
                 raise Exception(f"排序章节失败: {response}{await response.text()}")
             data: dict = await response.json()
 
-        return ChapterSet._from_json(data["data"]["chapterset"])
+        return ChapterSet.from_dict(data["data"]["chapterset"])

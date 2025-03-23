@@ -6,7 +6,8 @@
 """
 
 from aiohttp import ClientSession
-from markji.const import API_URL, LOGIN_URL
+from markji._const import _API_URL, _LOGIN_ROUTE
+from markji.types._form import _LoginForm
 
 
 class Auth:
@@ -37,14 +38,10 @@ class Auth:
 
         :return: str
         """
-        async with ClientSession(base_url=API_URL) as session:
+        async with ClientSession(base_url=_API_URL) as session:
             response = await session.post(
-                LOGIN_URL,
-                json={
-                    "identity": self._username,
-                    "password": self._password,
-                    "nuencrypt_fields": ["password"],
-                },
+                _LOGIN_ROUTE,
+                json=_LoginForm(self._username, self._password).to_dict(),
             )
             if response.status != 200:
                 raise Exception(f"登陆失败: {response}{await response.text()}")

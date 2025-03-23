@@ -5,9 +5,9 @@
 :license: MIT, see LICENSE for more details.
 """
 
-from __future__ import annotations
 from dataclasses import dataclass
-from typing import Sequence, Type, cast
+from dataclasses_json import DataClassJsonMixin
+from typing import Sequence
 from markji.types import (
     _Datetime,
     DeckAccessSetting,
@@ -20,7 +20,7 @@ from markji.types import (
 
 
 @dataclass
-class Deck:
+class Deck(DataClassJsonMixin):
     """
     Deck 卡组
 
@@ -64,67 +64,9 @@ class Deck:
     card_count: int
     card_price: int
     chapter_count: int
-    created_time: _Datetime
-    updated_time: _Datetime
     tags: Sequence
-    is_anki: bool | None
-    root_creator: UserBrief | None
-    access_setting: DeckAccessSetting | None
-
-    @classmethod
-    def _from_json(cls: Type[Deck], data: dict) -> Deck:
-        """
-        从 JSON 数据创建 Deck 对象
-
-        :param data: JSON 数据
-        :return: Deck 对象
-        """
-        id = cast(DeckID, data.get("id"))
-        source = DeckSource(data.get("source"))
-        creator = cast(UserID, data.get("creator"))
-        status = Status(data.get("status"))
-        name = cast(str, data.get("name"))
-        authors = [author for author in cast(Sequence[UserID], data.get("authors"))]
-        description = cast(str, data.get("description"))
-        is_modified = cast(bool, data.get("is_modified"))
-        is_private = cast(bool, data.get("is_private"))
-        is_searchable = cast(bool, data.get("is_searchable"))
-        is_semantic_learning = cast(bool, data.get("is_semantic_learning"))
-        like_count = cast(int, data.get("like_count"))
-        revision = cast(int, data.get("revision"))
-        card_count = cast(int, data.get("card_count"))
-        card_price = cast(int, data.get("card_price"))
-        chapter_count = cast(int, data.get("chapter_count"))
-        created_time = _Datetime.fromisoformat(cast(str, data.get("created_time")))
-        updated_time = _Datetime.fromisoformat(cast(str, data.get("updated_time")))
-        tags = cast(Sequence, data.get("tags"))
-        is_anki = cast(bool | None, data.get("is_anki"))
-        root_creator = UserBrief._from_json(cast(dict, data.get("root_creator")))
-        access_setting = DeckAccessSetting._from_json(
-            cast(dict, data.get("access_setting"))
-        )
-
-        return cls(
-            id=id,
-            source=source,
-            creator=creator,
-            status=status,
-            name=name,
-            authors=authors,
-            description=description,
-            is_modified=is_modified,
-            is_private=is_private,
-            is_searchable=is_searchable,
-            is_semantic_learning=is_semantic_learning,
-            like_count=like_count,
-            revision=revision,
-            card_count=card_count,
-            card_price=card_price,
-            chapter_count=chapter_count,
-            created_time=created_time,
-            updated_time=updated_time,
-            tags=tags,
-            is_anki=is_anki,
-            root_creator=root_creator,
-            access_setting=access_setting,
-        )
+    created_time: _Datetime = _Datetime._field()
+    updated_time: _Datetime = _Datetime._field()
+    is_anki: bool | None = None
+    root_creator: UserBrief | None = None
+    access_setting: DeckAccessSetting | None = None

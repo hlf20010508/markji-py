@@ -5,9 +5,9 @@
 :license: MIT, see LICENSE for more details.
 """
 
-from __future__ import annotations
 from dataclasses import dataclass
-from typing import Sequence, Type, cast
+from dataclasses_json import DataClassJsonMixin
+from typing import Sequence
 from markji.types import (
     _Datetime,
     CardID,
@@ -21,7 +21,7 @@ from markji.types import (
 
 
 @dataclass
-class Card:
+class Card(DataClassJsonMixin):
     """
     Card 卡片
 
@@ -54,45 +54,6 @@ class Card:
     revision: int
     grammar_version: int
     source: DeckSource
-    created_time: _Datetime
-    updated_time: _Datetime
     card_rids: Sequence[CardRootID]
-
-    @classmethod
-    def _from_json(cls: Type[Card], data: dict) -> Card:
-        id = cast(CardID, data.get("id"))
-        content = cast(str, data.get("content"))
-        content_type = cast(int, data.get("content_type"))
-        status = Status(data.get("status"))
-        creator = cast(UserID, data.get("creator"))
-        deck_id = cast(DeckID, data.get("deck_id"))
-        root_id = cast(CardRootID, data.get("root_id"))
-        files = [
-            cast(File, File._from_json(file))
-            for file in cast(Sequence, data.get("files"))
-        ]
-        is_modified = cast(bool, data.get("is_modified"))
-        revision = cast(int, data.get("revision"))
-        grammar_version = cast(int, data.get("grammar_version"))
-        source = DeckSource(data.get("source"))
-        created_time = _Datetime.fromisoformat(cast(str, data.get("created_time")))
-        updated_time = _Datetime.fromisoformat(cast(str, data.get("updated_time")))
-        card_rids = cast(Sequence[CardRootID], data.get("card_rids"))
-
-        return cls(
-            id=id,
-            content=content,
-            content_type=content_type,
-            status=status,
-            creator=creator,
-            deck_id=deck_id,
-            root_id=root_id,
-            files=files,
-            is_modified=is_modified,
-            revision=revision,
-            grammar_version=grammar_version,
-            source=source,
-            created_time=created_time,
-            updated_time=updated_time,
-            card_rids=card_rids,
-        )
+    created_time: _Datetime = _Datetime._field()
+    updated_time: _Datetime = _Datetime._field()

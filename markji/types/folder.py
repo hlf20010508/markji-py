@@ -5,14 +5,14 @@
 :license: MIT, see LICENSE for more details.
 """
 
-from __future__ import annotations
 from dataclasses import dataclass
-from typing import Sequence, Type, cast
+from dataclasses_json import DataClassJsonMixin
+from typing import Sequence
 from markji.types import _Datetime, UserID, FolderID, Status, FolderItem
 
 
 @dataclass
-class RootFolder:
+class RootFolder(DataClassJsonMixin):
     """
     RootFolder 根文件夹
 
@@ -29,41 +29,12 @@ class RootFolder:
     status: Status
     items: Sequence[FolderItem]
     name: str
-    created_time: _Datetime
-    updated_time: _Datetime
-
-    @classmethod
-    def _from_json(cls: Type[RootFolder], data: dict) -> RootFolder:
-        """
-        从 JSON 数据创建 RootFolder 对象
-
-        :param data: JSON 数据
-        :return: RootFolder 对象
-        """
-        id = cast(FolderID, data.get("id"))
-        creator = cast(UserID, data.get("creator"))
-        status = Status(data.get("status"))
-        items = [
-            cast(FolderItem, FolderItem._from_json(item))
-            for item in cast(Sequence, data.get("items"))
-        ]
-        name = cast(str, data.get("name"))
-        created_time = _Datetime.fromisoformat(cast(str, data.get("created_time")))
-        updated_time = _Datetime.fromisoformat(cast(str, data.get("updated_time")))
-
-        return cls(
-            id=id,
-            creator=creator,
-            status=status,
-            items=items,
-            name=name,
-            created_time=created_time,
-            updated_time=updated_time,
-        )
+    created_time: _Datetime = _Datetime._field()
+    updated_time: _Datetime = _Datetime._field()
 
 
 @dataclass
-class Folder:
+class Folder(DataClassJsonMixin):
     """
     Folder 文件夹
 
@@ -82,36 +53,5 @@ class Folder:
     items: Sequence[FolderItem]
     parent_id: FolderID
     name: str
-    created_time: _Datetime
-    updated_time: _Datetime
-
-    @classmethod
-    def _from_json(cls: Type[Folder], data: dict) -> Folder:
-        """
-        从 JSON 数据创建 Folder 对象
-
-        :param data: JSON 数据
-        :return: Folder 对象
-        """
-        id = cast(FolderID, data.get("id"))
-        creator = cast(UserID, data.get("creator"))
-        status = Status(data.get("status"))
-        items = [
-            cast(FolderItem, FolderItem._from_json(item))
-            for item in cast(Sequence, data.get("items"))
-        ]
-        parent_id = cast(FolderID, data.get("parent_id"))
-        name = cast(str, data.get("name"))
-        created_time = _Datetime.fromisoformat(cast(str, data.get("created_time")))
-        updated_time = _Datetime.fromisoformat(cast(str, data.get("updated_time")))
-
-        return cls(
-            id=id,
-            creator=creator,
-            status=status,
-            items=items,
-            parent_id=parent_id,
-            name=name,
-            created_time=created_time,
-            updated_time=updated_time,
-        )
+    created_time: _Datetime = _Datetime._field()
+    updated_time: _Datetime = _Datetime._field()

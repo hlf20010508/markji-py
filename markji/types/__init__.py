@@ -6,10 +6,11 @@
 """
 
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from dataclasses_json import DataClassJsonMixin, config
 from datetime import datetime
 from enum import StrEnum
-from typing import Sequence, NewType, Type, cast
+from typing import Sequence, NewType, Type
 
 # 8位
 # eg. 20251234
@@ -226,9 +227,16 @@ class _Datetime(datetime):
         # 2025-12-34T12:34:56.789Z
         return self.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
+    @classmethod
+    def _field(cls: Type[_Datetime]):
+        # default serialize and deserialize methods
+        return field(
+            metadata=config(encoder=lambda dt: dt._to_str(), decoder=cls.fromisoformat),
+        )
+
 
 @dataclass
-class UserLevel:
+class UserLevel(DataClassJsonMixin):
     """
     Enum
     用户等级
@@ -240,22 +248,9 @@ class UserLevel:
     level: int
     description: str
 
-    @classmethod
-    def _from_json(cls: Type[UserLevel], data: dict | None) -> UserLevel | None:
-        if data is None:
-            return None
-
-        level = cast(int, data.get("level"))
-        description = cast(str, data.get("level_description"))
-
-        if level or description:
-            return cls(level=level, description=description)
-        else:
-            return None
-
 
 @dataclass
-class UserOAuth:
+class UserOAuth(DataClassJsonMixin):
     """
     用户授权
 
@@ -268,23 +263,9 @@ class UserOAuth:
     appid: str
     username: str
 
-    @classmethod
-    def _from_json(cls: Type[UserOAuth], data: dict | None) -> UserOAuth | None:
-        if data is None:
-            return None
-
-        type = cast(str, data.get("type"))
-        appid = cast(str, data.get("appid"))
-        username = cast(str, data.get("username"))
-
-        if type or appid or username:
-            return cls(type=type, appid=appid, username=username)
-        else:
-            return None
-
 
 @dataclass
-class UserBrief:
+class UserBrief(DataClassJsonMixin):
     """
     用户简要信息
 
@@ -297,23 +278,9 @@ class UserBrief:
     avatar: str
     id: UserID
 
-    @classmethod
-    def _from_json(cls: Type[UserBrief], data: dict | None) -> UserBrief | None:
-        if data is None:
-            return None
-
-        nickname = cast(str, data.get("nickname"))
-        avatar = cast(str, data.get("avatar"))
-        id = cast(UserID, data.get("id"))
-
-        if nickname or avatar or id:
-            return cls(nickname=nickname, avatar=avatar, id=id)
-        else:
-            return None
-
 
 @dataclass
-class FolderItem:
+class FolderItem(DataClassJsonMixin):
     """
     FolderItems 文件夹项目
 
@@ -324,22 +291,9 @@ class FolderItem:
     object_id: str
     object_class: FolderItemObjectClass
 
-    @classmethod
-    def _from_json(cls: Type[FolderItem], data: dict | None) -> FolderItem | None:
-        if data is None:
-            return None
-
-        object_id = cast(str, data.get("object_id"))
-        object_class = FolderItemObjectClass(data.get("object_class"))
-
-        if object_id or object_class:
-            return cls(object_id=object_id, object_class=object_class)
-        else:
-            return None
-
 
 @dataclass
-class DeckAccessSetting:
+class DeckAccessSetting(DataClassJsonMixin):
     """
     卡组访问设置
 
@@ -348,25 +302,9 @@ class DeckAccessSetting:
 
     validation_enabled: bool
 
-    @classmethod
-    def _from_json(
-        cls: Type[DeckAccessSetting], data: dict | None
-    ) -> DeckAccessSetting | None:
-        if data is None:
-            return None
-
-        validation_enabled = cast(bool, data.get("validation_enabled"))
-
-        if validation_enabled:
-            return cls(
-                validation_enabled=validation_enabled,
-            )
-        else:
-            return None
-
 
 @dataclass
-class TTSInfo:
+class TTSInfo(DataClassJsonMixin):
     """
     语音合成信息
 
@@ -377,22 +315,9 @@ class TTSInfo:
     text: str
     locale: LanguageCode
 
-    @classmethod
-    def _from_json(cls: Type[TTSInfo], data: dict | None) -> TTSInfo | None:
-        if data is None:
-            return None
-
-        text = cast(str, data.get("text"))
-        locale = LanguageCode(data.get("locale"))
-
-        if text or locale:
-            return cls(text=text, locale=locale)
-        else:
-            return None
-
 
 @dataclass
-class FileInfo:
+class FileInfo(DataClassJsonMixin):
     """
     文件信息
 
@@ -403,42 +328,15 @@ class FileInfo:
     :param description: 描述 (图片)
     """
 
-    source: FileSource | None
-    content_slices: Sequence[TTSInfo] | None
-    width: int | None
-    height: int | None
-    description: str | None
-
-    @classmethod
-    def _from_json(cls: Type[FileInfo], data: dict | None) -> FileInfo | None:
-        if data is None:
-            return None
-
-        source = data.get("source")
-        if source is not None:
-            source = FileSource(source)
-        content_slices = [
-            cast(TTSInfo, TTSInfo._from_json(tts_info))
-            for tts_info in cast(Sequence, data.get("content_slices", []))
-        ]
-        width = cast(int, data.get("width"))
-        height = cast(int, data.get("height"))
-        description = cast(str, data.get("description"))
-
-        if source or content_slices or width or height or description:
-            return cls(
-                source=source,
-                content_slices=content_slices,
-                width=width,
-                height=height,
-                description=description,
-            )
-        else:
-            return None
+    source: FileSource | None = None
+    content_slices: Sequence[TTSInfo] | None = None
+    width: int | None = None
+    height: int | None = None
+    description: str | None = None
 
 
 @dataclass
-class File:
+class File(DataClassJsonMixin):
     """
     文件
 
@@ -455,25 +353,4 @@ class File:
     mime: FileMIME
     url: str
     id: FileID
-    expire_time: _Datetime
-
-    @classmethod
-    def _from_json(cls: Type[File], data: dict | None) -> File | None:
-        if data is None:
-            return None
-
-        info = cast(FileInfo, FileInfo._from_json(data.get("info")))
-        size = cast(int, data.get("size"))
-        mime = FileMIME(data.get("mime"))
-        url = cast(str, data.get("url"))
-        id = cast(FileID, data.get("id"))
-        expire_time = _Datetime.fromisoformat(cast(str, data.get("expire_time")))
-
-        return cls(
-            info=info,
-            size=size,
-            mime=mime,
-            url=url,
-            id=id,
-            expire_time=expire_time,
-        )
+    expire_time: _Datetime = _Datetime._field()

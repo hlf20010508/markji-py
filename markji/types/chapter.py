@@ -5,14 +5,14 @@
 :license: MIT, see LICENSE for more details.
 """
 
-from __future__ import annotations
 from dataclasses import dataclass
-from typing import Sequence, Type, cast
+from dataclasses_json import DataClassJsonMixin
+from typing import Sequence
 from markji.types import _Datetime, CardID, ChapterID, ChapterSetID, DeckID, UserID
 
 
 @dataclass
-class Chapter:
+class Chapter(DataClassJsonMixin):
     """
     Chapter 章节
 
@@ -34,36 +34,12 @@ class Chapter:
     revision: int
     card_ids: Sequence[CardID]
     is_modified: bool
-    created_time: _Datetime
-    updated_time: _Datetime
-
-    @classmethod
-    def _from_json(cls: Type[Chapter], data: dict) -> Chapter:
-        id = cast(ChapterID, data.get("id"))
-        deck_id = cast(DeckID, data.get("deck_id"))
-        name = cast(str, data.get("name"))
-        creator = cast(UserID, data.get("creator"))
-        revision = cast(int, data.get("revision"))
-        card_ids = cast(Sequence[CardID], data.get("card_ids"))
-        is_modified = cast(bool, data.get("is_modified"))
-        created_time = _Datetime.fromisoformat(cast(str, data.get("created_time")))
-        updated_time = _Datetime.fromisoformat(cast(str, data.get("updated_time")))
-
-        return cls(
-            id=id,
-            deck_id=deck_id,
-            name=name,
-            creator=creator,
-            revision=revision,
-            card_ids=card_ids,
-            is_modified=is_modified,
-            created_time=created_time,
-            updated_time=updated_time,
-        )
+    created_time: _Datetime = _Datetime._field()
+    updated_time: _Datetime = _Datetime._field()
 
 
 @dataclass
-class ChapterSet:
+class ChapterSet(DataClassJsonMixin):
     """
     章节集合
 
@@ -81,28 +57,5 @@ class ChapterSet:
     revision: int
     chapter_ids: Sequence[ChapterID]
     is_modified: bool
-    created_time: _Datetime
-    updated_time: _Datetime
-
-    @classmethod
-    def _from_json(cls: Type[ChapterSet], data: dict) -> ChapterSet:
-        if data is None:
-            return None
-
-        id = cast(ChapterSetID, data.get("id"))
-        deck_id = cast(DeckID, data.get("deck_id"))
-        revision = cast(int, data.get("revision"))
-        chapter_ids = cast(Sequence[ChapterID], data.get("chapter_ids"))
-        is_modified = cast(bool, data.get("is_modified"))
-        created_time = _Datetime.fromisoformat(cast(str, data.get("created_time")))
-        updated_time = _Datetime.fromisoformat(cast(str, data.get("updated_time")))
-
-        return cls(
-            id=id,
-            deck_id=deck_id,
-            revision=revision,
-            chapter_ids=chapter_ids,
-            is_modified=is_modified,
-            created_time=created_time,
-            updated_time=updated_time,
-        )
+    created_time: _Datetime = _Datetime._field()
+    updated_time: _Datetime = _Datetime._field()
