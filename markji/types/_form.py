@@ -11,6 +11,7 @@ from typing import Sequence
 from markji.types import (
     _Datetime,
     ChapterID,
+    DeckID,
     FolderID,
     FolderItem,
     FolderItemObjectClass,
@@ -62,6 +63,18 @@ class _UpdateDeckInfoForm(DataClassJsonMixin):
     name: str
     description: str
     is_private: bool
+
+
+@dataclass
+class _SortDecksForm(DataClassJsonMixin):
+    items: Sequence[DeckID | str] = field(
+        metadata=config(
+            encoder=lambda ids: [
+                FolderItem(i, FolderItemObjectClass.DECK).to_dict() for i in ids
+            ]
+        ),
+    )
+    updated_time: _Datetime = _Datetime._field()
 
 
 @dataclass

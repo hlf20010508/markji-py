@@ -22,6 +22,7 @@ from markji.types._form import (
     _RenameChapterForm,
     _RenameFolderForm,
     _SortChaptersForm,
+    _SortDecksForm,
     _SortFoldersForm,
     _UpdateDeckInfoForm,
 )
@@ -359,6 +360,29 @@ class Markji:
         )
 
         return deck
+
+    async def sort_decks(
+        self, folder_id: FolderID | str, deck_ids: Sequence[DeckID | str]
+    ) -> Folder:
+        """
+        排序卡组
+
+        :param folder_id: 文件夹ID
+        :param deck_ids: 排序后的卡组ID列表
+        :return: Folder
+        """
+        folder = await self.get_folder(folder_id)
+
+        async with self._session() as session:
+            response = await session.post(
+                f"{_FOLDER_ROUTE}/{folder_id}/{_SORT_ROUTE}",
+                json=_SortDecksForm(deck_ids, folder.updated_time).to_dict(),
+            )
+            if response.status != 200:
+                raise Exception(f"排序卡组失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return Folder.from_dict(data["data"]["folder"])
 
     async def get_chapter(
         self, deck_id: DeckID | str, chapter_id: ChapterID | str

@@ -183,6 +183,28 @@ class TestDeck(AsyncTestCase):
         await client.delete_deck(deck.id)
         await client.delete_folder(folder.id)
 
+    async def test_sort(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        folder_name = "t_folder"
+        folder = await client.new_folder(folder_name)
+
+        deck_name1 = "t_deck1"
+        deck1 = await client.new_deck(folder.id, deck_name1)
+        deck_name2 = "t_deck2"
+        deck2 = await client.new_deck(folder.id, deck_name2)
+
+        deck_ids = [deck2.id, deck1.id]
+        folder = await client.sort_decks(folder.id, deck_ids)
+
+        self.assertEqual([i.object_id for i in folder.items], deck_ids)
+
+        await client.delete_deck(deck1.id)
+        await client.delete_deck(deck2.id)
+        await client.delete_folder(folder.id)
+
 
 if __name__ == "__main__":
     unittest.main()
