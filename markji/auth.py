@@ -1,9 +1,7 @@
-"""
-:project: markji-py
-:author: L-ING
-:copyright: (C) 2025 L-ING <hlf01@icloud.com>
-:license: MIT, see LICENSE for more details.
-"""
+# :project: markji-py
+# :author: L-ING
+# :copyright: (C) 2025 L-ING <hlf01@icloud.com>
+# :license: MIT, see LICENSE for more details.
 
 from aiohttp import ClientSession
 from markji._const import _API_URL, _LOGIN_ROUTE
@@ -14,8 +12,8 @@ class Auth:
     """
     Auth 认证登陆
 
-    .. Example::
     .. code-block:: python
+
         from markji.auth import Auth
 
         auth = Auth("username", "password")
@@ -35,9 +33,11 @@ class Auth:
     async def login(self) -> str:
         """
         登陆
+
         获取用户token
 
-        :return str: 用户token
+        :return: 用户token
+        :rtype: str
         """
         async with ClientSession(base_url=_API_URL) as session:
             response = await session.post(

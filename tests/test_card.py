@@ -1,9 +1,7 @@
-"""
-:project: markji-py
-:author: L-ING
-:copyright: (C) 2025 L-ING <hlf01@icloud.com>
-:license: MIT, see LICENSE for more details.
-"""
+# :project: markji-py
+# :author: L-ING
+# :copyright: (C) 2025 L-ING <hlf01@icloud.com>
+# :license: MIT, see LICENSE for more details.
 
 import unittest
 from markji.types import card, chapter
