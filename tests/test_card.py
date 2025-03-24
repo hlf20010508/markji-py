@@ -4,7 +4,6 @@
 # :license: MIT, see LICENSE for more details.
 
 import unittest
-from markji.types import card, chapter
 from tests import AsyncTestCase, ENV
 from markji import Markji
 from markji.auth import Auth

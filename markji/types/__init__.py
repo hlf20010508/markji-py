@@ -351,6 +351,14 @@ class Datetime(datetime):
             metadata=config(encoder=lambda dt: dt._to_str(), decoder=cls.fromisoformat),
         )
 
+    @classmethod
+    def _metadata(cls: Type[Datetime]):
+        # default serialize and deserialize methods
+        # used when a class is inherited from another class that has a member of this type
+        # and called _field() to define default serialize and deserialize methods, which
+        # cause `Fields without default values cannot appear after fields with default values`
+        return config(encoder=lambda dt: dt._to_str(), decoder=cls.fromisoformat)
+
 
 @dataclass
 class UserLevel(DataClassJsonMixin):

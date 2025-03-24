@@ -4,7 +4,6 @@
 # :license: MIT, see LICENSE for more details.
 
 import unittest
-from markji.types import deck
 from tests import AsyncTestCase, ENV
 from markji import Markji
 from markji.auth import Auth
@@ -234,6 +233,29 @@ class TestDeck(AsyncTestCase):
         await client.delete_deck(deck3.id)
         await client.delete_folder(folder1.id)
         await client.delete_folder(folder2.id)
+
+    async def test_search(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        decks, num = await client.search_decks("english")
+
+        self.assertTrue(num > len(decks))
+        self.assertEqual(len(decks), 10)
+
+        with self.assertRaises(ValueError):
+            await client.search_decks("")
+        with self.assertRaises(ValueError):
+            await client.search_decks("_" * 8001)
+        with self.assertRaises(ValueError):
+            await client.search_decks("english", offset=-1)
+        with self.assertRaises(ValueError):
+            await client.search_decks("english", offset=1001)
+        with self.assertRaises(ValueError):
+            await client.search_decks("english", limit=0)
+        with self.assertRaises(ValueError):
+            await client.search_decks("english", limit=101)
 
 
 if __name__ == "__main__":
