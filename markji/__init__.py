@@ -26,6 +26,7 @@ from markji._const import (
     _SORT_ROUTE,
     _TTS_ROUTE,
     _URL_ROUTE,
+    _USER_ROUTE,
 )
 from markji.types._form import (
     _ContentInfo,
@@ -37,6 +38,7 @@ from markji.types._form import (
     _NewChapterForm,
     _NewDeckForm,
     _NewFolderForm,
+    _QueryUsersForm,
     _RenameChapterForm,
     _RenameFolderForm,
     _SortCardsForm,
@@ -49,11 +51,11 @@ from markji.types._form import (
     _UploadFileForm,
 )
 from markji.types import CardID, ChapterID, DeckID, FolderID, LanguageCode, TTSInfo
-from markji.types.card import Card, File
+from markji.types.card import Card, File, UserID
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
 from markji.types.deck import Deck
 from markji.types.folder import Folder, FolderDiff, RootFolder
-from markji.types.profile import Profile
+from markji.types.profile import Profile, User
 
 
 class Markji:
@@ -898,3 +900,26 @@ class Markji:
             data: dict = await response.json()
 
         return File.from_dict(data["data"]["file"])
+
+    async def query_users(self, user_ids: Sequence[UserID | int]) -> Sequence[User]:
+        """
+        查询用户
+
+        :param Sequence[UserID | int] user_ids: 用户ID列表
+        :return: 用户列表
+        :rtype: Sequence[User]
+        """
+        async with self._session() as session:
+            response = await session.post(
+                _USER_ROUTE,
+                json=_QueryUsersForm(user_ids).to_dict(),
+            )
+            if response.status != 200:
+                raise Exception(f"查询用户失败: {response}{await response.text()}")
+            data: dict = await response.json()
+            users = []
+            for user in data["data"]["users"]:
+                user = User.from_dict(user)
+                users.append(user)
+
+        return users

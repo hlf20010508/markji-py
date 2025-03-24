@@ -17,6 +17,18 @@ class TestProfile(AsyncTestCase):
 
         await client.get_profile()
 
+    async def test_query(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        profile = await client.get_profile()
+
+        users = await client.query_users([profile.id])
+
+        self.assertEqual(len(users), 1)
+        self.assertEqual(users[0].id, profile.id)
+
 
 if __name__ == "__main__":
     unittest.main()

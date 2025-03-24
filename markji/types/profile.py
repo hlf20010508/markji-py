@@ -48,3 +48,22 @@ class Profile(DataClassJsonMixin):
     alipay_oauth: dict
     id: UserID
     birthday: Datetime = Datetime._field()
+
+
+@dataclass
+class User(DataClassJsonMixin):
+    """
+    User 用户信息
+
+    :param str nickname: 昵称
+    :param str avatar: 头像
+    :param UserLevel level: 等级
+    :param UserID id: 用户ID
+    """
+
+    nickname: str
+    avatar: str
+    level: UserLevel
+    description: str
+    gender: UserGender
+    id: UserID

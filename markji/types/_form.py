@@ -15,6 +15,7 @@ from markji.types import (
     FolderItem,
     FolderItemObjectClass,
     TTSInfo,
+    UserID,
 )
 
 
@@ -161,3 +162,8 @@ class _TTSGenForm(DataClassJsonMixin):
 @dataclass
 class _TTSGetFileForm(DataClassJsonMixin):
     url: str
+
+
+@dataclass
+class _QueryUsersForm(DataClassJsonMixin):
+    ids: Sequence[UserID | int]
