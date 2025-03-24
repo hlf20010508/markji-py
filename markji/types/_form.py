@@ -13,7 +13,7 @@ from markji.types import (
     DeckID,
     FolderID,
     FolderItem,
-    FolderItemObjectClass,
+    ItemObjectClass,
     TTSInfo,
     UserID,
 )
@@ -44,7 +44,7 @@ class _SortFoldersForm(DataClassJsonMixin):
     items: Sequence[FolderID | str] = field(
         metadata=config(
             encoder=lambda ids: [
-                FolderItem(i, FolderItemObjectClass.FOLDER).to_dict() for i in ids
+                FolderItem(i, ItemObjectClass.FOLDER).to_dict() for i in ids
             ]
         ),
     )
@@ -71,7 +71,7 @@ class _SortDecksForm(DataClassJsonMixin):
     items: Sequence[DeckID | str] = field(
         metadata=config(
             encoder=lambda ids: [
-                FolderItem(i, FolderItemObjectClass.DECK).to_dict() for i in ids
+                FolderItem(i, ItemObjectClass.DECK).to_dict() for i in ids
             ]
         ),
     )
@@ -83,7 +83,7 @@ class _MoveDecksForm(DataClassJsonMixin):
     items: Sequence[DeckID | str] = field(
         metadata=config(
             encoder=lambda ids: [
-                FolderItem(i, FolderItemObjectClass.DECK).to_dict() for i in ids
+                FolderItem(i, ItemObjectClass.DECK).to_dict() for i in ids
             ]
         ),
     )

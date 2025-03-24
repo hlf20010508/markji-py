@@ -52,7 +52,7 @@ from markji.types._form import (
     _UploadFileForm,
 )
 from markji.types import CardID, ChapterID, DeckID, FolderID, LanguageCode, TTSInfo
-from markji.types.card import Card, File, UserID
+from markji.types.card import Card, CardResult, File, UserID
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
 from markji.types.deck import Deck, DeckBasic
 from markji.types.folder import Folder, FolderDiff, RootFolder
@@ -581,7 +581,7 @@ class Markji:
         """
         搜索卡组
 
-        关键词长度必须在 1 到 8091 个字符之间
+        关键词长度必须在 1 到 8000 个字符之间
 
         offset 必须在 0 到 1000 之间
 
@@ -988,6 +988,51 @@ class Markji:
             data: dict = await response.json()
 
         return ChapterDiff.from_dict(data["data"])
+
+    async def search_cards(
+        self, keyword: str, offset: int = 0, limit: int = 10
+    ) -> tuple[Sequence[CardResult], int]:
+        """
+        搜索卡片
+
+        关键词长度必须在 1 到 8000 个字符之间
+
+        offset 必须在 0 到 1000 之间
+
+        limit 必须在 10 到 100 之间
+
+        :param str keyword: 关键词
+        :param int offset: 偏移
+        :param int limit: 限制
+        :return: 卡片列表, 总数
+        :rtype: tuple[Sequence[Card], int]
+        """
+        if len(keyword) < 1 or len(keyword) > 8000:
+            raise ValueError("关键词长度必须在 1 到 8000 个字符之间")
+        if offset < 0 or offset > 1000:
+            raise ValueError("offset 必须在 0 到 1000 之间")
+        if limit < 10 or limit > 100:
+            raise ValueError("limit 必须在 10 到 100 之间")
+
+        async with self._session() as session:
+            response = await session.get(
+                f"{_CARD_ROUTE}/{_SEARCH_ROUTE}",
+                params={
+                    "keyword": keyword,
+                    "offset": offset,
+                    "limit": limit,
+                    "source": "SEARCH",
+                },
+            )
+            if response.status != 200:
+                raise Exception(f"搜索卡片失败: {response}{await response.text()}")
+            data: dict = await response.json()
+            cards = []
+            for card in data["data"]["cards"]:
+                card = CardResult.from_dict(card)
+                cards.append(card)
+
+        return cards, data["data"]["total"]
 
     async def upload_file(self, path: str | IO[bytes]) -> File:
         """

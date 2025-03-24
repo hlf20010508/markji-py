@@ -189,6 +189,29 @@ class TestCard(AsyncTestCase):
         await client.delete_deck(deck.id)
         await client.delete_folder(folder.id)
 
+    async def test_search(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        cards, num = await client.search_cards("english")
+
+        self.assertTrue(num > len(cards))
+        self.assertEqual(len(cards), 10)
+
+        with self.assertRaises(ValueError):
+            await client.search_cards("")
+        with self.assertRaises(ValueError):
+            await client.search_cards("_" * 8001)
+        with self.assertRaises(ValueError):
+            await client.search_cards("english", offset=-1)
+        with self.assertRaises(ValueError):
+            await client.search_cards("english", offset=1001)
+        with self.assertRaises(ValueError):
+            await client.search_cards("english", limit=9)
+        with self.assertRaises(ValueError):
+            await client.search_cards("english", limit=101)
+
 
 if __name__ == "__main__":
     unittest.main()

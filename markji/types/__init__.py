@@ -53,16 +53,18 @@ class Status(StrEnum):
     NORMAL = "NORMAL"
 
 
-class FolderItemObjectClass(StrEnum):
+class ItemObjectClass(StrEnum):
     """
     Enum 文件夹项目对象类
 
     * FOLDER: 文件夹
     * DECK: 卡组
+    * CARD: 卡片
     """
 
     FOLDER = "FOLDER"
     DECK = "DECK"
+    CARD = "CARD"
 
 
 class DeckSource(StrEnum):
@@ -394,11 +396,11 @@ class FolderItem(DataClassJsonMixin):
     FolderItems 文件夹项目
 
     :param str object_id: 对象ID
-    :param FolderItemObjectClass object_class: 对象类
+    :param ItemObjectClass object_class: 对象类
     """
 
     object_id: str
-    object_class: FolderItemObjectClass
+    object_class: ItemObjectClass
 
 
 @dataclass
@@ -410,6 +412,19 @@ class DeckAccessSetting(DataClassJsonMixin):
     """
 
     validation_enabled: bool
+
+
+@dataclass
+class CardReference(DataClassJsonMixin):
+    """
+    卡片引用
+
+    :param CardRootID id: 对象ID
+    :param ItemObjectClass type: 对象类
+    """
+
+    id: CardRootID
+    type: ItemObjectClass = ItemObjectClass.CARD
 
 
 @dataclass
