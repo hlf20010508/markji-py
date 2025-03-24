@@ -46,13 +46,27 @@ class AudioBuilder:
     :param FileID | str file_id: 文件ID
     :param str | None content: 内容
 
+    本地音频
+
     .. code-block:: python
 
         from markji.editor import AudioBuilder
 
         audio = await client.upload_file("example.mp3")
 
-        AudioBuilder(audio.id, "example").build()
+        AudioBuilder(audio.id).build()
+
+    语音生成
+
+    .. code-block:: python
+
+        from markji.editor import AudioBuilder
+        from markji.types import LanguageCode
+
+        word = "example"
+        audio = await client.tts(word, LanguageCode.EN_US)
+
+        AudioBuilder(audio.id, word).build()
     """
 
     def __init__(self, file_id: FileID | str, content: str | None = None):
@@ -74,4 +88,4 @@ class AudioBuilder:
         """
         content = self._content if self._content else ""
 
-        return f"[Audio#ID/{self._file_id}#{content}]"
+        return f"[Audio#A,ID/{self._file_id}#{content}]"
