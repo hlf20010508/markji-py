@@ -125,5 +125,15 @@ class TestParagraph(unittest.TestCase):
         self.assertEqual(result, "[P#H1#[F#1#test]]")
 
 
+class TestCloze(unittest.TestCase):
+    def test(self):
+        result = ClozeBuilder("test").build()
+
+        self.assertEqual(result, "[F#1#test]")
+
+        with self.assertRaises(ValueError):
+            ClozeBuilder("test", 0)
+
+
 if __name__ == "__main__":
     unittest.main()
