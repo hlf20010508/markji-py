@@ -53,6 +53,11 @@ class TestUser(AsyncTestCase):
 
         self.assertEqual(len(users), 0)
 
+        with self.assertRaises(ValueError):
+            await client.search_users("")
+        with self.assertRaises(ValueError):
+            await client.search_users("_" * 8001)
+
     async def test_search_collaborators(self):
         auth = Auth(ENV.username, ENV.password)
         token = await auth.login()
@@ -84,6 +89,11 @@ class TestUser(AsyncTestCase):
 
         self.assertEqual(len(users), 1)
         self.assertEqual(users[0].id, profile.id)
+
+        with self.assertRaises(ValueError):
+            await client.search_collaborators(deck.id, "")
+        with self.assertRaises(ValueError):
+            await client.search_collaborators(deck.id, "_" * 8001)
 
         await client.delete_deck(deck.id)
         await client.delete_folder(folder.id)

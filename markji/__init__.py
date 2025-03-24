@@ -54,7 +54,7 @@ from markji.types._form import (
 from markji.types import CardID, ChapterID, DeckID, FolderID, LanguageCode, TTSInfo
 from markji.types.card import Card, File, UserID
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
-from markji.types.deck import Deck
+from markji.types.deck import Deck, DeckBasic
 from markji.types.folder import Folder, FolderDiff, RootFolder
 from markji.types.user import Collaborator, Profile, User, UserBrief
 
@@ -115,7 +115,7 @@ class Markji:
         """
         async with self._session() as session:
             response = await session.post(
-                f"{_USER_ROUTE}/{_CARD_ROUTE}/{_QUERY_ROUTE}",
+                f"{_USER_ROUTE}/{_QUERY_ROUTE}",
                 json=_QueryUsersForm(user_ids).to_dict(),
             )
             if response.status != 200:
@@ -132,10 +132,15 @@ class Markji:
         """
         搜索用户
 
+        昵称长度必须在 1 到 8000 个字符之间
+
         :param str nickname: 用户昵称
         :return: 用户列表
         :rtype: Sequence[User]
         """
+        if len(nickname) < 1 or len(nickname) > 8000:
+            raise ValueError("昵称长度必须在 1 到 8000 个字符之间")
+
         async with self._session() as session:
             response = await session.get(
                 f"{_USER_ROUTE}/{_SEARCH_ROUTE}", params={"keyword": nickname}
@@ -156,11 +161,17 @@ class Markji:
         """
         搜索协作者
 
+        关键词长度必须在 1 到 8000 个字符之间
+
         :param DeckID | str deck_id: 卡组ID
         :param str | UserID | int keyword: 关键词（UserID，手机，邮箱，昵称）
         :return: 协作者列表
         :rtype: Sequence[Collaborator]
         """
+        if isinstance(keyword, str):
+            if len(keyword) < 1 or len(keyword) > 8000:
+                raise ValueError("关键词长度必须在 1 到 8000 个字符之间")
+
         async with self._session() as session:
             response = await session.get(
                 f"{_USER_ROUTE}/{_SEARCH_ROUTE}",
@@ -552,6 +563,53 @@ class Markji:
             data: dict = await response.json()
 
         return FolderDiff.from_dict(data["data"])
+
+    async def search_decks(
+        self, keyword: str, offset: int = 0, limit: int = 10
+    ) -> tuple[Sequence[DeckBasic], int]:
+        """
+        搜索卡组
+
+        关键词长度必须在 1 到 8091 个字符之间
+
+        offset 必须在 0 到 1000 之间
+
+        limit 必须在 1 到 100 之间
+
+        :param str keyword: 关键词
+        :param int offset: 偏移
+        :param int limit: 限制
+        :return: 卡组基本信息列表, 总数
+        :rtype: tuple[Sequence[DeckBasic], int]
+        """
+        if len(keyword) < 1 or len(keyword) > 8000:
+            raise ValueError("关键词长度必须在 1 到 8000 个字符之间")
+        if offset < 0 or offset > 1000:
+            raise ValueError("offset 必须在 0 到 1000 之间")
+        if limit < 1 or limit > 100:
+            raise ValueError("limit 必须在 1 到 100 之间")
+
+        async with self._session() as session:
+            response = await session.get(
+                f"{_DECK_ROUTE}/{_SEARCH_ROUTE}",
+                params={
+                    "keyword": keyword,
+                    "offset": offset,
+                    "limit": limit,
+                    "debug": "true",
+                    "scope": "ALL",
+                    "source": "SEARCH",
+                },
+            )
+            if response.status != 200:
+                raise Exception(f"搜索卡组失败: {response}{await response.text()}")
+            data: dict = await response.json()
+            decks = []
+            for deck in data["data"]["decks"]:
+                deck = DeckBasic.from_dict(deck)
+                decks.append(deck)
+
+        return decks, data["data"]["total"]
 
     async def get_chapter(
         self, deck_id: DeckID | str, chapter_id: ChapterID | str
