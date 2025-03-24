@@ -128,22 +128,33 @@ class Markji:
 
         return users
 
-    async def search_users(self, nickname: str) -> Sequence[User]:
+    async def search_users(
+        self, nickname: str, offset: int = 0, limit: int = 10
+    ) -> tuple[Sequence[User], int]:
         """
         搜索用户
 
         昵称长度必须在 1 到 8000 个字符之间
 
+        offset 和 limit 必须大于等于 0
+
+        offset + limit 必须小于等于 10000
+
         :param str nickname: 用户昵称
-        :return: 用户列表
-        :rtype: Sequence[User]
+        :return: 用户列表, 总数
+        :rtype: tuple[Sequence[User], int]
         """
         if len(nickname) < 1 or len(nickname) > 8000:
             raise ValueError("昵称长度必须在 1 到 8000 个字符之间")
+        if offset < 0 or limit < 0:
+            raise ValueError("offset 和 limit 必须大于等于 0")
+        if offset + limit > 10000:
+            raise ValueError("offset + limit 必须小于等于 10000")
 
         async with self._session() as session:
             response = await session.get(
-                f"{_USER_ROUTE}/{_SEARCH_ROUTE}", params={"keyword": nickname}
+                f"{_USER_ROUTE}/{_SEARCH_ROUTE}",
+                params={"keyword": nickname, "offset": offset, "limit": limit},
             )
             if response.status != 200:
                 raise Exception(f"搜索用户失败: {response}{await response.text()}")
@@ -153,7 +164,7 @@ class Markji:
                 user = User.from_dict(user)
                 users.append(user)
 
-        return users
+        return users, data["data"]["total"]
 
     async def search_collaborators(
         self, deck_id: DeckID | str, keyword: str | UserID | int

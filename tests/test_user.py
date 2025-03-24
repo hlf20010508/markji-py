@@ -36,20 +36,21 @@ class TestUser(AsyncTestCase):
 
         profile = await client.get_profile()
 
-        users = await client.search_users(profile.nickname)
+        users, num = await client.search_users(profile.nickname)
 
         self.assertEqual(len(users), 1)
         self.assertEqual(users[0].id, profile.id)
+        self.assertTrue(num >= len(users))
 
-        users = await client.search_users(profile.phone)
-
-        self.assertEqual(len(users), 0)
-
-        users = await client.search_users(profile.email)
+        users, num = await client.search_users(profile.phone)
 
         self.assertEqual(len(users), 0)
 
-        users = await client.search_users(str(profile.id))
+        users, num = await client.search_users(profile.email)
+
+        self.assertEqual(len(users), 0)
+
+        users, num = await client.search_users(str(profile.id))
 
         self.assertEqual(len(users), 0)
 
@@ -57,6 +58,12 @@ class TestUser(AsyncTestCase):
             await client.search_users("")
         with self.assertRaises(ValueError):
             await client.search_users("_" * 8001)
+        with self.assertRaises(ValueError):
+            await client.search_users(profile.nickname, offset=-1)
+        with self.assertRaises(ValueError):
+            await client.search_users(profile.nickname, limit=-1)
+        with self.assertRaises(ValueError):
+            await client.search_users(profile.nickname, offset=9990, limit=11)
 
     async def test_search_collaborators(self):
         auth = Auth(ENV.username, ENV.password)
