@@ -5,7 +5,7 @@
 
 from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin, config
-from typing import Sequence
+from typing import IO, Sequence
 from markji.types import (
     CardID,
     Datetime,
@@ -14,6 +14,7 @@ from markji.types import (
     FolderID,
     FolderItem,
     FolderItemObjectClass,
+    TTSInfo,
 )
 
 
@@ -139,3 +140,24 @@ class _MoveCardsForm(DataClassJsonMixin):
     to_chapter_id: ChapterID | str
     order: int
     card_ids: Sequence[CardID | str]
+
+
+@dataclass
+class _UploadFileForm(DataClassJsonMixin):
+    file: IO[bytes] = field(
+        metadata=config(encoder=lambda file: file),
+    )
+
+
+@dataclass
+class _TTSGenForm(DataClassJsonMixin):
+    info: TTSInfo = field(
+        metadata=config(
+            encoder=lambda info: [info.to_dict()], field_name="content_slices"
+        ),
+    )
+
+
+@dataclass
+class _TTSGetFileForm(DataClassJsonMixin):
+    url: str

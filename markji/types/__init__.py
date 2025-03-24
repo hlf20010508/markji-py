@@ -335,18 +335,6 @@ class LanguageCode(StrEnum):
     ZU_ZA = "zu-ZA"
 
 
-class FileMIME(StrEnum):
-    """
-    Enum 文件MIME类型
-
-    * AUDIO_MPEG: 音频
-    * IMAGE_JPEG: 图片
-    """
-
-    AUDIO_MPEG = "audio/mpeg"
-    IMAGE_JPEG = "image/jpeg"
-
-
 class Datetime(datetime):
     """
     继承自 `datetime.datetime`
@@ -470,7 +458,7 @@ class File(DataClassJsonMixin):
 
     :param FileInfo info: 文件信息
     :param int size: 文件大小
-    :param FileMIME mime: MIME类型
+    :param str mime: MIME类型
     :param str url: 文件Url
     :param FileID id: 文件ID
     :param Datetime expire_time: 过期时间
@@ -478,7 +466,7 @@ class File(DataClassJsonMixin):
 
     info: FileInfo
     size: int
-    mime: FileMIME
+    mime: str
     url: str
     id: FileID
     expire_time: Datetime = Datetime._field()

@@ -11,18 +11,21 @@ __version__ = "0.1.0"
 __license__ = "MIT"
 __copyright__ = f"(C) 2025-{datetime.now(UTC).year} {__author__} <hlf01@icloud.com>"
 
-from typing import Sequence
+from typing import IO, Sequence
 from aiohttp import ClientSession
 from markji._const import (
     _API_URL,
     _CARD_ROUTE,
     _CHAPTER_ROUTE,
     _DECK_ROUTE,
+    _FILE_ROUTE,
     _FOLDER_ROUTE,
     _MOVE_ROUTE,
     _PROFILE_ROUTE,
     _QUERY_ROUTE,
     _SORT_ROUTE,
+    _TTS_ROUTE,
+    _URL_ROUTE,
 )
 from markji.types._form import (
     _ContentInfo,
@@ -40,10 +43,13 @@ from markji.types._form import (
     _SortChaptersForm,
     _SortDecksForm,
     _SortFoldersForm,
+    _TTSGenForm,
+    _TTSGetFileForm,
     _UpdateDeckInfoForm,
+    _UploadFileForm,
 )
-from markji.types import CardID, ChapterID, DeckID, FolderID
-from markji.types.card import Card
+from markji.types import CardID, ChapterID, DeckID, FolderID, LanguageCode, TTSInfo
+from markji.types.card import Card, File
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
 from markji.types.deck import Deck
 from markji.types.folder import Folder, FolderDiff, RootFolder
@@ -672,7 +678,7 @@ class Markji:
 
         async with self._session() as session:
             response = await session.post(
-                f"{_DECK_ROUTE}/{deck_id}/{_CARD_ROUTE}/{_QUERY_ROUTE}",
+                f"{_DECK_ROUTE}/{deck_id}/{_QUERY_ROUTE}",
                 json=_ListCardsForm(chapter.card_ids).to_dict(),
             )
             if response.status != 200:
@@ -837,3 +843,58 @@ class Markji:
             data: dict = await response.json()
 
         return ChapterDiff.from_dict(data["data"])
+
+    async def upload_file(self, path: str | IO[bytes]) -> File:
+        """
+        上传文件（图片和音频）
+
+        :param str | IO[bytes] path: 文件路径或字节流
+        :return: 上传后的文件
+        :rtype: File
+        """
+        async with self._session() as session:
+            if isinstance(path, str):
+                with open(path, "rb") as file:
+                    response = await session.post(
+                        _FILE_ROUTE, data=_UploadFileForm(file).to_dict()
+                    )
+            else:
+                response = await session.post(
+                    _FILE_ROUTE, data=_UploadFileForm(path).to_dict()
+                )
+
+            if response.status != 200:
+                raise Exception(f"上传文件失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return File.from_dict(data["data"]["file"])
+
+    async def tts(self, text: str, lang: LanguageCode | str) -> File:
+        """
+        语音合成
+
+        :param str text: 文本
+        :param LanguageCode | str lang: 语言代码
+        :return: 语音文件
+        :rtype: File
+        """
+        lang = LanguageCode(lang) if isinstance(lang, str) else lang
+
+        async with self._session() as session:
+            response = await session.post(
+                _TTS_ROUTE,
+                json=_TTSGenForm(TTSInfo(text, lang)).to_dict(),
+            )
+            if response.status != 200:
+                raise Exception(f"语音合成失败: {response}{await response.text()}")
+            data: dict = await response.json()
+            url = data["data"]["url"]
+
+            response = await session.post(
+                _URL_ROUTE, json=_TTSGetFileForm(url).to_dict()
+            )
+            if response.status != 200:
+                raise Exception(f"获取语音文件失败: {response}{await response.text()}")
+            data: dict = await response.json()
+
+        return File.from_dict(data["data"]["file"])
