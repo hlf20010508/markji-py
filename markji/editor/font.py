@@ -85,9 +85,8 @@ class FontBuilder:
         """
         self._content = content
         self._bold: bool = False
-        self._color: FontColor | None = None
-        self._background: FontBackgroundColor | None = None
-        self._highlight: bool = False
+        self._color: FontColor | str | None = None
+        self._background: FontBackgroundColor | str | None = None
         self._italics: bool = False
         self._underline: bool = False
         self._script: FontScript | None = None
@@ -102,46 +101,26 @@ class FontBuilder:
         self._bold = True
         return self
 
-    def color(self, color: FontColor):
+    def color(self, color: FontColor | str):
         """
         字体颜色
 
-        此项会被 highlight 覆盖
-
-        :param FontColor color: 颜色
+        :param FontColor | str color: 颜色
         :return: 自身
         :rtype: FontBuilder
         """
-        if not self._highlight:
-            self._color = color
+        self._color = color
         return self
 
-    def background(self, color: FontBackgroundColor):
+    def background(self, color: FontBackgroundColor | str):
         """
         背景颜色
 
-        此项会被 highlight 覆盖
-
-        :param FontBackgroundColor color: 颜色
+        :param FontBackgroundColor | str color: 颜色
         :return: 自身
         :rtype: FontBuilder
         """
-        if not self._highlight:
-            self._background = color
-        return self
-
-    def highlight(self):
-        """
-        高亮 黄底绿字
-
-        此项会覆盖 color 和 background
-
-        :return: 自身
-        :rtype: FontBuilder
-        """
-        self._highlight = True
-        self._color = FontColor.YELLOW
-        self._background = FontBackgroundColor.GREEN
+        self._background = color
         return self
 
     def italics(self):
@@ -186,9 +165,15 @@ class FontBuilder:
         if self._bold:
             result.append("B")
         if self._color:
-            result.append(self._color.value)
+            if isinstance(self._color, str):
+                result.append(self._color)
+            else:
+                result.append(self._color.value)
         if self._background:
-            result.append(self._background.value)
+            if isinstance(self._background, str):
+                result.append(self._background)
+            else:
+                result.append(self._background.value)
         if self._italics:
             result.append("I")
         if self._underline:
