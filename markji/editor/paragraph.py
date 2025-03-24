@@ -3,15 +3,17 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
+from markji.editor.media import AudioBuilder
 from markji.editor.font import FontBuilder
 from markji.editor.cloze import ClozeBuilder
+from markji.editor.reference import ReferenceBuilder
 
 
 class ParagraphBuilder:
     """
     段落构建器
 
-    :param str | FontBuilder content: 内容
+    :param str | FontBuilder | ClozeBuilder | AudioBuilder | ReferenceBuilder content: 内容
 
     纯文字段落
 
@@ -42,13 +44,36 @@ class ParagraphBuilder:
         cloze_builder = ClozeBuilder("Hello, World!", 1)
 
         ParagraphBuilder(cloze_builder).heading().build()
+
+    音频段落
+
+    .. code-block:: python
+
+        from markji.editor import AudioBuilder, ParagraphBuilder
+
+        audio = await client.upload_file("example.mp3")
+
+        ParagraphBuilder(AudioBuilder(audio.id, "example")).heading().build()
+
+    卡片引用段落
+
+    .. code-block:: python
+
+        from markji.editor import ReferenceBuilder, ParagraphBuilder
+
+        cards, _ = await client.search_cards("Internet", self_only=False)
+
+        ParagraphBuilder(ReferenceBuilder("Hello, World!", cards[0])).heading().build()
     """
 
-    def __init__(self, content: str | FontBuilder | ClozeBuilder):
+    def __init__(
+        self,
+        content: str | FontBuilder | ClozeBuilder | AudioBuilder | ReferenceBuilder,
+    ):
         """
         段落构建器
 
-        :param str | FontBuilder content: 内容
+        :param str | FontBuilder | ClozeBuilder | AudioBuilder | ReferenceBuilder content: 内容
         """
 
         self._content = content
@@ -93,7 +118,9 @@ class ParagraphBuilder:
         :return: 包装后的内容
         :rtype: str
         """
-        if isinstance(self._content, (FontBuilder, ClozeBuilder)):
+        if isinstance(
+            self._content, (FontBuilder, ClozeBuilder, AudioBuilder, ReferenceBuilder)
+        ):
             content = self._content.build()
         else:
             content = self._content

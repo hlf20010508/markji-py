@@ -5,15 +5,21 @@
 
 import unittest
 import itertools
+from markji import Markji
+from markji.auth import Auth
+from markji.types import LanguageCode
 from markji.editor import (
     AnswerLine,
+    AudioBuilder,
     ClozeBuilder,
     FontBackgroundColor,
     FontBuilder,
     FontColor,
     FontScript,
+    ParagraphBuilder,
+    ReferenceBuilder,
 )
-from markji.editor.paragraph import ParagraphBuilder
+from tests import ENV, AsyncTestCase
 
 
 class TestAnswerLine(unittest.TestCase):
@@ -83,7 +89,7 @@ class TestFont(unittest.TestCase):
         self.assertIn(result, all_correct)
 
 
-class TestParagraph(unittest.TestCase):
+class TestParagraph(AsyncTestCase):
     def test(self):
         result = ParagraphBuilder("test").build()
 
@@ -123,6 +129,30 @@ class TestParagraph(unittest.TestCase):
         result = ParagraphBuilder(ClozeBuilder("test", 1)).heading().build()
 
         self.assertEqual(result, "[P#H1#[F#1#test]]")
+
+    async def test_audio(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        word = "test"
+        audio = await client.tts(word, LanguageCode.EN_US)
+
+        result = ParagraphBuilder(AudioBuilder(audio.id, word)).heading().build()
+
+        self.assertEqual(result, f"[P#H1#[Audio#A,ID/{audio.id}#test]]")
+
+    async def test_reference(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        word = "test"
+        cards, _ = await client.search_cards(word, self_only=False)
+
+        result = ParagraphBuilder(ReferenceBuilder(word, cards[0])).heading().build()
+
+        self.assertEqual(result, f"[P#H1#[Card#ID/{cards[0].root_id}#test]]")
 
 
 class TestCloze(unittest.TestCase):
