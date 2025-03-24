@@ -194,10 +194,13 @@ class TestCard(AsyncTestCase):
         token = await auth.login()
         client = Markji(token)
 
-        cards, num = await client.search_cards("english")
+        cards1, num1 = await client.search_cards("english")
+        cards2, num2 = await client.search_cards("english", self_only=True)
 
-        self.assertTrue(num > len(cards))
-        self.assertEqual(len(cards), 10)
+        self.assertTrue(num1 > len(cards1))
+        self.assertEqual(len(cards1), 10)
+        self.assertTrue(num2 >= len(cards2))
+        self.assertTrue(num1 > num2)
 
         with self.assertRaises(ValueError):
             await client.search_cards("")

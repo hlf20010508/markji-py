@@ -337,6 +337,20 @@ class LanguageCode(StrEnum):
     ZU_ZA = "zu-ZA"
 
 
+class _SearchScope(StrEnum):
+    """
+    Enum 搜索范围
+
+    * ALL: 所有
+    * MINE: 我的
+    * REFERENCE: 引用（无效果）
+    """
+
+    ALL = "ALL"
+    MINE = "MINE"
+    REFERENCE = "REFERENCE"
+
+
 class Datetime(datetime):
     """
     继承自 `datetime.datetime`

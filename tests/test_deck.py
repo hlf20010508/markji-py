@@ -239,10 +239,13 @@ class TestDeck(AsyncTestCase):
         token = await auth.login()
         client = Markji(token)
 
-        decks, num = await client.search_decks("english")
+        decks1, num1 = await client.search_decks("english")
+        decks2, num2 = await client.search_decks("english", self_only=True)
 
-        self.assertTrue(num > len(decks))
-        self.assertEqual(len(decks), 10)
+        self.assertTrue(num1 > len(decks1))
+        self.assertEqual(len(decks1), 10)
+        self.assertTrue(num2 >= len(decks2))
+        self.assertTrue(num1 > num2)
 
         with self.assertRaises(ValueError):
             await client.search_decks("")

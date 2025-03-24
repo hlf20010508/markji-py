@@ -51,7 +51,15 @@ from markji.types._form import (
     _UpdateDeckInfoForm,
     _UploadFileForm,
 )
-from markji.types import CardID, ChapterID, DeckID, FolderID, LanguageCode, TTSInfo
+from markji.types import (
+    CardID,
+    ChapterID,
+    DeckID,
+    FolderID,
+    LanguageCode,
+    _SearchScope,
+    TTSInfo,
+)
 from markji.types.card import Card, CardResult, File, UserID
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
 from markji.types.deck import Deck, DeckBasic
@@ -576,7 +584,7 @@ class Markji:
         return FolderDiff.from_dict(data["data"])
 
     async def search_decks(
-        self, keyword: str, offset: int = 0, limit: int = 10
+        self, keyword: str, offset: int = 0, limit: int = 10, self_only: bool = False
     ) -> tuple[Sequence[DeckBasic], int]:
         """
         搜索卡组
@@ -590,6 +598,7 @@ class Markji:
         :param str keyword: 关键词
         :param int offset: 偏移
         :param int limit: 限制
+        :param bool self_only: 仅自己
         :return: 卡组基本信息列表, 总数
         :rtype: tuple[Sequence[DeckBasic], int]
         """
@@ -601,16 +610,22 @@ class Markji:
             raise ValueError("limit 必须在 1 到 100 之间")
 
         async with self._session() as session:
+            params = {
+                "keyword": keyword,
+                "offset": offset,
+                "limit": limit,
+                "debug": "true",
+                "source": "SEARCH",
+            }
+
+            if self_only:
+                params["scope"] = _SearchScope.MINE
+            else:
+                params["scope"] = _SearchScope.ALL
+
             response = await session.get(
                 f"{_DECK_ROUTE}/{_SEARCH_ROUTE}",
-                params={
-                    "keyword": keyword,
-                    "offset": offset,
-                    "limit": limit,
-                    "debug": "true",
-                    "scope": "ALL",
-                    "source": "SEARCH",
-                },
+                params=params,
             )
             if response.status != 200:
                 raise Exception(f"搜索卡组失败: {response}{await response.text()}")
@@ -990,7 +1005,11 @@ class Markji:
         return ChapterDiff.from_dict(data["data"])
 
     async def search_cards(
-        self, keyword: str, offset: int = 0, limit: int = 10
+        self,
+        keyword: str,
+        offset: int = 0,
+        limit: int = 10,
+        self_only: bool = False,
     ) -> tuple[Sequence[CardResult], int]:
         """
         搜索卡片
@@ -1004,6 +1023,7 @@ class Markji:
         :param str keyword: 关键词
         :param int offset: 偏移
         :param int limit: 限制
+        :param bool self_only: 仅自己的
         :return: 卡片列表, 总数
         :rtype: tuple[Sequence[Card], int]
         """
@@ -1015,14 +1035,19 @@ class Markji:
             raise ValueError("limit 必须在 10 到 100 之间")
 
         async with self._session() as session:
+            params = {
+                "keyword": keyword,
+                "offset": offset,
+                "limit": limit,
+                "source": "SEARCH",
+            }
+
+            if self_only:
+                params["scope"] = _SearchScope.MINE
+
             response = await session.get(
                 f"{_CARD_ROUTE}/{_SEARCH_ROUTE}",
-                params={
-                    "keyword": keyword,
-                    "offset": offset,
-                    "limit": limit,
-                    "source": "SEARCH",
-                },
+                params=params,
             )
             if response.status != 200:
                 raise Exception(f"搜索卡片失败: {response}{await response.text()}")
