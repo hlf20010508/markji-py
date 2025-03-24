@@ -3,6 +3,14 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
+from datetime import datetime, UTC
+
+__title__ = "markji-py"
+__author__ = "L-ING"
+__version__ = "0.1.0"
+__license__ = "MIT"
+__copyright__ = f"(C) 2025-{datetime.now(UTC).year} {__author__} <hlf01@icloud.com>"
+
 from typing import Sequence
 from aiohttp import ClientSession
 from markji._const import (
