@@ -52,7 +52,7 @@ class FontBackgroundColor(StrEnum):
 
 class FontScript(StrEnum):
     """
-    字体角标
+    字体角标位置
 
     * UP: 上角标
     * DOWN: 下角标
@@ -145,9 +145,9 @@ class FontBuilder:
 
     def script(self, script: FontScript):
         """
-        角标
+        右上角标
 
-        :param FontScript script: 角标
+        :param FontScript script: 角标上下位置
         :return: 自身
         :rtype: FontBuilder
         """
