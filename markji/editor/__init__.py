@@ -9,6 +9,7 @@ from markji.editor.cloze import ClozeBuilder
 from markji.editor.choice import ChoiceBuilder, ChoiceItem
 from markji.editor.formula import FormulaBuilder
 from markji.editor.reference import ReferenceBuilder
+from markji.editor.media import ImageBuilder, AudioBuilder
 
 AnswerLine = "---"
 """答案分割线"""
