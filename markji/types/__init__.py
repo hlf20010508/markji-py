@@ -12,13 +12,21 @@ from typing import Sequence, NewType, Type
 
 # 8位 eg. 20251234
 UserID = NewType("UserID", int)
+"""用户 ID"""
 FolderID = NewType("FolderID", str)
+"""文件夹 ID"""
 DeckID = NewType("DeckID", str)
+"""卡组 ID"""
 ChapterID = NewType("ChapterID", str)
+"""章节 ID"""
 ChapterSetID = NewType("ChapterSetID", str)
+"""章节集 ID"""
 CardID = NewType("CardID", str)
+"""卡片 ID"""
 CardRootID = NewType("CardRootID", str)
+"""卡片根 ID"""
 FileID = NewType("FileID", str)
+"""文件 ID"""
 
 
 class UserGender(StrEnum):

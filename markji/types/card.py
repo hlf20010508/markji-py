@@ -29,7 +29,7 @@ class Card(DataClassJsonMixin):
     :param Status status: 状态
     :param UserID creator: 创建者
     :param DeckID deck_id: 所属卡组 ID
-    :param CardRootID root_id: 根卡片 ID
+    :param CardRootID root_id: 卡片根 ID
     :param Sequence[File] files: 文件列表
     :param bool is_modified: 是否修改
     :param int revision: 修订版本

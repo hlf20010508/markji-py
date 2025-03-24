@@ -10,3 +10,4 @@ from markji.editor.choice import ChoiceBuilder, ChoiceItem
 from markji.editor.formula import FormulaBuilder
 
 AnswerLine = "---"
+"""答案分割线"""
