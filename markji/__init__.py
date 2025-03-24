@@ -23,6 +23,7 @@ from markji._const import (
     _MOVE_ROUTE,
     _PROFILE_ROUTE,
     _QUERY_ROUTE,
+    _SEARCH_ROUTE,
     _SORT_ROUTE,
     _TTS_ROUTE,
     _URL_ROUTE,
@@ -55,7 +56,7 @@ from markji.types.card import Card, File, UserID
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
 from markji.types.deck import Deck
 from markji.types.folder import Folder, FolderDiff, RootFolder
-from markji.types.profile import Profile, User
+from markji.types.user import Collaborator, Profile, User, UserBrief
 
 
 class Markji:
@@ -101,6 +102,79 @@ class Markji:
             data: dict = await response.json()
 
         return Profile.from_dict(data["data"]["user"])
+
+    async def query_users(
+        self, user_ids: Sequence[UserID | int]
+    ) -> Sequence[UserBrief]:
+        """
+        查询用户信息
+
+        :param Sequence[UserID | int] user_ids: 用户ID列表
+        :return: 用户简要信息列表
+        :rtype: Sequence[UserBrief]
+        """
+        async with self._session() as session:
+            response = await session.post(
+                f"{_USER_ROUTE}/{_CARD_ROUTE}/{_QUERY_ROUTE}",
+                json=_QueryUsersForm(user_ids).to_dict(),
+            )
+            if response.status != 200:
+                raise Exception(f"查询用户失败: {response}{await response.text()}")
+            data: dict = await response.json()
+            users = []
+            for user in data["data"]["users"]:
+                user = UserBrief.from_dict(user)
+                users.append(user)
+
+        return users
+
+    async def search_users(self, nickname: str) -> Sequence[User]:
+        """
+        搜索用户
+
+        :param str nickname: 用户昵称
+        :return: 用户列表
+        :rtype: Sequence[User]
+        """
+        async with self._session() as session:
+            response = await session.get(
+                f"{_USER_ROUTE}/{_SEARCH_ROUTE}", params={"keyword": nickname}
+            )
+            if response.status != 200:
+                raise Exception(f"搜索用户失败: {response}{await response.text()}")
+            data: dict = await response.json()
+            users = []
+            for user in data["data"]["users"]:
+                user = User.from_dict(user)
+                users.append(user)
+
+        return users
+
+    async def search_collaborators(
+        self, deck_id: DeckID | str, keyword: str | UserID | int
+    ) -> Sequence[Collaborator]:
+        """
+        搜索协作者
+
+        :param DeckID | str deck_id: 卡组ID
+        :param str | UserID | int keyword: 关键词（UserID，手机，邮箱，昵称）
+        :return: 协作者列表
+        :rtype: Sequence[Collaborator]
+        """
+        async with self._session() as session:
+            response = await session.get(
+                f"{_USER_ROUTE}/{_SEARCH_ROUTE}",
+                params={"collaborated_deck_id": deck_id, "keyword": keyword},
+            )
+            if response.status != 200:
+                raise Exception(f"搜索协作者失败: {response}{await response.text()}")
+            data: dict = await response.json()
+            collaborators = []
+            for collaborator in data["data"]["users"]:
+                collaborator = Collaborator.from_dict(collaborator)
+                collaborators.append(collaborator)
+
+        return collaborators
 
     async def get_folder(self, folder_id: FolderID | str) -> Folder:
         """
@@ -680,7 +754,7 @@ class Markji:
 
         async with self._session() as session:
             response = await session.post(
-                f"{_DECK_ROUTE}/{deck_id}/{_QUERY_ROUTE}",
+                f"{_DECK_ROUTE}/{deck_id}/{_CARD_ROUTE}/{_QUERY_ROUTE}",
                 json=_ListCardsForm(chapter.card_ids).to_dict(),
             )
             if response.status != 200:
@@ -900,26 +974,3 @@ class Markji:
             data: dict = await response.json()
 
         return File.from_dict(data["data"]["file"])
-
-    async def query_users(self, user_ids: Sequence[UserID | int]) -> Sequence[User]:
-        """
-        查询用户
-
-        :param Sequence[UserID | int] user_ids: 用户ID列表
-        :return: 用户列表
-        :rtype: Sequence[User]
-        """
-        async with self._session() as session:
-            response = await session.post(
-                _USER_ROUTE,
-                json=_QueryUsersForm(user_ids).to_dict(),
-            )
-            if response.status != 200:
-                raise Exception(f"查询用户失败: {response}{await response.text()}")
-            data: dict = await response.json()
-            users = []
-            for user in data["data"]["users"]:
-                user = User.from_dict(user)
-                users.append(user)
-
-        return users

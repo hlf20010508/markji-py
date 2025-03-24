@@ -381,21 +381,6 @@ class UserOAuth(DataClassJsonMixin):
 
 
 @dataclass
-class UserBrief(DataClassJsonMixin):
-    """
-    用户简要信息
-
-    :param str nickname: 昵称
-    :param str avatar: 头像Url
-    :param UserID id: 用户ID
-    """
-
-    nickname: str
-    avatar: str
-    id: UserID
-
-
-@dataclass
 class FolderItem(DataClassJsonMixin):
     """
     FolderItems 文件夹项目

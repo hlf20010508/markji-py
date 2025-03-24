@@ -9,12 +9,12 @@ from typing import Sequence
 from markji.types import (
     Datetime,
     DeckAccessSetting,
-    UserBrief,
     UserID,
     DeckID,
     Status,
     DeckSource,
 )
+from markji.types.user import UserBasic
 
 
 @dataclass
@@ -42,7 +42,7 @@ class Deck(DataClassJsonMixin):
     :param Datetime created_time: 创建时间
     :param Datetime updated_time: 更新时间
     :param bool is_anki: 是否从Anki导入
-    :param UserBrief root_creator: 根创建者
+    :param UserBasic root_creator: 根创建者
     :param DeckAccessSetting access_setting: 访问设置
     """
 
@@ -66,5 +66,5 @@ class Deck(DataClassJsonMixin):
     created_time: Datetime = Datetime._field()
     updated_time: Datetime = Datetime._field()
     is_anki: bool | None = None
-    root_creator: UserBrief | None = None
+    root_creator: UserBasic | None = None
     access_setting: DeckAccessSetting | None = None
