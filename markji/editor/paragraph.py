@@ -39,7 +39,7 @@ class ParagraphBuilder:
 
         from markji.editor import ClozeBuilder, ParagraphBuilder
 
-        cloze_builder = ClozeBuilder("Hello, World!")
+        cloze_builder = ClozeBuilder("Hello, World!", 1)
 
         ParagraphBuilder(cloze_builder).heading().build()
     """

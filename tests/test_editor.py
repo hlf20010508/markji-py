@@ -7,11 +7,13 @@ import unittest
 import itertools
 from markji.editor import (
     AnswerLine,
+    ClozeBuilder,
     FontBackgroundColor,
     FontBuilder,
     FontColor,
     FontScript,
 )
+from markji.editor.paragraph import ParagraphBuilder
 
 
 class TestAnswerLine(unittest.TestCase):
@@ -20,6 +22,11 @@ class TestAnswerLine(unittest.TestCase):
 
 
 class TestFont(unittest.TestCase):
+    def test(self):
+        result = FontBuilder("test").build()
+
+        self.assertEqual(result, "[T##test]")
+
     def test_bold(self):
         result = FontBuilder("test").bold().build()
 
@@ -74,6 +81,48 @@ class TestFont(unittest.TestCase):
         ]
 
         self.assertIn(result, all_correct)
+
+
+class TestParagraph(unittest.TestCase):
+    def test(self):
+        result = ParagraphBuilder("test").build()
+
+        self.assertEqual(result, "[P##test]")
+
+    def test_heading(self):
+        result = ParagraphBuilder("test").heading().build()
+
+        self.assertEqual(result, "[P#H1#test]")
+
+    def test_center(self):
+        result = ParagraphBuilder("test").center().build()
+
+        self.assertEqual(result, "[P#center#test]")
+
+    def test_list(self):
+        result = ParagraphBuilder("test").list().build()
+
+        self.assertEqual(result, "[P#L#test]")
+
+    def test_combination(self):
+        result = ParagraphBuilder("test").heading().center().list().build()
+
+        all_correct = [
+            f"[P#{",".join(e)}#test]"
+            for e in itertools.permutations(["H1", "center", "L"], 3)
+        ]
+
+        self.assertIn(result, all_correct)
+
+    def test_font(self):
+        result = ParagraphBuilder(FontBuilder("test").bold()).heading().build()
+
+        self.assertEqual(result, "[P#H1#[T#B#test]]")
+
+    def test_cloze(self):
+        result = ParagraphBuilder(ClozeBuilder("test", 1)).heading().build()
+
+        self.assertEqual(result, "[P#H1#[F#1#test]]")
 
 
 if __name__ == "__main__":
