@@ -455,6 +455,17 @@ class TTSItem(DataClassJsonMixin):
 
 
 @dataclass
+class MaskInfo(DataClassJsonMixin):
+    """
+    图片遮罩信息
+
+    :param str description: 描述
+    """
+
+    description: str
+
+
+@dataclass
 class ImageInfo(DataClassJsonMixin):
     """
     图片信息
@@ -492,9 +503,12 @@ class TTSInfo(AudioInfo):
     content_slices: Sequence[TTSItem]
 
 
-def _select_media_type(info: dict) -> Type[ImageInfo | AudioInfo | TTSInfo]:
-    if "width" in info and "height" in info and "description" in info:
-        return ImageInfo
+def _select_media_type(info: dict) -> Type[MaskInfo | ImageInfo | AudioInfo | TTSInfo]:
+    if "description" in info:
+        if "width" in info and "height" in info:
+            return ImageInfo
+        else:
+            return MaskInfo
     elif "source" in info:
         if info["source"] == "UPLOAD":
             return AudioInfo
