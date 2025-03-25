@@ -4,6 +4,7 @@
 # :license: MIT, see LICENSE for more details.
 
 import unittest
+from aiohttp import ClientResponseError
 from tests import AsyncTestCase, ENV
 from markji import Markji
 from markji.auth import Auth
@@ -74,7 +75,7 @@ class TestDeck(AsyncTestCase):
 
         await client.delete_deck(deck.id)
 
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(ClientResponseError):
             await client.get_deck(deck.id)
 
         await client.delete_folder(folder.id)

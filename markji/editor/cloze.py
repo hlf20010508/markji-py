@@ -27,6 +27,7 @@ class ClozeBuilder:
 
         :param str content: 内容
         :param int group: 组号
+        :raises ValueError: 完形填空组号错误
         """
         if group < 1 or not isinstance(group, int):
             raise ValueError("完形填空组号必须为大于 0 的整数")

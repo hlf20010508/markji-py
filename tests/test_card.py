@@ -4,6 +4,7 @@
 # :license: MIT, see LICENSE for more details.
 
 import unittest
+from aiohttp import ClientResponseError
 from tests import AsyncTestCase, ENV
 from markji import Markji
 from markji.auth import Auth
@@ -96,7 +97,7 @@ class TestCard(AsyncTestCase):
 
         await client.delete_card(chapter.id, deck.id, card.id)
 
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(ClientResponseError):
             await client.get_card(deck.id, card.id)
 
     async def test_edit(self):

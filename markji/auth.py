@@ -4,6 +4,7 @@
 # :license: MIT, see LICENSE for more details.
 
 from aiohttp import ClientSession
+from markji._response import _ResponseWrapper
 from markji._const import _API_URL, _LOGIN_ROUTE
 from markji.types._form import _LoginForm
 
@@ -41,15 +42,16 @@ class Auth:
 
         :return: 用户token
         :rtype: str
+        :raises aiohttp.ClientResponseError: 登陆失败
         """
         async with ClientSession(base_url=_API_URL) as session:
-            response = await session.post(
+            async with session.post(
                 _LOGIN_ROUTE,
                 json=_LoginForm(self._username, self._password).to_dict(),
-            )
-            if response.status != 200:
-                raise Exception(f"登陆失败: {response}{await response.text()}")
-            content: dict = await response.json()
-            token: str = content["data"]["token"]
+            ) as response:
+                response = _ResponseWrapper(response)
+                await response.raise_for_status()
+                content: dict = await response.json()
+                token: str = content["data"]["token"]
 
         return token

@@ -4,6 +4,7 @@
 # :license: MIT, see LICENSE for more details.
 
 import unittest
+from aiohttp import ClientResponseError
 from tests import AsyncTestCase, ENV
 from markji import Markji
 from markji.auth import Auth
@@ -106,7 +107,7 @@ class TestChapter(AsyncTestCase):
 
         await client.delete_chapter(deck.id, chapter.id)
 
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(ClientResponseError):
             await client.get_chapter(deck.id, chapter.id)
 
     async def test_rename(self):

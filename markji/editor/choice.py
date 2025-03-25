@@ -62,6 +62,7 @@ class ChoiceBuilder:
         选择题构建器
 
         :param Sequence[ChoiceItem] choices: 选项
+        :raises ValueError: 选择题选项数量错误
         """
 
         self._choices = choices
