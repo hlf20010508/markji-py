@@ -17,18 +17,16 @@ class TestChapter(AsyncTestCase):
 
         folder_name = "t_folder"
         folder = await client.new_folder(folder_name)
-
+        self.addCleanup(client.delete_folder, folder.id)
         deck_name = "t_deck"
         deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
 
         chapter_name = "t_chapter"
         chapter = await client.new_chapter(deck.id, chapter_name)
 
         chapter = await client.get_chapter(deck.id, chapter.id)
         self.assertEqual(chapter.name, chapter_name)
-
-        await client.delete_deck(deck.id)
-        await client.delete_folder(folder.id)
 
     async def test_get_chapter_set(self):
         auth = Auth(ENV.username, ENV.password)
@@ -37,18 +35,16 @@ class TestChapter(AsyncTestCase):
 
         folder_name = "t_folder"
         folder = await client.new_folder(folder_name)
-
+        self.addCleanup(client.delete_folder, folder.id)
         deck_name = "t_deck"
         deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
 
         chapter_name = "t_chapter"
         chapter = await client.new_chapter(deck.id, chapter_name)
 
         chapter_set = await client.get_chapter_set(deck.id)
         self.assertTrue(chapter.id in chapter_set.chapter_ids)
-
-        await client.delete_deck(deck.id)
-        await client.delete_folder(folder.id)
 
     async def test_list(self):
         auth = Auth(ENV.username, ENV.password)
@@ -57,18 +53,16 @@ class TestChapter(AsyncTestCase):
 
         folder_name = "t_folder"
         folder = await client.new_folder(folder_name)
-
+        self.addCleanup(client.delete_folder, folder.id)
         deck_name = "t_deck"
         deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
 
         chapter_name = "t_chapter"
         await client.new_chapter(deck.id, chapter_name)
 
         chapters = await client.list_chapters(deck.id)
         self.assertEqual(len(chapters), 2)
-
-        await client.delete_deck(deck.id)
-        await client.delete_folder(folder.id)
 
     async def test_new(self):
         auth = Auth(ENV.username, ENV.password)
@@ -77,9 +71,10 @@ class TestChapter(AsyncTestCase):
 
         folder_name = "t_folder"
         folder = await client.new_folder(folder_name)
-
+        self.addCleanup(client.delete_folder, folder.id)
         deck_name = "t_deck"
         deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
 
         chapter_name = "t_chapter"
         chapter = await client.new_chapter(deck.id, chapter_name)
@@ -94,9 +89,6 @@ class TestChapter(AsyncTestCase):
         with self.assertRaises(ValueError):
             await client.new_chapter(deck.id, chapter_name)
 
-        await client.delete_deck(deck.id)
-        await client.delete_folder(folder.id)
-
     async def test_delete(self):
         auth = Auth(ENV.username, ENV.password)
         token = await auth.login()
@@ -104,9 +96,10 @@ class TestChapter(AsyncTestCase):
 
         folder_name = "t_folder"
         folder = await client.new_folder(folder_name)
-
+        self.addCleanup(client.delete_folder, folder.id)
         deck_name = "t_deck"
         deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
 
         chapter_name = "t_chapter"
         chapter = await client.new_chapter(deck.id, chapter_name)
@@ -116,9 +109,6 @@ class TestChapter(AsyncTestCase):
         with self.assertRaises(FileNotFoundError):
             await client.get_chapter(deck.id, chapter.id)
 
-        await client.delete_deck(deck.id)
-        await client.delete_folder(folder.id)
-
     async def test_rename(self):
         auth = Auth(ENV.username, ENV.password)
         token = await auth.login()
@@ -126,9 +116,10 @@ class TestChapter(AsyncTestCase):
 
         folder_name = "t_folder"
         folder = await client.new_folder(folder_name)
-
+        self.addCleanup(client.delete_folder, folder.id)
         deck_name = "t_deck"
         deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
 
         chapter_name = "t_chapter"
         chapter = await client.new_chapter(deck.id, chapter_name)
@@ -146,9 +137,6 @@ class TestChapter(AsyncTestCase):
         with self.assertRaises(ValueError):
             await client.rename_chapter(deck.id, chapter.id, new_chapter_name)
 
-        await client.delete_deck(deck.id)
-        await client.delete_folder(folder.id)
-
     async def test_sort(self):
         auth = Auth(ENV.username, ENV.password)
         token = await auth.login()
@@ -156,9 +144,10 @@ class TestChapter(AsyncTestCase):
 
         folder_name = "t_folder"
         folder = await client.new_folder(folder_name)
-
+        self.addCleanup(client.delete_folder, folder.id)
         deck_name = "t_deck"
         deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
 
         chapter_set = await client.get_chapter_set(deck.id)
         default_chapter_ids = chapter_set.chapter_ids
@@ -173,9 +162,6 @@ class TestChapter(AsyncTestCase):
         chapter_set = await client.sort_chapters(deck.id, chapter_ids)
 
         self.assertListEqual(list(chapter_set.chapter_ids), chapter_ids)
-
-        await client.delete_deck(deck.id)
-        await client.delete_folder(folder.id)
 
 
 if __name__ == "__main__":

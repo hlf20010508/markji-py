@@ -72,8 +72,10 @@ class TestUser(AsyncTestCase):
 
         folder_name = "t_folder"
         folder = await client.new_folder(folder_name)
+        self.addCleanup(client.delete_folder, folder.id)
         deck_name = "t_deck"
         deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
 
         profile = await client.get_profile()
 
@@ -101,9 +103,6 @@ class TestUser(AsyncTestCase):
             await client.search_collaborators(deck.id, "")
         with self.assertRaises(ValueError):
             await client.search_collaborators(deck.id, "_" * 8001)
-
-        await client.delete_deck(deck.id)
-        await client.delete_folder(folder.id)
 
 
 if __name__ == "__main__":
