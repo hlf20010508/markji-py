@@ -7,6 +7,7 @@ import unittest
 import itertools
 from markji import Markji
 from markji.auth import Auth
+from markji.editor.formula import FormulaBuilder
 from markji.types import LanguageCode
 from markji.editor import (
     AnswerLine,
@@ -21,6 +22,7 @@ from markji.editor import (
     ParagraphBuilder,
     ReferenceBuilder,
 )
+from markji.types.card import Card
 from tests import ENV, AsyncTestCase
 
 
@@ -225,6 +227,43 @@ class TestChoice(unittest.TestCase):
         ]
 
         self.assertIn(result, all_correct)
+
+
+class TestFormula(unittest.TestCase):
+    def test(self):
+        result = FormulaBuilder("test").build()
+
+        self.assertEqual(result, "[E##test]")
+
+
+class TestReference(AsyncTestCase):
+    async def test(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        word = "test"
+        cards, _ = await client.search_cards(word, self_only=False)
+
+        result = ReferenceBuilder(word, cards[0]).build()
+
+        self.assertEqual(result, f"[Card#ID/{cards[0].root_id}#test]")
+
+        result = ReferenceBuilder(word, cards[0].root_id).build()
+
+        self.assertEqual(result, f"[Card#ID/{cards[0].root_id}#test]")
+
+        result = ReferenceBuilder(word).build()
+
+        self.assertEqual(result, "[Card##test]")
+
+        card_result = cards[0].to_dict()
+        card_result["card_rids"] = []
+        card = Card.from_dict(card_result)
+
+        result = ReferenceBuilder(word, card).build()
+
+        self.assertEqual(result, f"[Card#ID/{card.root_id}#test]")
 
 
 if __name__ == "__main__":
