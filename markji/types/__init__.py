@@ -349,6 +349,7 @@ class _SearchScope(StrEnum):
     ALL = "ALL"
     MINE = "MINE"
     REFERENCE = "REFERENCE"
+    DECK = "DECK"
 
 
 class Datetime(datetime):

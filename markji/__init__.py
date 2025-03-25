@@ -1066,6 +1066,7 @@ class Markji:
         offset: int = 0,
         limit: int = 10,
         self_only: bool = False,
+        deck_id: DeckID | str | None = None,
     ) -> tuple[Sequence[CardResult], int]:
         """
         搜索卡片
@@ -1076,10 +1077,13 @@ class Markji:
 
         limit 必须在 10 到 100 之间
 
+        设置 deck_id 时，self_only 无效
+
         :param str keyword: 关键词
         :param int offset: 偏移
         :param int limit: 限制
         :param bool self_only: 仅自己的
+        :param DeckID | str | None deck_id: 卡组ID
         :return: 卡片列表, 总数
         :rtype: tuple[Sequence[Card], int]
         :raises ValueError: 关键词长度错误
@@ -1104,6 +1108,10 @@ class Markji:
 
             if self_only:
                 params["scope"] = _SearchScope.MINE
+
+            if deck_id is not None:
+                params["deck_id"] = deck_id
+                params["scope"] = _SearchScope.DECK
 
             async with session.get(
                 f"{_CARD_ROUTE}/{_SEARCH_ROUTE}",
