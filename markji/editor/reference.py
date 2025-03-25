@@ -10,17 +10,6 @@ from markji.types.card import Card, CardResult
 class ReferenceBuilder:
     """
     卡片引用构建器
-
-    :param str content: 内容
-    :param CardResult | Card | CardRootID | str | None card: 被引用的卡片
-
-    .. code-block:: python
-
-        from markji.editor import ReferenceBuilder
-
-        cards, _ = await client.search_cards("Internet", self_only=False)
-
-        ReferenceBuilder("Hello, World!", cards[0]).build()
     """
 
     def __init__(
@@ -31,6 +20,14 @@ class ReferenceBuilder:
 
         :param str content: 内容
         :param CardResult | Card | CardRootID | str | None card: 被引用的卡片
+
+        .. code-block:: python
+
+            from markji.editor import ReferenceBuilder
+
+            cards, _ = await client.search_cards("Internet", self_only=False)
+
+            ReferenceBuilder("Hello, World!", cards[0]).build()
         """
         self._content = content
         self._card = card

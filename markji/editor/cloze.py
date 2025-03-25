@@ -7,16 +7,6 @@
 class ClozeBuilder:
     """
     完形填空构建器
-
-    组号必须为大于 0 的整数
-
-    :param str content: 内容
-
-    .. code-block:: python
-
-        from markji.editor import ClozeBuilder
-
-        ClozeBuilder("Hello, World!", 1).build()
     """
 
     def __init__(self, content: str, group: int = 1):
@@ -26,8 +16,12 @@ class ClozeBuilder:
         组号必须为大于 0 的整数
 
         :param str content: 内容
-        :param int group: 组号
-        :raises ValueError: 完形填空组号错误
+
+        .. code-block:: python
+
+            from markji.editor import ClozeBuilder
+
+            ClozeBuilder("Hello, World!", 1).build()
         """
         if group < 1 or not isinstance(group, int):
             raise ValueError("完形填空组号必须为大于 0 的整数")

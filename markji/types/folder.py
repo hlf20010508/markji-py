@@ -12,7 +12,7 @@ from markji.types import Datetime, UserID, FolderID, Status, FolderItem
 @dataclass
 class RootFolder(DataClassJsonMixin):
     """
-    RootFolder 根文件夹
+    根文件夹
 
     :param FolderID id: 文件夹ID
     :param UserID creator: 创建者ID
@@ -34,7 +34,7 @@ class RootFolder(DataClassJsonMixin):
 @dataclass
 class Folder(DataClassJsonMixin):
     """
-    Folder 文件夹
+    文件夹
 
     :param FolderID id: 文件夹ID
     :param UserID creator: 创建者ID
@@ -59,7 +59,7 @@ class Folder(DataClassJsonMixin):
 @dataclass
 class FolderDiff(DataClassJsonMixin):
     """
-    FolderDiff 文件夹差异
+    文件夹差异
 
     :param Folder new_folder: 新文件夹
     :param Folder old_folder: 旧文件夹

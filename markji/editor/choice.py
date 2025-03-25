@@ -9,11 +9,6 @@ from typing import Sequence
 class ChoiceItem:
     """
     选择题选项
-
-    必须另起一行
-
-    :param str content: 内容
-    :param bool chosen: 是否选取
     """
 
     def __init__(self, content: str, chosen: bool):
@@ -40,21 +35,6 @@ class ChoiceItem:
 class ChoiceBuilder:
     """
     选择题构建器
-
-    :param Sequence[ChoiceItem] choices: 选项
-
-    .. code-block:: python
-
-        from markji.editor import ChoiceBuilder, ChoiceItem
-
-        choices = [
-            ChoiceItem("dog", True),
-            ChoiceItem("cat", True),
-            ChoiceItem("horse", False),
-            ChoiceItem("bird", False),
-        ]
-
-        ChoiceBuilder(choices).build()
     """
 
     def __init__(self, choices: Sequence[ChoiceItem]):
@@ -62,7 +42,19 @@ class ChoiceBuilder:
         选择题构建器
 
         :param Sequence[ChoiceItem] choices: 选项
-        :raises ValueError: 选择题选项数量错误
+
+        .. code-block:: python
+
+            from markji.editor import ChoiceBuilder, ChoiceItem
+
+            choices = [
+                ChoiceItem("dog", True),
+                ChoiceItem("cat", True),
+                ChoiceItem("horse", False),
+                ChoiceItem("bird", False),
+            ]
+
+            ChoiceBuilder(choices).build()
         """
 
         self._choices = choices

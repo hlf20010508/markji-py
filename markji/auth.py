@@ -11,25 +11,22 @@ from markji.types._form import _LoginForm
 
 class Auth:
     """
-    Auth 认证登陆
-
-    :param str username: 用户名（手机号、邮箱）
-    :param str password: 密码
-
-    .. code-block:: python
-
-        from markji.auth import Auth
-
-        auth = Auth("username", "password")
-        token = await auth.login()
+    登陆认证
     """
 
     def __init__(self, username: str, password: str):
         """
-        Auth 认证登陆
+        登陆认证
 
         :param str username: 用户名（手机号、邮箱）
         :param str password: 密码
+
+        .. code-block:: python
+
+            from markji.auth import Auth
+
+            auth = Auth("username", "password")
+            token = await auth.login()
         """
         self._username = username
         self._password = password

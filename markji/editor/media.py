@@ -9,16 +9,6 @@ from markji.types import FileID
 class ImageBuilder:
     """
     图片构建器
-
-    :param FileID | str file_id: 文件ID
-
-    .. code-block:: python
-
-        from markji.editor import ImageBuilder
-
-        image = await client.upload_file("example.jpeg")
-
-        ImageBuilder(image.id).build()
     """
 
     def __init__(self, file_id: FileID | str):
@@ -26,6 +16,14 @@ class ImageBuilder:
         图片构建器
 
         :param FileID | str file_id: 文件ID
+
+        .. code-block:: python
+
+            from markji.editor import ImageBuilder
+
+            image = await client.upload_file("example.jpeg")
+
+            ImageBuilder(image.id).build()
         """
         self._file_id = file_id
 
@@ -42,31 +40,6 @@ class ImageBuilder:
 class AudioBuilder:
     """
     音频构建器
-
-    :param FileID | str file_id: 文件ID
-    :param str | None content: 内容
-
-    本地音频
-
-    .. code-block:: python
-
-        from markji.editor import AudioBuilder
-
-        audio = await client.upload_file("example.mp3")
-
-        AudioBuilder(audio.id).build()
-
-    语音生成
-
-    .. code-block:: python
-
-        from markji.editor import AudioBuilder
-        from markji.types import LanguageCode
-
-        word = "example"
-        audio = await client.tts(word, LanguageCode.EN_US)
-
-        AudioBuilder(audio.id, word).build()
     """
 
     def __init__(self, file_id: FileID | str, content: str | None = None):
@@ -75,6 +48,28 @@ class AudioBuilder:
 
         :param FileID | str file_id: 文件ID
         :param str | None content: 内容
+
+        本地音频
+
+        .. code-block:: python
+
+            from markji.editor import AudioBuilder
+
+            audio = await client.upload_file("example.mp3")
+
+            AudioBuilder(audio.id).build()
+
+        语音生成
+
+        .. code-block:: python
+
+            from markji.editor import AudioBuilder
+            from markji.types import LanguageCode
+
+            word = "example"
+            audio = await client.tts(word, LanguageCode.EN_US)
+
+            AudioBuilder(audio.id, word).build()
         """
         self._file_id = file_id
         self._content = content

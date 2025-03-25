@@ -8,7 +8,7 @@ from enum import StrEnum
 
 class FontColor(StrEnum):
     """
-    字体颜色
+    Enum 字体颜色
 
     * RED: 红色
     * ORANGE: 橙色
@@ -30,7 +30,7 @@ class FontColor(StrEnum):
 
 class FontBackgroundColor(StrEnum):
     """
-    背景颜色
+    Enum 背景颜色
 
     * RED: 红色
     * ORANGE: 橙色
@@ -52,7 +52,7 @@ class FontBackgroundColor(StrEnum):
 
 class FontScript(StrEnum):
     """
-    字体角标位置
+    Enum 字体角标位置
 
     * UP: 上角标
     * DOWN: 下角标
@@ -65,16 +65,6 @@ class FontScript(StrEnum):
 class FontBuilder:
     """
     字体构建器
-
-    :param str content: 内容
-
-    .. code-block:: python
-
-        from markji.editor import FontBuilder, FontColor, FontBackgroundColor, FontScript
-
-        FontBuilder("Hello, World!").bold().color(FontColor.RED).background(
-            FontBackgroundColor.YELLOW
-        ).script(FontScript.UP).build()
     """
 
     def __init__(self, content: str):
@@ -82,6 +72,14 @@ class FontBuilder:
         字体构建器
 
         :param str content: 内容
+
+        .. code-block:: python
+
+            from markji.editor import FontBuilder, FontColor, FontBackgroundColor, FontScript
+
+            FontBuilder("Hello, World!").bold().color(FontColor.RED).background(
+                FontBackgroundColor.YELLOW
+            ).script(FontScript.UP).build()
         """
         self._content = content
         self._bold: bool = False

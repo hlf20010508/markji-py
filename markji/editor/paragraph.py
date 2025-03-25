@@ -12,58 +12,6 @@ from markji.editor.reference import ReferenceBuilder
 class ParagraphBuilder:
     """
     段落构建器
-
-    :param str | FontBuilder | ClozeBuilder | AudioBuilder | ReferenceBuilder content: 内容
-
-    纯文字段落
-
-    .. code-block:: python
-
-        from markji.editor import ParagraphBuilder
-
-        ParagraphBuilder("Hello, World!").heading().center().build()
-
-    字体段落
-
-    .. code-block:: python
-
-        from markji.editor import FontBuilder, FontColor, FontBackgroundColor, ParagraphBuilder
-
-        font_builder = FontBuilder("Hello, World!").bold().color(FontColor.RED).background(
-            FontBackgroundColor.YELLOW
-        )
-
-        ParagraphBuilder(font_builder).heading().center().build()
-
-    完形填空段落
-
-    .. code-block:: python
-
-        from markji.editor import ClozeBuilder, ParagraphBuilder
-
-        cloze_builder = ClozeBuilder("Hello, World!", 1)
-
-        ParagraphBuilder(cloze_builder).heading().build()
-
-    音频段落
-
-    .. code-block:: python
-
-        from markji.editor import AudioBuilder, ParagraphBuilder
-
-        audio = await client.upload_file("example.mp3")
-
-        ParagraphBuilder(AudioBuilder(audio.id, "example")).heading().build()
-
-    卡片引用段落
-
-    .. code-block:: python
-
-        from markji.editor import ReferenceBuilder, ParagraphBuilder
-
-        cards, _ = await client.search_cards("Internet", self_only=False)
-
-        ParagraphBuilder(ReferenceBuilder("Hello, World!", cards[0])).heading().build()
     """
 
     def __init__(
@@ -74,6 +22,56 @@ class ParagraphBuilder:
         段落构建器
 
         :param str | FontBuilder | ClozeBuilder | AudioBuilder | ReferenceBuilder content: 内容
+
+        纯文字段落
+
+        .. code-block:: python
+
+            from markji.editor import ParagraphBuilder
+
+            ParagraphBuilder("Hello, World!").heading().center().build()
+
+        字体段落
+
+        .. code-block:: python
+
+            from markji.editor import FontBuilder, FontColor, FontBackgroundColor, ParagraphBuilder
+
+            font_builder = FontBuilder("Hello, World!").bold().color(FontColor.RED).background(
+                FontBackgroundColor.YELLOW
+            )
+
+            ParagraphBuilder(font_builder).heading().center().build()
+
+        完形填空段落
+
+        .. code-block:: python
+
+            from markji.editor import ClozeBuilder, ParagraphBuilder
+
+            cloze_builder = ClozeBuilder("Hello, World!", 1)
+
+            ParagraphBuilder(cloze_builder).heading().build()
+
+        音频段落
+
+        .. code-block:: python
+
+            from markji.editor import AudioBuilder, ParagraphBuilder
+
+            audio = await client.upload_file("example.mp3")
+
+            ParagraphBuilder(AudioBuilder(audio.id, "example")).heading().build()
+
+        卡片引用段落
+
+        .. code-block:: python
+
+            from markji.editor import ReferenceBuilder, ParagraphBuilder
+
+            cards, _ = await client.search_cards("Internet", self_only=False)
+
+            ParagraphBuilder(ReferenceBuilder("Hello, World!", cards[0])).heading().build()
         """
 
         self._content = content

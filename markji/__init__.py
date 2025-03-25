@@ -71,25 +71,23 @@ from markji.types.user import Collaborator, Profile, User, UserBrief
 
 class Markji:
     """
-    Markji 客户端
-
-    :param str token: 用户令牌
-
-    .. code-block:: python
-
-        from markji import Markji
-        from markji.auth import Auth
-
-        auth = Auth("username", "password")
-        token = await auth.login()
-        client = Markji(token)
+    客户端
     """
 
     def __init__(self, token: str):
         """
-        Markji 客户端
+        客户端
 
         :param str token: 用户令牌
+
+        .. code-block:: python
+
+            from markji import Markji
+            from markji.auth import Auth
+
+            auth = Auth("username", "password")
+            token = await auth.login()
+            client = Markji(token)
         """
         self._token = token
 

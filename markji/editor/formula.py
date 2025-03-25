@@ -7,16 +7,6 @@
 class FormulaBuilder:
     """
     公式构建器
-
-    使用LaTex语法构建公式
-
-    :param str content: 内容
-
-    .. code-block:: python
-
-        from markji.editor import FormulaBuilder
-
-        FormulaBuilder("E=mc^{2}").build()
     """
 
     def __init__(self, content: str):
@@ -26,6 +16,12 @@ class FormulaBuilder:
         使用LaTex语法构建公式
 
         :param str content: 内容
+
+        .. code-block:: python
+
+            from markji.editor import FormulaBuilder
+
+            FormulaBuilder("E=mc^{2}").build()
         """
 
         self._content = content

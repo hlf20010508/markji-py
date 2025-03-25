@@ -12,7 +12,7 @@ from markji.types import Datetime, CardID, ChapterID, ChapterSetID, DeckID, User
 @dataclass
 class Chapter(DataClassJsonMixin):
     """
-    Chapter 章节
+    章节
 
     :param ChapterID id: 章节ID
     :param DeckID deck_id: 卡组ID
