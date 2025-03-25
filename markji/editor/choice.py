@@ -10,6 +10,8 @@ class ChoiceItem:
     """
     选择题选项
 
+    必须另起一行
+
     :param str content: 内容
     :param bool chosen: 是否选取
     """
@@ -17,6 +19,8 @@ class ChoiceItem:
     def __init__(self, content: str, chosen: bool):
         """
         选择题选项
+
+        必须另起一行
 
         :param str content: 内容
         :param bool chosen: 是否选取

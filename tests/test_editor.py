@@ -11,6 +11,8 @@ from markji.types import LanguageCode
 from markji.editor import (
     AnswerLine,
     AudioBuilder,
+    ChoiceBuilder,
+    ChoiceItem,
     ClozeBuilder,
     FontBackgroundColor,
     FontBuilder,
@@ -163,6 +165,66 @@ class TestCloze(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             ClozeBuilder("test", 0)
+
+
+class TestChoice(unittest.TestCase):
+    def test(self):
+        choices = [
+            ChoiceItem("test1", True),
+            ChoiceItem("test2", False),
+            ChoiceItem("test3", False),
+        ]
+
+        result = ChoiceBuilder(choices).build()
+
+        self.assertEqual(result, "[Choice##\n* test1\n- test2\n- test3\n]")
+
+        choices = [
+            ChoiceItem("test1", True),
+            ChoiceItem("test2", True),
+            ChoiceItem("test3", False),
+        ]
+
+        result = ChoiceBuilder(choices).build()
+
+        self.assertEqual(result, "[Choice#multi#\n* test1\n* test2\n- test3\n]")
+
+    def test_multiple(self):
+        choices = [
+            ChoiceItem("test1", True),
+            ChoiceItem("test2", False),
+            ChoiceItem("test3", False),
+        ]
+
+        result = ChoiceBuilder(choices).multiple().build()
+
+        self.assertEqual(result, "[Choice#multi#\n* test1\n- test2\n- test3\n]")
+
+    def test_fixed(self):
+        choices = [
+            ChoiceItem("test1", True),
+            ChoiceItem("test2", False),
+            ChoiceItem("test3", False),
+        ]
+
+        result = ChoiceBuilder(choices).fixed().build()
+
+        self.assertEqual(result, "[Choice#fixed#\n* test1\n- test2\n- test3\n]")
+
+        choices = [
+            ChoiceItem("test1", True),
+            ChoiceItem("test2", True),
+            ChoiceItem("test3", False),
+        ]
+
+        result = ChoiceBuilder(choices).fixed().build()
+
+        all_correct = [
+            "[Choice#multi,fixed#\n* test1\n* test2\n- test3\n]",
+            "[Choice#fixed,multi#\n* test1\n* test2\n- test3\n]",
+        ]
+
+        self.assertIn(result, all_correct)
 
 
 if __name__ == "__main__":
