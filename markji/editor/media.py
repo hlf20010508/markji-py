@@ -24,8 +24,38 @@ class ImageBuilder:
             image = await client.upload_file("example.jpeg")
 
             ImageBuilder(image.id).build()
+
+        增加遮罩
+
+        .. code-block:: python
+
+            from markji.editor import ImageBuilder
+            from markji.types import MaskItem
+
+            mask_data = [
+                MaskItem(0, 0, 128, 128, 1),
+                MaskItem(200, 200, 256, 256, 2),
+            ]
+
+            mask = await client.set_mask(mask_data)
+
+            image = await client.upload_file("example.jpeg")
+
+            ImageBuilder(image.id).mask(mask.id).build()
         """
         self._file_id = file_id
+        self._mask_id: FileID | str | None = None
+
+    def mask(self, mask_id: FileID | str):
+        """
+        遮罩
+
+        :param FileID | str mask_id: 遮罩ID
+        :return: self
+        :rtype: ImageBuilder
+        """
+        self._mask_id = mask_id
+        return self
 
     def build(self) -> str:
         """
@@ -34,7 +64,10 @@ class ImageBuilder:
         :return: 包装后的内容
         :rtype: str
         """
-        return f"[Pic#ID/{self._file_id}#]"
+        content = [f"ID/{self._file_id}"]
+        if self._mask_id:
+            content.append(f"MID/{self._mask_id}")
+        return f"[Pic#{",".join(content)}#]"
 
 
 class AudioBuilder:

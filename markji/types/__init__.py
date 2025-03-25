@@ -10,6 +10,8 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Sequence, NewType, Type
 
+Path = NewType("Path", str)
+"""路径"""
 # 8位 eg. 20251234
 UserID = NewType("UserID", int)
 """用户 ID"""
@@ -460,10 +462,12 @@ class MaskInfo(DataClassJsonMixin):
     """
     图片遮罩信息
 
+    全新上传的遮罩不含 description 字段
+
     :param str description: 描述
     """
 
-    description: str
+    description: str | None = None
 
 
 @dataclass
@@ -505,18 +509,15 @@ class TTSInfo(AudioInfo):
 
 
 def _select_media_type(info: dict) -> Type[MaskInfo | ImageInfo | AudioInfo | TTSInfo]:
-    if "description" in info:
-        if "width" in info and "height" in info:
-            return ImageInfo
-        else:
-            return MaskInfo
+    if "width" in info and "height" in info and "description" in info:
+        return ImageInfo
     elif "source" in info:
         if info["source"] == "UPLOAD":
             return AudioInfo
         elif info["source"] == "TTS":
             return TTSInfo
 
-    raise ValueError(f"Invalid file info: {info}")
+    return MaskInfo
 
 
 @dataclass
@@ -524,7 +525,7 @@ class File(DataClassJsonMixin):
     """
     文件
 
-    :param FileInfo info: 文件信息
+    :param MaskInfo | ImageInfo | AudioInfo | TTSInfo info: 文件信息
     :param int size: 文件大小
     :param str mime: MIME类型
     :param str url: 文件Url
@@ -532,7 +533,7 @@ class File(DataClassJsonMixin):
     :param Datetime expire_time: 过期时间
     """
 
-    info: ImageInfo | AudioInfo | TTSInfo = field(
+    info: MaskInfo | ImageInfo | AudioInfo | TTSInfo = field(
         metadata=config(decoder=lambda info: _select_media_type(info).from_dict(info))
     )
     size: int
@@ -540,3 +541,24 @@ class File(DataClassJsonMixin):
     url: str
     id: FileID
     expire_time: Datetime = Datetime._field()
+
+
+@dataclass
+class MaskItem(DataClassJsonMixin):
+    """
+    遮罩项目
+
+    :param int top: 顶部位置
+    :param int left: 左侧位置
+    :param int width: 宽度
+    :param int height: 高度
+    :param int index: 索引
+    :param str type: 类型
+    """
+
+    top: int
+    left: int
+    width: int
+    height: int
+    index: int
+    type: str = "rect"

@@ -9,7 +9,15 @@ from PIL import Image
 import os
 import wave
 import struct
-from markji.types import AudioInfo, FileSource, ImageInfo, LanguageCode, TTSInfo
+import json
+from markji.types import (
+    AudioInfo,
+    FileSource,
+    ImageInfo,
+    LanguageCode,
+    TTSInfo,
+    MaskItem,
+)
 from tests import AsyncTestCase, ENV
 from markji import Markji
 from markji.auth import Auth
@@ -25,6 +33,7 @@ class TestFile(AsyncTestCase):
         image_size = (256, 256)
         image = Image.new("RGB", image_size)
         image.save(image_path)
+        self.addCleanup(os.remove, image_path)
 
         file = await client.upload_file(image_path)
         image_info = cast(ImageInfo, file.info)
@@ -37,12 +46,11 @@ class TestFile(AsyncTestCase):
 
         self.assertEqual((image_info.width, image_info.height), image_size)
 
-        os.remove(image_path)
-
         audio_path = "test_audio.mp3"
         with wave.open(audio_path, "w") as wf:
             wf.setparams((44100, 1, 2, 1, "NONE", "not compressed"))
             wf.writeframes(struct.pack("<h", 0))
+        self.addCleanup(os.remove, audio_path)
 
         file = await client.upload_file(audio_path)
         audio_info = cast(AudioInfo, file.info)
@@ -53,8 +61,6 @@ class TestFile(AsyncTestCase):
             file = await client.upload_file(f)
 
         self.assertEqual(audio_info.source, FileSource.UPLOAD)
-
-        os.remove(audio_path)
 
     async def test_tts(self):
         auth = Auth(ENV.username, ENV.password)
@@ -72,6 +78,41 @@ class TestFile(AsyncTestCase):
         file = await client.tts(text, "en-US")
 
         self.assertEqual(tts_info.source, FileSource.TTS)
+
+    async def test_mask(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        mask_data = [MaskItem(0, 0, 128, 128, 1)]
+
+        mask = await client.upload_mask(mask_data)
+
+        self.assertEqual(mask.mime, "markji/mask")
+
+        mask_data = [
+            {
+                "top": 128,
+                "left": 128,
+                "width": 64,
+                "height": 64,
+                "index": 2,
+                "type": "rect",
+            }
+        ]
+
+        mask = await client.upload_mask(mask_data)
+
+        self.assertEqual(mask.mime, "markji/mask")
+
+        mask_path = "mask.msk1"
+        with open(mask_path, "w") as f:
+            json.dump(mask_data, f)
+        self.addCleanup(os.remove, mask_path)
+
+        mask = await client.upload_mask(mask_path)
+
+        self.assertEqual(mask.mime, "markji/mask")
 
 
 if __name__ == "__main__":

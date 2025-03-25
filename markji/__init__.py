@@ -4,6 +4,7 @@
 # :license: MIT, see LICENSE for more details.
 
 from datetime import datetime, UTC
+import json
 
 __title__ = "markji-py"
 __author__ = "L-ING"
@@ -13,7 +14,7 @@ __copyright__ = f"(C) 2025-{datetime.now(UTC).year} {__author__} <hlf01@icloud.c
 
 from io import BufferedReader
 from typing import IO, Sequence
-from aiohttp import ClientSession
+from aiohttp import ClientSession, FormData
 from markji._response import _ResponseWrapper
 from markji._const import (
     _API_URL,
@@ -55,6 +56,8 @@ from markji.types._form import (
     _UploadFileForm,
 )
 from markji.types import (
+    MaskItem,
+    Path,
     CardID,
     ChapterID,
     DeckID,
@@ -1127,11 +1130,11 @@ class Markji:
 
         return cards, data["data"]["total"]
 
-    async def upload_file(self, path: str | IO[bytes]) -> File:
+    async def upload_file(self, path: Path | str | IO[bytes]) -> File:
         """
         上传文件（图片和音频）
 
-        :param str | IO[bytes] path: 文件路径或字节流
+        :param Path | str | IO[bytes] path: 文件路径或字节流
         :return: 上传后的文件
         :rtype: File
         :raises aiohttp.ClientResponseError: 上传文件失败
@@ -1178,6 +1181,35 @@ class Markji:
 
             async with session.post(
                 _URL_ROUTE, json=_TTSGetFileForm(url).to_dict()
+            ) as response:
+                response = _ResponseWrapper(response)
+                await response.raise_for_status()
+                data: dict = await response.json()
+
+        return File.from_dict(data["data"]["file"])
+
+    async def upload_mask(self, mask: Sequence[MaskItem | dict] | Path | str) -> File:
+        """
+        上传图片遮罩
+
+        :param Sequence[MaskItem | dict] | Path | str mask: 遮罩或文件路径
+        :return: 上传后的文件
+        :rtype: File
+        :raises aiohttp.ClientResponseError: 上传文件失败
+        """
+        if isinstance(mask, str):
+            io = open(mask, "r")
+        else:
+            io = json.dumps(
+                [i.to_dict() if isinstance(i, MaskItem) else i for i in mask]
+            ).encode()
+
+        async with self._session() as session:
+            form = FormData()
+            form.add_field("file", io, filename="mask.msk1", content_type="markji/mask")
+            async with session.post(
+                _FILE_ROUTE,
+                data=form,
             ) as response:
                 response = _ResponseWrapper(response)
                 await response.raise_for_status()
