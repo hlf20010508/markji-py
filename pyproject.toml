@@ -5,12 +5,25 @@ description = "Markji SDK for Python"
 authors = ["L-ING <hlf01@icloud.com>"]
 license = "MIT"
 readme = "README.md"
+homepage = "https://github.com/hlf20010508/markji-py/tree/master"
+repository = "https://github.com/hlf20010508/markji-py/tree/master"
+documentation = "https://hlf20010508.github.io/markji-py/"
+keywords = ["markji", "sdk", "python"]
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3.11",
+]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 aiohttp = "^3.11.14"
 dataclasses-json = "^0.6.7"
 
+
+[tool.poetry.group.dev.dependencies]
+sphinx = "^8.2.3"
+sphinx-rtd-theme = "^3.0.2"
+pillow = "^11.1.0"
 
 [build-system]
 requires = ["poetry-core"]

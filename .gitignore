@@ -1,5 +1,7 @@
 dev.*
-
+docs/source/*
+!docs/source/conf.py
+!docs/source/index.rst
 .DS_Store
 __MACOSX/
 
