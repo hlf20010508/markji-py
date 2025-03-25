@@ -3,8 +3,14 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
+from typing import cast
 import unittest
 from aiohttp import ClientResponseError
+from markji.types import (
+    DeckAccessSetting,
+    DeckAccessSettingBrief,
+    DeckAccessSettingInfo,
+)
 from tests import AsyncTestCase, ENV
 from markji import Markji
 from markji.auth import Auth
@@ -201,6 +207,158 @@ class TestDeck(AsyncTestCase):
         deck = await client.update_deck_card_price(deck.id, card_price)
 
         self.assertEqual(deck.card_price, card_price)
+
+    async def test_update_access_setting(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        folder_name = "t_folder"
+        folder = await client.new_folder(folder_name)
+        self.addCleanup(client.delete_folder, folder.id)
+        deck_name = "t_deck"
+        deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
+
+        is_searchable = False
+        access_setting = await client.update_deck_access_setting(deck.id, is_searchable)
+
+        self.assertTrue(isinstance(access_setting, DeckAccessSettingBrief))
+
+        access_setting = cast(DeckAccessSettingBrief, access_setting)
+
+        self.assertEqual(access_setting.is_searchable, is_searchable)
+        self.assertEqual(access_setting.validation_enabled, False)
+
+        validation_request_access = True
+        access_setting = await client.update_deck_access_setting(
+            deck.id, is_searchable, validation_request_access
+        )
+
+        self.assertTrue(isinstance(access_setting, DeckAccessSettingInfo))
+
+        access_setting = cast(DeckAccessSettingInfo, access_setting)
+
+        self.assertEqual(access_setting.is_searchable, is_searchable)
+        self.assertEqual(access_setting.validation_enabled, validation_request_access)
+        self.assertEqual(access_setting.validation_password_enabled, False)
+        self.assertEqual(access_setting.validation_redeem_code, False)
+
+        validation_password = "password"
+        access_setting = await client.update_deck_access_setting(
+            deck.id, is_searchable, validation_request_access, validation_password
+        )
+
+        self.assertTrue(isinstance(access_setting, DeckAccessSetting))
+
+        access_setting = cast(DeckAccessSetting, access_setting)
+
+        self.assertEqual(access_setting.is_searchable, is_searchable)
+        self.assertEqual(access_setting.validation_enabled, validation_request_access)
+        self.assertEqual(access_setting.validation_password_enabled, True)
+        self.assertEqual(access_setting.validation_redeem_code, False)
+        self.assertEqual(access_setting.validation_password, validation_password)
+
+        validation_password = "0" * 3
+        with self.assertRaises(ValueError):
+            await client.update_deck_access_setting(
+                deck.id, True, validation_password=validation_password
+            )
+
+        validation_password = "0" * 13
+        with self.assertRaises(ValueError):
+            await client.update_deck_access_setting(
+                deck.id, True, validation_password=validation_password
+            )
+
+        validation_password = "1234_abcd"
+        with self.assertRaises(ValueError):
+            await client.update_deck_access_setting(
+                deck.id, True, validation_password=validation_password
+            )
+
+    async def test_update_searchable(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        folder_name = "t_folder"
+        folder = await client.new_folder(folder_name)
+        self.addCleanup(client.delete_folder, folder.id)
+        deck_name = "t_deck"
+        deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
+
+        is_searchable = False
+        deck = await client.update_deck_searchable(deck.id, is_searchable)
+
+        self.assertEqual(deck.is_searchable, is_searchable)
+
+    async def test_update_validation_request_access(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        folder_name = "t_folder"
+        folder = await client.new_folder(folder_name)
+        self.addCleanup(client.delete_folder, folder.id)
+        deck_name = "t_deck"
+        deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
+
+        validation_request_access = True
+        deck = await client.update_deck_validation_request_access(
+            deck.id, validation_request_access
+        )
+        deck = cast(DeckAccessSettingInfo, deck)
+
+        self.assertEqual(deck.validation_enabled, True)
+        self.assertEqual(deck.validation_request_access, validation_request_access)
+
+    async def test_update_validation_password(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        folder_name = "t_folder"
+        folder = await client.new_folder(folder_name)
+        self.addCleanup(client.delete_folder, folder.id)
+        deck_name = "t_deck"
+        deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
+
+        validation_password = "password"
+        access_setting = await client.update_deck_validation_password(
+            deck.id, validation_password
+        )
+        access_setting = cast(DeckAccessSetting, access_setting)
+
+        self.assertEqual(access_setting.validation_enabled, True)
+        self.assertEqual(access_setting.validation_request_access, True)
+        self.assertEqual(access_setting.validation_password_enabled, True)
+        self.assertEqual(access_setting.validation_password, validation_password)
+
+        validation_password = ""
+        access_setting = await client.update_deck_validation_password(
+            deck.id, validation_password
+        )
+        access_setting = cast(DeckAccessSettingInfo, access_setting)
+
+        self.assertEqual(access_setting.validation_enabled, True)
+        self.assertEqual(access_setting.validation_request_access, True)
+        self.assertEqual(access_setting.validation_password_enabled, False)
+
+        validation_password = "0" * 3
+        with self.assertRaises(ValueError):
+            await client.update_deck_validation_password(deck.id, validation_password)
+
+        validation_password = "0" * 13
+        with self.assertRaises(ValueError):
+            await client.update_deck_validation_password(deck.id, validation_password)
+
+        validation_password = "1234_abcd"
+        with self.assertRaises(ValueError):
+            await client.update_deck_validation_password(deck.id, validation_password)
 
     async def test_sort(self):
         auth = Auth(ENV.username, ENV.password)

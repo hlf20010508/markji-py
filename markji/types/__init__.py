@@ -29,6 +29,8 @@ CardRootID = NewType("CardRootID", str)
 """卡片根 ID"""
 FileID = NewType("FileID", str)
 """文件 ID"""
+AccessSettingID = NewType("AccessSettingID", str)
+"""访问设置 ID"""
 
 
 class UserGender(StrEnum):
@@ -410,7 +412,7 @@ class UserOAuth(DataClassJsonMixin):
 @dataclass
 class FolderItem(DataClassJsonMixin):
     """
-    FolderItems 文件夹项目
+    文件夹项目
 
     :param str object_id: 对象ID
     :param ItemObjectClass object_class: 对象类
@@ -421,14 +423,77 @@ class FolderItem(DataClassJsonMixin):
 
 
 @dataclass
-class DeckAccessSetting(DataClassJsonMixin):
+class DeckAccessSettingBasic(DataClassJsonMixin):
     """
-    卡组访问设置
+    卡组基本访问设置
 
     :param bool validation_enabled: 是否启用验证
     """
 
     validation_enabled: bool
+
+
+@dataclass
+class DeckAccessSettingBrief(DeckAccessSettingBasic):
+    """
+    卡组简要访问设置
+
+    更改是否可搜索且不启用验证时返回
+
+    :param bool validation_enabled: 是否启用验证
+    :id: AccessSettingID id: 访问设置ID
+    :param DeckID deck_id: 卡组ID
+    :param bool is_private: 是否私有
+    :param bool is_searchable: 是否可搜索
+    """
+
+    id: AccessSettingID
+    deck_id: DeckID
+    is_private: bool
+    is_searchable: bool
+
+
+@dataclass
+class DeckAccessSettingInfo(DeckAccessSettingBrief):
+    """
+    卡组访问设置信息
+
+    启用验证但不启用密码时返回
+
+    :param bool validation_enabled: 是否启用验证
+    :id: AccessSettingID id: 访问设置ID
+    :param DeckID deck_id: 卡组ID
+    :param bool is_private: 是否私有
+    :param bool is_searchable: 是否可搜索
+    :param bool validation_request_access: 是否需要验证
+    :param bool validation_password_enabled: 是否启用密码验证
+    :param bool validation_redeem_code: 是否启用验证撤回码（暂无）
+    """
+
+    validation_request_access: bool
+    validation_password_enabled: bool
+    validation_redeem_code: bool
+
+
+@dataclass
+class DeckAccessSetting(DeckAccessSettingInfo):
+    """
+    卡组访问设置
+
+    启用验证密码时返回
+
+    :param bool validation_enabled: 是否启用验证
+    :id: AccessSettingID id: 访问设置ID
+    :param DeckID deck_id: 卡组ID
+    :param bool is_private: 是否私有
+    :param bool is_searchable: 是否可搜索
+    :param bool validation_request_access: 是否需要验证
+    :param bool validation_password_enabled: 是否启用密码验证
+    :param bool validation_redeem_code: 是否启用验证撤回码（暂无）
+    :param str validation_password: 验证密码
+    """
+
+    validation_password: str
 
 
 @dataclass

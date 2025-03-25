@@ -13,10 +13,11 @@ __license__ = "MIT"
 __copyright__ = f"(C) 2025-{datetime.now(UTC).year} {__author__} <hlf01@icloud.com>"
 
 from io import BufferedReader
-from typing import IO, Sequence
+from typing import IO, Sequence, cast
 from aiohttp import ClientSession, FormData
 from markji._response import _ResponseWrapper
 from markji._const import (
+    _ACCESS_ROUTE,
     _API_URL,
     _CARD_ROUTE,
     _CHAPTER_ROUTE,
@@ -28,6 +29,7 @@ from markji._const import (
     _PROFILE_ROUTE,
     _QUERY_ROUTE,
     _SEARCH_ROUTE,
+    _SETTING_ROUTE,
     _SORT_ROUTE,
     _TTS_ROUTE,
     _URL_ROUTE,
@@ -52,11 +54,15 @@ from markji.types._form import (
     _SortFoldersForm,
     _TTSGenForm,
     _TTSGetFileForm,
+    _UpdateDeckAccessSettingForm,
     _UpdateDeckCardPriceForm,
     _UpdateDeckInfoForm,
     _UploadFileForm,
 )
 from markji.types import (
+    DeckAccessSetting,
+    DeckAccessSettingBrief,
+    DeckAccessSettingInfo,
     MaskItem,
     Path,
     CardID,
@@ -480,7 +486,7 @@ class Markji:
         :param int | None card_price: 卡片价格
         :return: 更新后的卡组
         :rtype: DeckBrief
-        :raises ValueError: 卡组信息为空
+        :raises ValueError: 更新信息为空
         :raises ValueError: 卡组名长度错误
         :raises ValueError: 卡片价格错误
         :raises aiohttp.ClientResponseError: 更新卡组信息失败
@@ -491,7 +497,7 @@ class Markji:
             and is_private is None
             and card_price is None
         ):
-            raise ValueError("新的卡组信息不能为空")
+            raise ValueError("卡组更新信息不能为空")
 
         if name is not None:
             if len(name) < 2 or len(name) > 48:
@@ -589,6 +595,132 @@ class Markji:
         )
 
         return deck
+
+    async def update_deck_access_setting(
+        self,
+        deck_id: DeckID | str,
+        is_searchable: bool | None = None,
+        validation_request_access: bool | None = None,
+        validation_password: str | None = None,
+    ) -> DeckAccessSettingBrief | DeckAccessSettingInfo | DeckAccessSetting:
+        """
+        更新卡组访问设置
+
+        密码必须为 4 ~ 12 位，，由数字字母组成
+
+        密码为空则取消密码
+
+        :param DeckID | str deck_id: 卡组ID
+        :param bool | None is_searchable: 是否可被搜索
+        :param bool | None validation_request_access: 是否需要验证访问
+        :param str | None validation_password: 验证密码
+        :return: 更新后的卡组
+        :rtype: DeckAccessSettingBrief | DeckAccessSettingInfo | DeckAccessSetting
+        :raises ValueError: 更新设置为空
+        :raises ValueError: 密码长度错误
+        :raises ValueError: 密码格式错误
+        :raises aiohttp.ClientResponseError: 更新卡组设置失败
+        """
+        if (
+            is_searchable is None
+            and validation_request_access is None
+            and validation_password is None
+        ):
+            raise ValueError("卡组更新设置不能为空")
+
+        if validation_password:
+            if len(validation_password) < 4 or len(validation_password) > 12:
+                raise ValueError("密码长度必须在 4 到 12 个字符之间")
+            if not validation_password.isalnum():
+                raise ValueError("密码必须由数字字母组成")
+
+        deck = await self.get_deck(deck_id)
+
+        async with self._session() as session:
+            async with session.post(
+                f"{_DECK_ROUTE}/{deck_id}/{_SETTING_ROUTE}/{_ACCESS_ROUTE}",
+                json=_UpdateDeckAccessSettingForm(
+                    deck.is_private,
+                    is_searchable,
+                    validation_request_access,
+                    validation_password,
+                ).to_dict(),
+            ) as response:
+                response = _ResponseWrapper(response)
+                await response.raise_for_status()
+                data: dict = await response.json()
+                access_setting = data["data"]["access_setting"]
+
+                if "validation_password" in access_setting:
+                    access_setting = DeckAccessSetting.from_dict(access_setting)
+                elif "validation_request_access" in access_setting:
+                    access_setting = DeckAccessSettingInfo.from_dict(access_setting)
+                else:
+                    access_setting = DeckAccessSettingBrief.from_dict(access_setting)
+
+        return access_setting
+
+    async def update_deck_searchable(
+        self, deck_id: DeckID | str, is_searchable: bool
+    ) -> DeckAccessSettingBrief | DeckAccessSettingInfo | DeckAccessSetting:
+        """
+        更新卡组是否可被搜索
+
+        :param DeckID | str deck_id: 卡组ID
+        :param bool is_searchable: 是否可被搜索
+        :return: 更新后的卡组
+        :rtype: DeckAccessSettingBrief | DeckAccessSettingInfo | DeckAccessSetting
+        """
+        access_setting = await self.update_deck_access_setting(
+            deck_id,
+            is_searchable=is_searchable,
+        )
+
+        return access_setting
+
+    async def update_deck_validation_request_access(
+        self, deck_id: DeckID | str, validation_request_access: bool
+    ) -> DeckAccessSettingBrief | DeckAccessSettingInfo | DeckAccessSetting:
+        """
+        更新卡组是否需要验证访问
+
+        :param DeckID | str deck_id: 卡组ID
+        :param bool validation_request_access: 是否需要验证访问
+        :return: 更新后的卡组
+        :rtype: DeckAccessSettingBrief | DeckAccessSettingInfo | DeckAccessSetting
+        """
+        access_setting = await self.update_deck_access_setting(
+            deck_id,
+            validation_request_access=validation_request_access,
+        )
+
+        return access_setting
+
+    async def update_deck_validation_password(
+        self, deck_id: DeckID | str, validation_password: str
+    ) -> DeckAccessSettingInfo | DeckAccessSetting:
+        """
+        更新卡组验证密码
+
+        密码必须为 4 ~ 12 位，，由数字字母组成
+
+        密码为空则取消密码
+
+        :param DeckID | str deck_id: 卡组ID
+        :param str validation_password: 验证密码
+        :return: 更新后的卡组
+        :rtype: DeckAccessSettingInfo | DeckAccessSetting
+        :raises ValueError: 密码长度错误
+        :raises ValueError: 密码格式错误
+        """
+        access_setting = await self.update_deck_access_setting(
+            deck_id,
+            validation_request_access=True,
+            validation_password=validation_password,
+        )
+        access_setting = cast(DeckAccessSettingInfo | DeckAccessSetting, access_setting)
+
+        return access_setting
 
     async def sort_decks(
         self, folder_id: FolderID | str, deck_ids: Sequence[DeckID | str]

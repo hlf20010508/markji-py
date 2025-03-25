@@ -8,7 +8,7 @@ from dataclasses_json import DataClassJsonMixin
 from typing import Sequence
 from markji.types import (
     Datetime,
-    DeckAccessSetting,
+    DeckAccessSettingBasic,
     UserID,
     DeckID,
     Status,
@@ -176,8 +176,8 @@ class Deck(DeckInfo):
     :param Datetime updated_time: 更新时间
     :param bool is_anki: 是否从Anki导入
     :param UserBasic root_creator: 根创建者
-    :param DeckAccessSetting access_setting: 访问设置
+    :param DeckAccessSettingBasic access_setting: 访问设置
     """
 
     is_anki: bool
-    access_setting: DeckAccessSetting
+    access_setting: DeckAccessSettingBasic
