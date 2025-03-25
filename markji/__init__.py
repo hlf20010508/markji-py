@@ -60,7 +60,7 @@ from markji.types import (
     FolderID,
     LanguageCode,
     _SearchScope,
-    TTSInfo,
+    TTSItem,
 )
 from markji.types.card import Card, CardResult, File, UserID
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
@@ -1137,7 +1137,7 @@ class Markji:
         async with self._session() as session:
             async with session.post(
                 _TTS_ROUTE,
-                json=_TTSGenForm(TTSInfo(text, lang)).to_dict(),
+                json=_TTSGenForm(TTSItem(text, lang)).to_dict(),
             ) as response:
                 response = _ResponseWrapper(response)
                 await response.raise_for_status()

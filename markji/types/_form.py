@@ -14,7 +14,7 @@ from markji.types import (
     FolderID,
     FolderItem,
     ItemObjectClass,
-    TTSInfo,
+    TTSItem,
     UserID,
 )
 
@@ -152,7 +152,7 @@ class _UploadFileForm(DataClassJsonMixin):
 
 @dataclass
 class _TTSGenForm(DataClassJsonMixin):
-    info: TTSInfo = field(
+    info: TTSItem = field(
         metadata=config(
             encoder=lambda info: [info.to_dict()], field_name="content_slices"
         ),

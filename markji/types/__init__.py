@@ -442,9 +442,9 @@ class CardReference(DataClassJsonMixin):
 
 
 @dataclass
-class TTSInfo(DataClassJsonMixin):
+class TTSItem(DataClassJsonMixin):
     """
-    语音合成信息
+    语音合成项目
 
     :param str text: 文本
     :param LanguageCode locale: 语言代码
@@ -455,22 +455,53 @@ class TTSInfo(DataClassJsonMixin):
 
 
 @dataclass
-class FileInfo(DataClassJsonMixin):
+class ImageInfo(DataClassJsonMixin):
     """
-    文件信息
+    图片信息
 
-    :param FileSource | None source: 文件来源 (语音)
-    :param Sequence[TTSInfo] | None content_slices: 语音合成信息
-    :param int | None width: 宽度 (图片)
-    :param int | None height: 高度 (图片)
-    :param str | None description: 描述 (图片)
+    :param int width: 宽度
+    :param int height: 高度
+    :param str description: 描述
     """
 
-    source: FileSource | None = None
-    content_slices: Sequence[TTSInfo] | None = None
-    width: int | None = None
-    height: int | None = None
-    description: str | None = None
+    width: int
+    height: int
+    description: str
+
+
+@dataclass
+class AudioInfo(DataClassJsonMixin):
+    """
+    音频信息
+
+    :param FileSource source: 文件来源
+    """
+
+    source: FileSource
+
+
+@dataclass
+class TTSInfo(AudioInfo):
+    """
+    语音合成信息
+
+    :param FileSource source: 文件来源
+    :param Sequence[TTSItem] content_slices: 语音合成信息
+    """
+
+    content_slices: Sequence[TTSItem]
+
+
+def _select_media_type(info: dict) -> Type[ImageInfo | AudioInfo | TTSInfo]:
+    if "width" in info and "height" in info and "description" in info:
+        return ImageInfo
+    elif "source" in info:
+        if info["source"] == "UPLOAD":
+            return AudioInfo
+        elif info["source"] == "TTS":
+            return TTSInfo
+
+    raise ValueError(f"Invalid file info: {info}")
 
 
 @dataclass
@@ -486,7 +517,9 @@ class File(DataClassJsonMixin):
     :param Datetime expire_time: 过期时间
     """
 
-    info: FileInfo
+    info: ImageInfo | AudioInfo | TTSInfo = field(
+        metadata=config(decoder=lambda info: _select_media_type(info).from_dict(info))
+    )
     size: int
     mime: str
     url: str
