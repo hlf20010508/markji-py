@@ -117,6 +117,37 @@ class DeckInfo(DeckBasic):
 
 
 @dataclass
+class DeckForked(DeckBasic):
+    """
+    收藏卡组信息
+
+    :param DeckID id: 卡组ID
+    :param DeckSource source: 卡组来源
+    :param UserID creator: 创建者ID
+    :param Status status: 状态
+    :param str name: 名称
+    :param Sequence[UserID] authors: 作者ID列表
+    :param str description: 描述
+    :param bool is_modified: 是否已修改
+    :param bool is_private: 是否私有
+    :param bool is_searchable: 是否可搜索
+    :param int like_count: 点赞数
+    :param int revision: 版本
+    :param int card_count: 卡片数
+    :param int chapter_count: 章节数
+    :param Datetime created_time: 创建时间
+    :param Datetime updated_time: 更新时间
+    :param int card_price: 卡片价格
+    :param bool is_semantic_learning: 是否语义学习
+    :param DeckID parent_id: 父卡组ID
+    """
+
+    card_price: int
+    is_semantic_learning: bool
+    parent_id: DeckID
+
+
+@dataclass
 class Deck(DeckBrief, DeckInfo):
     """
     卡组

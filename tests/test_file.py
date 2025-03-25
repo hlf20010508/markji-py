@@ -3,7 +3,6 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
-from email.mime import audio
 from typing import cast
 import unittest
 from PIL import Image

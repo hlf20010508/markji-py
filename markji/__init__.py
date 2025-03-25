@@ -22,6 +22,7 @@ from markji._const import (
     _DECK_ROUTE,
     _FILE_ROUTE,
     _FOLDER_ROUTE,
+    _FORK_ROUTE,
     _MOVE_ROUTE,
     _PROFILE_ROUTE,
     _QUERY_ROUTE,
@@ -64,7 +65,7 @@ from markji.types import (
 )
 from markji.types.card import Card, CardResult, File, UserID
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
-from markji.types.deck import Deck, DeckBasic, DeckBrief, DeckInfo
+from markji.types.deck import Deck, DeckBasic, DeckBrief, DeckForked, DeckInfo
 from markji.types.folder import Folder, FolderDiff, RootFolder
 from markji.types.user import Collaborator, Profile, User, UserBrief
 
@@ -443,6 +444,8 @@ class Markji:
         """
         删除卡组
 
+        或取消收藏卡组
+
         :param DeckID | str deck_id: 卡组ID
         :raises aiohttp.ClientResponseError: 删除卡组失败
         """
@@ -656,6 +659,27 @@ class Markji:
                     decks.append(deck)
 
         return decks, data["data"]["total"]
+
+    async def fork_deck(self, deck_id: DeckID | str) -> DeckForked:
+        """
+        收藏卡组
+
+        无法收藏自己的卡组
+
+        :param DeckID | str deck_id: 卡组ID
+        :return: 复制的卡组
+        :rtype: DeckForked
+        :raises aiohttp.ClientResponseError: 复制卡组失败
+        """
+        async with self._session() as session:
+            async with session.post(
+                f"{_DECK_ROUTE}/{deck_id}/{_FORK_ROUTE}"
+            ) as response:
+                response = _ResponseWrapper(response)
+                await response.raise_for_status()
+                data: dict = await response.json()
+
+        return DeckForked.from_dict(data["data"]["deck"])
 
     async def get_chapter(
         self, deck_id: DeckID | str, chapter_id: ChapterID | str

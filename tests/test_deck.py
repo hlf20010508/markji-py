@@ -251,6 +251,30 @@ class TestDeck(AsyncTestCase):
         with self.assertRaises(ValueError):
             await client.search_decks("english", limit=101)
 
+    async def test_fork(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        decks, num1 = await client.search_decks("english")
+        deck = decks[0]
+
+        deck_forked = await client.fork_deck(deck.id)
+        self.addCleanup(client.delete_deck, deck_forked.id)
+
+        self.assertEqual(deck.name, deck_forked.name)
+        self.assertNotEqual(deck.id, deck_forked.id)
+
+        folder_name = "t_folder"
+        folder = await client.new_folder(folder_name)
+        self.addCleanup(client.delete_folder, folder.id)
+        deck_name = "t_deck"
+        deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
+
+        with self.assertRaises(ClientResponseError):
+            await client.fork_deck(deck.id)
+
 
 if __name__ == "__main__":
     unittest.main()
