@@ -461,6 +461,21 @@ class TestDeck(AsyncTestCase):
         with self.assertRaises(ClientResponseError):
             await client.fork_deck(deck.id)
 
+    async def test_get_access_link(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        folder_name = "t_folder"
+        folder = await client.new_folder(folder_name)
+        self.addCleanup(client.delete_folder, folder.id)
+        deck_name = "t_deck"
+        deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
+
+        link = await client.get_deck_access_link(deck.id)
+        self.assertTrue(link.startswith(f"https://www.markji.com/deck/{deck.id}"))
+
 
 if __name__ == "__main__":
     unittest.main()

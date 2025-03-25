@@ -25,6 +25,7 @@ from markji._const import (
     _FILE_ROUTE,
     _FOLDER_ROUTE,
     _FORK_ROUTE,
+    _LINK_ROUTE,
     _MOVE_ROUTE,
     _PROFILE_ROUTE,
     _QUERY_ROUTE,
@@ -858,6 +859,25 @@ class Markji:
                 data: dict = await response.json()
 
         return DeckForked.from_dict(data["data"]["deck"])
+
+    async def get_deck_access_link(self, deck_id: DeckID | str) -> str:
+        """
+        获取卡组访问链接
+
+        :param DeckID | str deck_id: 卡组ID
+        :return: 访问链接
+        :rtype: str
+        :raises aiohttp.ClientResponseError: 获取访问链接失败
+        """
+        async with self._session() as session:
+            async with session.get(
+                f"{_DECK_ROUTE}/{deck_id}/{_SETTING_ROUTE}/{_ACCESS_ROUTE}/{_LINK_ROUTE}"
+            ) as response:
+                response = _ResponseWrapper(response)
+                await response.raise_for_status()
+                data: dict = await response.json()
+
+        return data["data"]["access_link"]
 
     async def get_chapter(
         self, deck_id: DeckID | str, chapter_id: ChapterID | str
