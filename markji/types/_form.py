@@ -61,9 +61,21 @@ class _NewDeckForm(DataClassJsonMixin):
 
 @dataclass
 class _UpdateDeckInfoForm(DataClassJsonMixin):
-    name: str
-    description: str
-    is_private: bool
+    name: str | None = field(default=None, metadata=config(exclude=lambda x: x is None))
+    description: str | None = field(
+        default=None, metadata=config(exclude=lambda x: x is None)
+    )
+    is_private: bool | None = field(
+        default=None, metadata=config(exclude=lambda x: x is None)
+    )
+    card_price: int | None = field(
+        default=None, metadata=config(exclude=lambda x: x is None)
+    )
+
+
+@dataclass
+class _UpdateDeckCardPriceForm(DataClassJsonMixin):
+    card_price: int
 
 
 @dataclass

@@ -95,25 +95,36 @@ class TestDeck(AsyncTestCase):
         new_deck_name = "r_deck"
         new_description = "new_description"
         new_privacy = True
+        card_price = 2
         deck = await client.update_deck_info(
-            deck.id, new_deck_name, new_description, new_privacy
+            deck.id, new_deck_name, new_description, new_privacy, card_price
         )
 
         self.assertEqual(deck.name, new_deck_name)
         self.assertEqual(deck.description, new_description)
         self.assertEqual(deck.is_private, new_privacy)
+        self.assertEqual(deck.card_price, card_price)
 
         new_deck_name = "t"
         with self.assertRaises(ValueError):
             await client.update_deck_info(
-                deck.id, new_deck_name, new_description, new_privacy
+                deck.id, new_deck_name, new_description, new_privacy, card_price
             )
 
         new_deck_name = "t" + "_" * 48
         with self.assertRaises(ValueError):
             await client.update_deck_info(
-                deck.id, new_deck_name, new_description, new_privacy
+                deck.id, new_deck_name, new_description, new_privacy, card_price
             )
+
+        card_price = -1
+        with self.assertRaises(ValueError):
+            await client.update_deck_info(
+                deck.id, new_deck_name, new_description, new_privacy, card_price
+            )
+
+        with self.assertRaises(ValueError):
+            await client.update_deck_info(deck.id)
 
     async def test_update_name(self):
         auth = Auth(ENV.username, ENV.password)
@@ -173,6 +184,23 @@ class TestDeck(AsyncTestCase):
         deck = await client.update_deck_privacy(deck.id, new_privacy)
 
         self.assertEqual(deck.is_private, new_privacy)
+
+    async def test_update_card_price(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        folder_name = "t_folder"
+        folder = await client.new_folder(folder_name)
+        self.addCleanup(client.delete_folder, folder.id)
+        deck_name = "t_deck"
+        deck = await client.new_deck(folder.id, deck_name)
+        self.addCleanup(client.delete_deck, deck.id)
+
+        card_price = 2
+        deck = await client.update_deck_card_price(deck.id, card_price)
+
+        self.assertEqual(deck.card_price, card_price)
 
     async def test_sort(self):
         auth = Auth(ENV.username, ENV.password)

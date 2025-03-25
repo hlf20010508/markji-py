@@ -52,6 +52,7 @@ from markji.types._form import (
     _SortFoldersForm,
     _TTSGenForm,
     _TTSGetFileForm,
+    _UpdateDeckCardPriceForm,
     _UpdateDeckInfoForm,
     _UploadFileForm,
 )
@@ -385,13 +386,13 @@ class Markji:
 
         return Deck.from_dict(data["data"]["deck"])
 
-    async def list_decks(self, folder_id: FolderID | str) -> Sequence[DeckBrief]:
+    async def list_decks(self, folder_id: FolderID | str) -> Sequence[DeckInfo]:
         """
         获取文件夹的所有卡组
 
         :param FolderID | str folder_id: 文件夹ID
         :return: 卡组列表
-        :rtype: Sequence[DeckBrief]
+        :rtype: Sequence[DeckInfo]
         :raises aiohttp.ClientResponseError: 获取卡组列表失败
         """
         async with self._session() as session:
@@ -403,7 +404,7 @@ class Markji:
                 data: dict = await response.json()
                 decks = []
                 for deck in data["data"]["decks"]:
-                    deck = DeckBrief.from_dict(deck)
+                    deck = DeckInfo.from_dict(deck)
                     decks.append(deck)
 
         return decks
@@ -414,7 +415,7 @@ class Markji:
         name: str,
         description: str = "",
         is_private: bool = False,
-    ) -> DeckInfo:
+    ) -> DeckBrief:
         """
         创建卡组
 
@@ -425,7 +426,7 @@ class Markji:
         :param str description: 卡组描述
         :param bool is_private: 是否私有
         :return: 创建的卡组
-        :rtype: DeckInfo
+        :rtype: DeckBrief
         :raises ValueError: 卡组名长度错误
         :raises aiohttp.ClientResponseError: 创建卡组失败
         """
@@ -441,7 +442,7 @@ class Markji:
                 await response.raise_for_status()
                 data: dict = await response.json()
 
-        return DeckInfo.from_dict(data["data"]["deck"])
+        return DeckBrief.from_dict(data["data"]["deck"])
 
     async def delete_deck(self, deck_id: DeckID | str):
         """
@@ -458,38 +459,62 @@ class Markji:
                 await response.raise_for_status()
 
     async def update_deck_info(
-        self, deck_id: DeckID | str, name: str, description: str, is_private: bool
-    ) -> DeckBasic:
+        self,
+        deck_id: DeckID | str,
+        name: str | None = None,
+        description: str | None = None,
+        is_private: bool | None = None,
+        card_price: int | None = None,
+    ) -> DeckBrief:
         """
         更新卡组信息
 
         卡组名长度必须在 2 到 48 个字符之间
 
+        卡片价格必须大于等于 0，且只有可用马克量大于 10000 的用户才能设置为0
+
         :param DeckID | str deck_id: 卡组ID
-        :param str name: 卡组名
-        :param str description: 卡组描述
-        :param bool is_private: 是否私有
+        :param str | None name: 卡组名
+        :param str | None description: 卡组描述
+        :param bool | None is_private: 是否私有
+        :param int | None card_price: 卡片价格
         :return: 更新后的卡组
-        :rtype: DeckBasic
+        :rtype: DeckBrief
+        :raises ValueError: 卡组信息为空
         :raises ValueError: 卡组名长度错误
+        :raises ValueError: 卡片价格错误
         :raises aiohttp.ClientResponseError: 更新卡组信息失败
         """
-        if len(name) < 2 or len(name) > 48:
-            raise ValueError("卡组名必须在 2 到 48 个字符之间")
+        if (
+            name is None
+            and description is None
+            and is_private is None
+            and card_price is None
+        ):
+            raise ValueError("新的卡组信息不能为空")
+
+        if name is not None:
+            if len(name) < 2 or len(name) > 48:
+                raise ValueError("卡组名必须在 2 到 48 个字符之间")
+        if card_price is not None:
+            if card_price < 0:
+                raise ValueError("卡片价格必须大于等于 0")
 
         async with self._session() as session:
             async with session.post(
                 f"{_DECK_ROUTE}/{deck_id}",
-                json=_UpdateDeckInfoForm(name, description, is_private).to_dict(),
+                json=_UpdateDeckInfoForm(
+                    name, description, is_private, card_price
+                ).to_dict(),
             ) as response:
                 response = _ResponseWrapper(response)
                 await response.raise_for_status()
                 data: dict = await response.json()
-                deck = DeckBasic.from_dict(data["data"]["deck"])
+                deck = DeckBrief.from_dict(data["data"]["deck"])
 
         return deck
 
-    async def update_deck_name(self, deck_id: DeckID | str, name: str) -> DeckBasic:
+    async def update_deck_name(self, deck_id: DeckID | str, name: str) -> DeckBrief:
         """
         重命名卡组
 
@@ -498,51 +523,69 @@ class Markji:
         :param DeckID | str deck_id: 卡组ID
         :param str name: 新卡组名
         :return: 更新后的卡组
-        :rtype: DeckBasic
+        :rtype: DeckBrief
         :raises ValueError: 卡组名长度错误
         """
-        if len(name) < 2 or len(name) > 48:
-            raise ValueError("卡组名必须在 2 到 48 个字符之间")
-
-        old_deck = await self.get_deck(deck_id)
         deck = await self.update_deck_info(
-            deck_id, name, old_deck.description, old_deck.is_private
+            deck_id,
+            name=name,
         )
 
         return deck
 
     async def update_deck_description(
         self, deck_id: DeckID | str, description: str
-    ) -> DeckBasic:
+    ) -> DeckBrief:
         """
         更新卡组描述
 
         :param DeckID | str deck_id: 卡组ID
         :param str description: 卡组描述
         :return: 更新后的卡组
-        :rtype: DeckBasic
+        :rtype: DeckBrief
         """
-        old_deck = await self.get_deck(deck_id)
         deck = await self.update_deck_info(
-            deck_id, old_deck.name, description, old_deck.is_private
+            deck_id,
+            description=description,
         )
 
         return deck
 
     async def update_deck_privacy(
         self, deck_id: DeckID | str, is_private: bool
-    ) -> DeckBasic:
+    ) -> DeckBrief:
         """
         更新卡组隐私状态
 
         :param DeckID | str deck_id: 卡组ID
         :param bool is_private: 是否私有
         :return: 更新后的卡组
-        :rtype: DeckBasic
+        :rtype: DeckBrief
         """
-        old_deck = await self.get_deck(deck_id)
         deck = await self.update_deck_info(
-            deck_id, old_deck.name, old_deck.description, is_private
+            deck_id,
+            is_private=is_private,
+        )
+
+        return deck
+
+    async def update_deck_card_price(
+        self, deck_id: DeckID | str, card_price: int
+    ) -> DeckBrief:
+        """
+        更新卡组卡片价格
+
+        卡片价格必须大于等于 0，且只有可用马克量大于 10000 的用户才能设置为0
+
+        :param DeckID | str deck_id: 卡组ID
+        :param int card_price: 卡片价格
+        :return: 更新后的卡组
+        :rtype: DeckBrief
+        :raises ValueError: 卡片价格错误
+        """
+        deck = await self.update_deck_info(
+            deck_id,
+            card_price=card_price,
         )
 
         return deck

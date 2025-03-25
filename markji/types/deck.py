@@ -79,14 +79,18 @@ class DeckBrief(DeckBasic):
     :param int chapter_count: 章节数
     :param Datetime created_time: 创建时间
     :param Datetime updated_time: 更新时间
-    :param UserBasic root_creator: 根创建者
+    :param bool is_semantic_learning: 是否语义学习
+    :param int card_price: 卡片价格
+    :param Sequence tags: 标签
     """
 
-    root_creator: UserBasic
+    is_semantic_learning: bool
+    card_price: int
+    tags: Sequence
 
 
 @dataclass
-class DeckInfo(DeckBasic):
+class DeckInfo(DeckBrief):
     """
     卡组信息
 
@@ -109,11 +113,10 @@ class DeckInfo(DeckBasic):
     :param bool is_semantic_learning: 是否语义学习
     :param int card_price: 卡片价格
     :param Sequence tags: 标签
+    :param UserBasic root_creator: 根创建者
     """
 
-    is_semantic_learning: bool
-    card_price: int
-    tags: Sequence
+    root_creator: UserBasic
 
 
 @dataclass
@@ -148,7 +151,7 @@ class DeckForked(DeckBasic):
 
 
 @dataclass
-class Deck(DeckBrief, DeckInfo):
+class Deck(DeckInfo):
     """
     卡组
 
