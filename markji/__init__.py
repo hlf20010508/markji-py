@@ -64,7 +64,7 @@ from markji.types import (
 )
 from markji.types.card import Card, CardResult, File, UserID
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
-from markji.types.deck import Deck, DeckBasic
+from markji.types.deck import Deck, DeckBasic, DeckBrief, DeckInfo
 from markji.types.folder import Folder, FolderDiff, RootFolder
 from markji.types.user import Collaborator, Profile, User, UserBrief
 
@@ -381,13 +381,13 @@ class Markji:
 
         return Deck.from_dict(data["data"]["deck"])
 
-    async def list_decks(self, folder_id: FolderID | str) -> Sequence[Deck]:
+    async def list_decks(self, folder_id: FolderID | str) -> Sequence[DeckBrief]:
         """
         获取文件夹的所有卡组
 
         :param FolderID | str folder_id: 文件夹ID
         :return: 卡组列表
-        :rtype: Sequence[Deck]
+        :rtype: Sequence[DeckBrief]
         :raises aiohttp.ClientResponseError: 获取卡组列表失败
         """
         async with self._session() as session:
@@ -399,7 +399,7 @@ class Markji:
                 data: dict = await response.json()
                 decks = []
                 for deck in data["data"]["decks"]:
-                    deck = Deck.from_dict(deck)
+                    deck = DeckBrief.from_dict(deck)
                     decks.append(deck)
 
         return decks
@@ -410,7 +410,7 @@ class Markji:
         name: str,
         description: str = "",
         is_private: bool = False,
-    ) -> Deck:
+    ) -> DeckInfo:
         """
         创建卡组
 
@@ -421,7 +421,7 @@ class Markji:
         :param str description: 卡组描述
         :param bool is_private: 是否私有
         :return: 创建的卡组
-        :rtype: Deck
+        :rtype: DeckInfo
         :raises ValueError: 卡组名长度错误
         :raises aiohttp.ClientResponseError: 创建卡组失败
         """
@@ -437,7 +437,7 @@ class Markji:
                 await response.raise_for_status()
                 data: dict = await response.json()
 
-        return Deck.from_dict(data["data"]["deck"])
+        return DeckInfo.from_dict(data["data"]["deck"])
 
     async def delete_deck(self, deck_id: DeckID | str):
         """
@@ -453,7 +453,7 @@ class Markji:
 
     async def update_deck_info(
         self, deck_id: DeckID | str, name: str, description: str, is_private: bool
-    ) -> Deck:
+    ) -> DeckBasic:
         """
         更新卡组信息
 
@@ -464,7 +464,7 @@ class Markji:
         :param str description: 卡组描述
         :param bool is_private: 是否私有
         :return: 更新后的卡组
-        :rtype: Deck
+        :rtype: DeckBasic
         :raises ValueError: 卡组名长度错误
         :raises aiohttp.ClientResponseError: 更新卡组信息失败
         """
@@ -479,11 +479,11 @@ class Markji:
                 response = _ResponseWrapper(response)
                 await response.raise_for_status()
                 data: dict = await response.json()
-                deck = Deck.from_dict(data["data"]["deck"])
+                deck = DeckBasic.from_dict(data["data"]["deck"])
 
         return deck
 
-    async def update_deck_name(self, deck_id: DeckID | str, name: str) -> Deck:
+    async def update_deck_name(self, deck_id: DeckID | str, name: str) -> DeckBasic:
         """
         重命名卡组
 
@@ -492,7 +492,7 @@ class Markji:
         :param DeckID | str deck_id: 卡组ID
         :param str name: 新卡组名
         :return: 更新后的卡组
-        :rtype: Deck
+        :rtype: DeckBasic
         :raises ValueError: 卡组名长度错误
         """
         if len(name) < 2 or len(name) > 48:
@@ -507,14 +507,14 @@ class Markji:
 
     async def update_deck_description(
         self, deck_id: DeckID | str, description: str
-    ) -> Deck:
+    ) -> DeckBasic:
         """
         更新卡组描述
 
         :param DeckID | str deck_id: 卡组ID
         :param str description: 卡组描述
         :return: 更新后的卡组
-        :rtype: Deck
+        :rtype: DeckBasic
         """
         old_deck = await self.get_deck(deck_id)
         deck = await self.update_deck_info(
@@ -525,14 +525,14 @@ class Markji:
 
     async def update_deck_privacy(
         self, deck_id: DeckID | str, is_private: bool
-    ) -> Deck:
+    ) -> DeckBasic:
         """
         更新卡组隐私状态
 
         :param DeckID | str deck_id: 卡组ID
         :param bool is_private: 是否私有
         :return: 更新后的卡组
-        :rtype: Deck
+        :rtype: DeckBasic
         """
         old_deck = await self.get_deck(deck_id)
         deck = await self.update_deck_info(
