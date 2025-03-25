@@ -3,8 +3,10 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
+import os
 import unittest
 import itertools
+from PIL import Image
 from markji import Markji
 from markji.auth import Auth
 from markji.editor.formula import FormulaBuilder
@@ -19,6 +21,7 @@ from markji.editor import (
     FontBuilder,
     FontColor,
     FontScript,
+    ImageBuilder,
     ParagraphBuilder,
     ReferenceBuilder,
 )
@@ -264,6 +267,38 @@ class TestReference(AsyncTestCase):
         result = ReferenceBuilder(word, card).build()
 
         self.assertEqual(result, f"[Card#ID/{card.root_id}#test]")
+
+
+class TestMedia(AsyncTestCase):
+    async def test_image(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        image_path = "test_image.jpeg"
+        image_size = (256, 256)
+        image = Image.new("RGB", image_size)
+        image.save(image_path)
+
+        image = await client.upload_file(image_path)
+
+        os.remove(image_path)
+
+        result = ImageBuilder(image.id).build()
+
+        self.assertEqual(result, f"[Pic#ID/{image.id}#]")
+
+    async def test_audio(self):
+        auth = Auth(ENV.username, ENV.password)
+        token = await auth.login()
+        client = Markji(token)
+
+        word = "test"
+        audio = await client.tts(word, LanguageCode.EN_US)
+
+        result = AudioBuilder(audio.id, word).build()
+
+        self.assertEqual(result, f"[Audio#A,ID/{audio.id}#test]")
 
 
 if __name__ == "__main__":
