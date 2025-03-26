@@ -223,13 +223,13 @@ class Markji:
 
         return collaborators
 
-    async def get_folder(self, folder_id: FolderID | str) -> Folder:
+    async def get_folder(self, folder_id: FolderID | str) -> Folder | RootFolder:
         """
         获取文件夹
 
         :param FolderID | str folder_id: 文件夹ID
         :return: 文件夹
-        :rtype: Folder
+        :rtype: Folder | RootFolder
         :raises aiohttp.ClientResponseError: 获取文件夹失败
         """
         async with self._session() as session:
@@ -237,8 +237,12 @@ class Markji:
                 response = _ResponseWrapper(response)
                 await response.raise_for_status()
                 data: dict = await response.json()
+                folder = data["data"]["folder"]
 
-        return Folder.from_dict(data["data"]["folder"])
+                if "parent_id" in folder:
+                    return Folder.from_dict(folder)
+                else:
+                    return RootFolder.from_dict(folder)
 
     async def get_root_folder(self) -> RootFolder:
         """
@@ -263,6 +267,10 @@ class Markji:
     async def list_folders(self) -> Sequence[Folder]:
         """
         获取用户的所有文件夹
+
+        不包含根文件夹
+
+        使用 get_root_folder 获取根文件夹
 
         :return: 文件夹列表
         :rtype: Sequence[Folder]

@@ -5,6 +5,7 @@
 
 import unittest
 from aiohttp import ClientResponseError
+from markji.types.folder import Folder, RootFolder
 from tests import AsyncTestCase, ENV
 from markji import Markji
 from markji.auth import Auth
@@ -21,7 +22,14 @@ class TestFolder(AsyncTestCase):
         self.addCleanup(client.delete_folder, folder.id)
 
         folder = await client.get_folder(folder.id)
+
         self.assertEqual(folder.name, folder_name)
+        self.assertTrue(isinstance(folder, Folder))
+
+        root_folder = await client.get_root_folder()
+        folder = await client.get_folder(root_folder.id)
+
+        self.assertTrue(isinstance(folder, RootFolder))
 
     async def test_get_root(self):
         auth = Auth(ENV.username, ENV.password)

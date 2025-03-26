@@ -3,7 +3,7 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin
 from typing import Sequence
 from markji.types import Datetime, UserID, FolderID, Status, FolderItem
@@ -27,12 +27,12 @@ class RootFolder(DataClassJsonMixin):
     status: Status
     items: Sequence[FolderItem]
     name: str
-    created_time: Datetime = Datetime._field()
-    updated_time: Datetime = Datetime._field()
+    created_time: Datetime = field(metadata=Datetime._metadata())
+    updated_time: Datetime = field(metadata=Datetime._metadata())
 
 
 @dataclass
-class Folder(DataClassJsonMixin):
+class Folder(RootFolder):
     """
     文件夹
 
@@ -40,20 +40,13 @@ class Folder(DataClassJsonMixin):
     :param UserID creator: 创建者ID
     :param Status status: 文件夹状态
     :param Sequence[FolderItem] items: 文件夹项目
-    :param FolderID parent_id: 父文件夹ID
     :param str name: 文件夹名称
     :param Datetime created_time: 创建时间
     :param Datetime updated_time: 更新
+    :param FolderID parent_id: 父文件夹ID
     """
 
-    id: FolderID
-    creator: UserID
-    status: Status
-    items: Sequence[FolderItem]
     parent_id: FolderID
-    name: str
-    created_time: Datetime = Datetime._field()
-    updated_time: Datetime = Datetime._field()
 
 
 @dataclass
