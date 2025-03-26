@@ -5,7 +5,6 @@
 
 from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin
-from typing import Sequence
 from markji.types import (
     Datetime,
     DeckAccessSettingBasic,
@@ -27,7 +26,7 @@ class DeckBasic(DataClassJsonMixin):
     :param UserID creator: 创建者ID
     :param Status status: 状态
     :param str name: 名称
-    :param Sequence[UserID] authors: 作者ID列表
+    :param list[UserID] authors: 作者ID列表
     :param str description: 描述
     :param bool is_modified: 是否已修改
     :param bool is_private: 是否私有
@@ -45,7 +44,7 @@ class DeckBasic(DataClassJsonMixin):
     creator: UserID
     status: Status
     name: str
-    authors: Sequence[UserID]
+    authors: list[UserID]
     description: str
     is_modified: bool
     is_private: bool
@@ -68,7 +67,7 @@ class DeckBrief(DeckBasic):
     :param UserID creator: 创建者ID
     :param Status status: 状态
     :param str name: 名称
-    :param Sequence[UserID] authors: 作者ID列表
+    :param list[UserID] authors: 作者ID列表
     :param str description: 描述
     :param bool is_modified: 是否已修改
     :param bool is_private: 是否私有
@@ -81,12 +80,12 @@ class DeckBrief(DeckBasic):
     :param Datetime updated_time: 更新时间
     :param bool is_semantic_learning: 是否语义学习
     :param int card_price: 卡片价格
-    :param Sequence tags: 标签
+    :param list tags: 标签
     """
 
     is_semantic_learning: bool
     card_price: int
-    tags: Sequence
+    tags: list
 
 
 @dataclass
@@ -99,7 +98,7 @@ class DeckInfo(DeckBrief):
     :param UserID creator: 创建者ID
     :param Status status: 状态
     :param str name: 名称
-    :param Sequence[UserID] authors: 作者ID列表
+    :param list[UserID] authors: 作者ID列表
     :param str description: 描述
     :param bool is_modified: 是否已修改
     :param bool is_private: 是否私有
@@ -112,7 +111,7 @@ class DeckInfo(DeckBrief):
     :param Datetime updated_time: 更新时间
     :param bool is_semantic_learning: 是否语义学习
     :param int card_price: 卡片价格
-    :param Sequence tags: 标签
+    :param list tags: 标签
     :param UserBasic root_creator: 根创建者
     """
 
@@ -129,7 +128,7 @@ class DeckForked(DeckBasic):
     :param UserID creator: 创建者ID
     :param Status status: 状态
     :param str name: 名称
-    :param Sequence[UserID] authors: 作者ID列表
+    :param list[UserID] authors: 作者ID列表
     :param str description: 描述
     :param bool is_modified: 是否已修改
     :param bool is_private: 是否私有
@@ -160,7 +159,7 @@ class Deck(DeckInfo):
     :param UserID creator: 创建者ID
     :param Status status: 状态
     :param str name: 名称
-    :param Sequence[UserID] authors: 作者ID列表
+    :param list[UserID] authors: 作者ID列表
     :param str description: 描述
     :param bool is_modified: 是否已修改
     :param bool is_private: 是否私有
@@ -171,7 +170,7 @@ class Deck(DeckInfo):
     :param int card_count: 卡片数
     :param int card_price: 卡片价格
     :param int chapter_count: 章节数
-    :param Sequence tags: 标签
+    :param list tags: 标签
     :param Datetime created_time: 创建时间
     :param Datetime updated_time: 更新时间
     :param bool is_anki: 是否从Anki导入

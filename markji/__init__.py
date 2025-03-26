@@ -121,15 +121,13 @@ class Markji:
 
         return Profile.from_dict(data["data"]["user"])
 
-    async def query_users(
-        self, user_ids: Sequence[UserID | int]
-    ) -> Sequence[UserBrief]:
+    async def query_users(self, user_ids: Sequence[UserID | int]) -> list[UserBrief]:
         """
         查询用户信息
 
         :param Sequence[UserID | int] user_ids: 用户ID列表
         :return: 用户简要信息列表
-        :rtype: Sequence[UserBrief]
+        :rtype: list[UserBrief]
         :raises aiohttp.ClientResponseError: 查询用户失败
         """
         async with self._session() as session:
@@ -149,7 +147,7 @@ class Markji:
 
     async def search_users(
         self, nickname: str, offset: int = 0, limit: int = 10
-    ) -> tuple[Sequence[User], int]:
+    ) -> tuple[list[User], int]:
         """
         搜索用户
 
@@ -161,7 +159,7 @@ class Markji:
 
         :param str nickname: 用户昵称
         :return: 用户列表, 总数
-        :rtype: tuple[Sequence[User], int]
+        :rtype: tuple[list[User], int]
         :raises ValueError: 昵称长度错误
         :raises ValueError: offset 或 limit 错误
         :raises ValueError: offset + limit 错误
@@ -191,7 +189,7 @@ class Markji:
 
     async def search_collaborators(
         self, deck_id: DeckID | str, keyword: str | UserID | int
-    ) -> Sequence[Collaborator]:
+    ) -> list[Collaborator]:
         """
         搜索协作者
 
@@ -200,7 +198,7 @@ class Markji:
         :param DeckID | str deck_id: 卡组ID
         :param str | UserID | int keyword: 关键词（UserID，手机，邮箱，昵称）
         :return: 协作者列表
-        :rtype: Sequence[Collaborator]
+        :rtype: list[Collaborator]
         :raises ValueError: 关键词长度错误
         :raises aiohttp.ClientResponseError: 搜索协作者失败
         """
@@ -264,7 +262,7 @@ class Markji:
 
         raise FileNotFoundError("未找到根文件夹")
 
-    async def list_folders(self) -> Sequence[Folder]:
+    async def list_folders(self) -> list[Folder]:
         """
         获取用户的所有文件夹
 
@@ -273,7 +271,7 @@ class Markji:
         使用 get_root_folder 获取根文件夹
 
         :return: 文件夹列表
-        :rtype: Sequence[Folder]
+        :rtype: list[Folder]
         :raises aiohttp.ClientResponseError: 获取文件夹列表失败
         """
         async with self._session() as session:
@@ -400,13 +398,13 @@ class Markji:
 
         return Deck.from_dict(data["data"]["deck"])
 
-    async def list_decks(self, folder_id: FolderID | str) -> Sequence[DeckInfo]:
+    async def list_decks(self, folder_id: FolderID | str) -> list[DeckInfo]:
         """
         获取文件夹的所有卡组
 
         :param FolderID | str folder_id: 文件夹ID
         :return: 卡组列表
-        :rtype: Sequence[DeckInfo]
+        :rtype: list[DeckInfo]
         :raises aiohttp.ClientResponseError: 获取卡组列表失败
         """
         async with self._session() as session:
@@ -790,7 +788,7 @@ class Markji:
 
     async def search_decks(
         self, keyword: str, offset: int = 0, limit: int = 10, self_only: bool = False
-    ) -> tuple[Sequence[DeckBasic], int]:
+    ) -> tuple[list[DeckBasic], int]:
         """
         搜索卡组
 
@@ -805,7 +803,7 @@ class Markji:
         :param int limit: 限制
         :param bool self_only: 仅自己
         :return: 卡组基本信息列表, 总数
-        :rtype: tuple[Sequence[DeckBasic], int]
+        :rtype: tuple[list[DeckBasic], int]
         :raises ValueError: 关键词长度错误
         :raises ValueError: offset 错误
         :raises ValueError: limit 错误
@@ -927,13 +925,13 @@ class Markji:
 
         return ChapterSet.from_dict(data["data"]["chapterset"])
 
-    async def list_chapters(self, deck_id: DeckID | str) -> Sequence[Chapter]:
+    async def list_chapters(self, deck_id: DeckID | str) -> list[Chapter]:
         """
         获取卡组的所有章节
 
         :param DeckID | str deck_id: 卡组ID
         :return: 章节列表
-        :rtype: Sequence[Chapter]
+        :rtype: list[Chapter]
         :raises aiohttp.ClientResponseError: 获取章节列表失败
         """
         async with self._session() as session:
@@ -1078,14 +1076,14 @@ class Markji:
 
     async def list_cards(
         self, deck_id: DeckID | str, chapter_id: ChapterID | str
-    ) -> Sequence[Card]:
+    ) -> list[Card]:
         """
         获取章节的所有卡片
 
         :param DeckID | str deck_id: 卡组ID
         :param ChapterID | str chapter_id: 章节ID
         :return: 卡片列表
-        :rtype: Sequence[Card]
+        :rtype: list[Card]
         :raises aiohttp.ClientResponseError: 获取卡片列表失败
         """
         chapter = await self.get_chapter(deck_id, chapter_id)
@@ -1272,7 +1270,7 @@ class Markji:
         limit: int = 10,
         self_only: bool = False,
         deck_id: DeckID | str | None = None,
-    ) -> tuple[Sequence[CardResult], int]:
+    ) -> tuple[list[CardResult], int]:
         """
         搜索卡片
 
@@ -1290,7 +1288,7 @@ class Markji:
         :param bool self_only: 仅自己的
         :param DeckID | str | None deck_id: 卡组ID
         :return: 卡片列表, 总数
-        :rtype: tuple[Sequence[Card], int]
+        :rtype: tuple[list[Card], int]
         :raises ValueError: 关键词长度错误
         :raises ValueError: offset 错误
         :raises ValueError: limit 错误

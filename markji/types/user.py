@@ -5,7 +5,6 @@
 
 from dataclasses import dataclass
 from dataclasses_json import DataClassJsonMixin
-from typing import Sequence
 from markji.types import Datetime, Status, UserGender, UserID, UserLevel, UserOAuth
 
 
@@ -78,7 +77,7 @@ class Profile(UserBrief):
     :param bool email_verified: 邮箱是否验证
     :param str phone: 手机号
     :param bool phone_verified: 手机号是否验证
-    :param Sequence[UserOAuth] oauths: OAuth信息
+    :param list[UserOAuth] oauths: OAuth信息
     :param UserGender gender: 性别
     :param str city: 城市
     :param str school: 学校
@@ -93,7 +92,7 @@ class Profile(UserBrief):
     email_verified: bool
     phone: str
     phone_verified: bool
-    oauths: Sequence[UserOAuth]
+    oauths: list[UserOAuth]
     city: str
     school: str
     constellation: str

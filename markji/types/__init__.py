@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin, config
 from datetime import datetime
 from enum import StrEnum
-from typing import Sequence, NewType, Type
+from typing import NewType, Type
 
 Path = NewType("Path", str)
 """路径"""
@@ -567,10 +567,10 @@ class TTSInfo(AudioInfo):
     语音合成信息
 
     :param FileSource source: 文件来源
-    :param Sequence[TTSItem] content_slices: 语音合成信息
+    :param list[TTSItem] content_slices: 语音合成信息
     """
 
-    content_slices: Sequence[TTSItem]
+    content_slices: list[TTSItem]
 
 
 def _select_media_type(info: dict) -> Type[MaskInfo | ImageInfo | AudioInfo | TTSInfo]:

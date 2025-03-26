@@ -162,7 +162,7 @@ class TestChapter(AsyncTestCase):
         chapter_ids.extend(default_chapter_ids)
         chapter_set = await client.sort_chapters(deck.id, chapter_ids)
 
-        self.assertListEqual(list(chapter_set.chapter_ids), chapter_ids)
+        self.assertListEqual(chapter_set.chapter_ids, chapter_ids)
 
 
 if __name__ == "__main__":

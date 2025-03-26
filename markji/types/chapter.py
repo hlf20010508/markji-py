@@ -5,7 +5,6 @@
 
 from dataclasses import dataclass
 from dataclasses_json import DataClassJsonMixin
-from typing import Sequence
 from markji.types import Datetime, CardID, ChapterID, ChapterSetID, DeckID, UserID
 
 
@@ -19,7 +18,7 @@ class Chapter(DataClassJsonMixin):
     :param str name: 名称
     :param UserID creator: 创建者
     :param int revision: 修订版本
-    :param Sequence[CardID] card_ids: 卡片ID列表
+    :param list[CardID] card_ids: 卡片ID列表
     :param bool is_modified: 是否修改
     :param Datetime created_time: 创建时间
     :param Datetime updated_time: 更新时间
@@ -30,7 +29,7 @@ class Chapter(DataClassJsonMixin):
     name: str
     creator: UserID
     revision: int
-    card_ids: Sequence[CardID]
+    card_ids: list[CardID]
     is_modified: bool
     created_time: Datetime = Datetime._field()
     updated_time: Datetime = Datetime._field()
@@ -44,7 +43,7 @@ class ChapterSet(DataClassJsonMixin):
     :param ChapterSetID id: 章节集合ID
     :param DeckID deck_id: 卡组ID
     :param int revision: 修订版本
-    :param Sequence[ChapterID] chapter_ids: 章节ID列表
+    :param list[ChapterID] chapter_ids: 章节ID列表
     :param bool is_modified: 是否修改
     :param Datetime created_time: 创建时间
     :param Datetime updated_time: 更新时间
@@ -53,7 +52,7 @@ class ChapterSet(DataClassJsonMixin):
     id: ChapterSetID
     deck_id: DeckID
     revision: int
-    chapter_ids: Sequence[ChapterID]
+    chapter_ids: list[ChapterID]
     is_modified: bool
     created_time: Datetime = Datetime._field()
     updated_time: Datetime = Datetime._field()

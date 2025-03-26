@@ -5,7 +5,6 @@
 
 from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin
-from typing import Sequence
 from markji.types import (
     CardReference,
     Datetime,
@@ -32,7 +31,7 @@ class CardBase(DataClassJsonMixin):
     :param UserID creator: 创建者
     :param DeckID deck_id: 所属卡组 ID
     :param CardRootID root_id: 卡片根 ID
-    :param Sequence[File] files: 文件列表
+    :param list[File] files: 文件列表
     :param bool is_modified: 是否修改
     :param int revision: 修订版本
     :param int grammar_version: 语法版本
@@ -48,7 +47,7 @@ class CardBase(DataClassJsonMixin):
     creator: UserID
     deck_id: DeckID
     root_id: CardRootID
-    files: Sequence[File]
+    files: list[File]
     is_modified: bool
     revision: int
     grammar_version: int
@@ -69,17 +68,17 @@ class Card(CardBase):
     :param UserID creator: 创建者
     :param DeckID deck_id: 所属卡组 ID
     :param CardRootID root_id: 卡片根 ID
-    :param Sequence[File] files: 文件列表
+    :param list[File] files: 文件列表
     :param bool is_modified: 是否修改
     :param int revision: 修订版本
     :param int grammar_version: 语法版本
     :param DeckSource source: 来源
-    :param Sequence[CardRootID] card_rids: 卡片根 ID 列表
+    :param list[CardRootID] card_rids: 卡片根 ID 列表
     :param Datetime created_time: 创建时间
     :param Datetime updated_time: 更新时间
     """
 
-    card_rids: Sequence[CardRootID]
+    card_rids: list[CardRootID]
 
 
 @dataclass
@@ -94,8 +93,8 @@ class CardResult(CardBase):
     :param UserID creator: 创建者
     :param DeckID deck_id: 所属卡组 ID
     :param CardRootID root_id: 卡片根 ID
-    :param Sequence[File] files: 文件列表
-    :param Sequence[CardReference] references: 引用列表
+    :param list[File] files: 文件列表
+    :param list[CardReference] references: 引用列表
     :param bool is_modified: 是否修改
     :param int revision: 修订版本
     :param int grammar_version: 语法版本
@@ -105,5 +104,5 @@ class CardResult(CardBase):
     :param DeckBasic deck: 所属卡组基本信息
     """
 
-    references: Sequence[CardReference]
+    references: list[CardReference]
     deck: DeckBasic

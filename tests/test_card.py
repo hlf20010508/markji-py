@@ -153,7 +153,7 @@ class TestCard(AsyncTestCase):
         card_ids = [card2.id, card1.id]
         chapter = await client.sort_cards(deck.id, chapter.id, card_ids)
 
-        self.assertEqual(list(chapter.card_ids), card_ids)
+        self.assertEqual(chapter.card_ids, card_ids)
 
     async def test_move(self):
         auth = Auth(ENV.username, ENV.password)
@@ -186,8 +186,8 @@ class TestCard(AsyncTestCase):
         card_ids1 = [card3.id, card1.id]
         card_ids2 = [card2.id]
 
-        self.assertEqual(list(chapter_diff.new_chapter.card_ids), card_ids1)
-        self.assertEqual(list(chapter_diff.old_chapter.card_ids), card_ids2)
+        self.assertEqual(chapter_diff.new_chapter.card_ids, card_ids1)
+        self.assertEqual(chapter_diff.old_chapter.card_ids, card_ids2)
 
     async def test_search(self):
         auth = Auth(ENV.username, ENV.password)
