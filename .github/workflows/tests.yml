@@ -1,0 +1,30 @@
+name: Launch Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  MARKJI_USERNAME: ${{ secrets.MARKJI_USERNAME }}
+  MARKJI_PASSWORD: ${{ secrets.MARKJI_PASSWORD }}
+
+jobs:
+  launch:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11
+    - name: Setup Poetry
+      uses: abatilo/actions-poetry@v3
+      with:
+        poetry-version: 1.8.4
+    - name: Install Dependencies
+      run: poetry install --no-root
+    - name: Run Tests
+      run: poetry run python -m unittest
