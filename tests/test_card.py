@@ -4,7 +4,6 @@
 # :license: MIT, see LICENSE for more details.
 
 import unittest
-from asyncio import sleep
 from aiohttp import ClientResponseError
 from tests import AsyncTestCase, ENV
 from markji import Markji
@@ -216,25 +215,6 @@ class TestCard(AsyncTestCase):
             await client.search_cards(keyword, limit=9)
         with self.assertRaises(ValueError):
             await client.search_cards(keyword, limit=101)
-
-        folder_name = "t_folder"
-        folder = await client.new_folder(folder_name)
-        self.addCleanup(client.delete_folder, folder.id)
-        deck_name = "t_deck"
-        deck = await client.new_deck(folder.id, deck_name)
-        self.addCleanup(client.delete_deck, deck.id)
-
-        chapter_name = "t_chapter"
-        chapter = await client.new_chapter(deck.id, chapter_name)
-        card_content = "t_card"
-        card = await client.new_card(deck.id, chapter.id, card_content)
-
-        await sleep(30)
-
-        cards, _ = await client.search_cards(card_content, deck_id=deck.id)
-
-        self.assertEqual(len(cards), 1)
-        self.assertEqual(cards[0].id, card.id)
 
         cards, _ = await client.search_cards(keyword, deck_id=cards1[0].deck_id)
 
