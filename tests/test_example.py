@@ -72,6 +72,5 @@ class TestExample(AsyncTestCase):
         content = "\n".join(content)
 
         card = await client.new_card(deck.id, chapter.id, content)
-        print(card.content)
 
         self.assertEqual(card.content, content)

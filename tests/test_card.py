@@ -229,7 +229,7 @@ class TestCard(AsyncTestCase):
         card_content = "t_card"
         card = await client.new_card(deck.id, chapter.id, card_content)
 
-        await sleep(15)
+        await sleep(30)
 
         cards, num = await client.search_cards(card_content, deck_id=deck.id)
 
