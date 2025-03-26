@@ -442,7 +442,7 @@ class TestDeck(AsyncTestCase):
         token = await auth.login()
         client = Markji(token)
 
-        decks, num1 = await client.search_decks("english")
+        decks, _ = await client.search_decks("english")
         deck = decks[0]
 
         deck_forked = await client.fork_deck(deck.id)

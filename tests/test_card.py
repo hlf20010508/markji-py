@@ -47,7 +47,7 @@ class TestCard(AsyncTestCase):
         chapter_name = "t_chapter"
         chapter = await client.new_chapter(deck.id, chapter_name)
         card_content = "t_card"
-        card = await client.new_card(deck.id, chapter.id, card_content)
+        await client.new_card(deck.id, chapter.id, card_content)
 
         cards = await client.list_cards(deck.id, chapter.id)
         self.assertEqual(len(cards), 1)
@@ -231,12 +231,12 @@ class TestCard(AsyncTestCase):
 
         await sleep(30)
 
-        cards, num = await client.search_cards(card_content, deck_id=deck.id)
+        cards, _ = await client.search_cards(card_content, deck_id=deck.id)
 
         self.assertEqual(len(cards), 1)
         self.assertEqual(cards[0].id, card.id)
 
-        cards, num = await client.search_cards(keyword, deck_id=cards1[0].deck_id)
+        cards, _ = await client.search_cards(keyword, deck_id=cards1[0].deck_id)
 
         self.assertTrue(len(cards) > 0)
 
