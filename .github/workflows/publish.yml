@@ -4,6 +4,8 @@ on:
   release:
     types: [published]
 
+run-name: Publish ${{ github.event.release.name }}
+
 env:
   FILE_PATH: markji/__init__.py
   NAME: L-ING
@@ -21,7 +23,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         token: ${{ env.GITHUB_TOKEN }}
-    - name: Update Version in Your Python Package
+    - name: Update Version
       run: |
         sed -i 's/__version__ = .*/__version__ = '\"$RELEASE_VERSION\"'/g' $FILE_PATH
         sed -i 's/version = .*/version = '\"$RELEASE_VERSION\"'/g' pyproject.toml
@@ -39,7 +41,7 @@ jobs:
             git push origin HEAD:master
             git push origin HEAD:master --tags -f
         fi
-    - name: Build and publish to pypi
+    - name: Build and Publish to PyPI
       uses: JRubics/poetry-publish@v2.1
       with:
         python_version: "3.12"
