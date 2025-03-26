@@ -88,11 +88,6 @@ class _UpdateDeckAccessSettingForm(DataClassJsonMixin):
 
 
 @dataclass
-class _UpdateDeckCardPriceForm(DataClassJsonMixin):
-    card_price: int
-
-
-@dataclass
 class _SortDecksForm(DataClassJsonMixin):
     items: Sequence[DeckID | str] = field(
         metadata=config(

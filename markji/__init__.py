@@ -56,7 +56,6 @@ from markji.types._form import (
     _TTSGenForm,
     _TTSGetFileForm,
     _UpdateDeckAccessSettingForm,
-    _UpdateDeckCardPriceForm,
     _UpdateDeckInfoForm,
     _UploadFileForm,
 )

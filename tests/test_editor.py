@@ -87,7 +87,7 @@ class TestFont(unittest.TestCase):
         )
 
         all_correct = [
-            f"[T#{",".join(e)}#test]"
+            "[T#{}#test]".format(",".join(e))
             for e in itertools.permutations(
                 ["B", "!eb9e27", "!!c5f1c0", "I", "U", "up"], 6
             )
@@ -121,7 +121,7 @@ class TestParagraph(AsyncTestCase):
         result = ParagraphBuilder("test").heading().center().list().build()
 
         all_correct = [
-            f"[P#{",".join(e)}#test]"
+            "[P#{}#test]".format(",".join(e))
             for e in itertools.permutations(["H1", "center", "L"], 3)
         ]
 

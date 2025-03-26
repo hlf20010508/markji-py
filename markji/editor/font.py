@@ -178,7 +178,6 @@ class FontBuilder:
             result.append("U")
         if self._script:
             result.append(self._script.value)
+        result = ",".join(result)
 
-        result = f"[T#{",".join(result)}#{self._content}]"
-
-        return result
+        return f"[T#{result}#{self._content}]"

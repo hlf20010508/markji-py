@@ -67,7 +67,9 @@ class ImageBuilder:
         content = [f"ID/{self._file_id}"]
         if self._mask_id:
             content.append(f"MID/{self._mask_id}")
-        return f"[Pic#{",".join(content)}#]"
+        result = ",".join(content)
+
+        return f"[Pic#{result}#]"
 
 
 class AudioBuilder:

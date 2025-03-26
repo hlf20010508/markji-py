@@ -130,7 +130,6 @@ class ParagraphBuilder:
             result.append("center")
         if self._list:
             result.append("L")
+        result = ",".join(result)
 
-        result = f"[P#{",".join(result)}#{content}]"
-
-        return result
+        return f"[P#{result}#{content}]"
