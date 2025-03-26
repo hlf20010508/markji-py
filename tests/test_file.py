@@ -18,30 +18,24 @@ from markji.types import (
     TTSInfo,
     MaskItem,
 )
-from tests import AsyncTestCase, ENV
-from markji import Markji
-from markji.auth import Auth
+from tests import AsyncTestCase
 
 
 class TestFile(AsyncTestCase):
     async def test_upload(self):
-        auth = Auth(ENV.username, ENV.password)
-        token = await auth.login()
-        client = Markji(token)
-
         image_path = "test_image.jpeg"
         image_size = (256, 256)
         image = Image.new("RGB", image_size)
         image.save(image_path)
         self.addCleanup(os.remove, image_path)
 
-        file = await client.upload_file(image_path)
+        file = await self.client.upload_file(image_path)
         image_info = cast(ImageInfo, file.info)
 
         self.assertEqual((image_info.width, image_info.height), image_size)
 
         with open(image_path, "rb") as f:
-            file = await client.upload_file(f)
+            file = await self.client.upload_file(f)
         image_info = cast(ImageInfo, file.info)
 
         self.assertEqual((image_info.width, image_info.height), image_size)
@@ -52,41 +46,33 @@ class TestFile(AsyncTestCase):
             wf.writeframes(struct.pack("<h", 0))
         self.addCleanup(os.remove, audio_path)
 
-        file = await client.upload_file(audio_path)
+        file = await self.client.upload_file(audio_path)
         audio_info = cast(AudioInfo, file.info)
 
         self.assertEqual(audio_info.source, FileSource.UPLOAD)
 
         with open(audio_path, "rb") as f:
-            file = await client.upload_file(f)
+            file = await self.client.upload_file(f)
 
         self.assertEqual(audio_info.source, FileSource.UPLOAD)
 
     async def test_tts(self):
-        auth = Auth(ENV.username, ENV.password)
-        token = await auth.login()
-        client = Markji(token)
-
         text = "Hello, world!"
-        file = await client.tts(text, LanguageCode.EN_US)
+        file = await self.client.tts(text, LanguageCode.EN_US)
         tts_info = cast(TTSInfo, file.info)
 
         self.assertEqual(tts_info.source, FileSource.TTS)
         self.assertTrue(len(tts_info.content_slices) > 0)
         self.assertEqual(tts_info.content_slices[0].text, text)
 
-        file = await client.tts(text, "en-US")
+        file = await self.client.tts(text, "en-US")
 
         self.assertEqual(tts_info.source, FileSource.TTS)
 
     async def test_mask(self):
-        auth = Auth(ENV.username, ENV.password)
-        token = await auth.login()
-        client = Markji(token)
-
         mask_data = [MaskItem(0, 0, 128, 128, 1)]
 
-        mask = await client.upload_mask(mask_data)
+        mask = await self.client.upload_mask(mask_data)
 
         self.assertEqual(mask.mime, "markji/mask")
 
@@ -101,7 +87,7 @@ class TestFile(AsyncTestCase):
             }
         ]
 
-        mask = await client.upload_mask(mask_data)
+        mask = await self.client.upload_mask(mask_data)
 
         self.assertEqual(mask.mime, "markji/mask")
 
@@ -110,7 +96,7 @@ class TestFile(AsyncTestCase):
             json.dump(mask_data, f)
         self.addCleanup(os.remove, mask_path)
 
-        mask = await client.upload_mask(mask_path)
+        mask = await self.client.upload_mask(mask_path)
 
         self.assertEqual(mask.mime, "markji/mask")
 

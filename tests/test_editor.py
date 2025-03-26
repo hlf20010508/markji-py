@@ -7,8 +7,7 @@ import os
 import unittest
 import itertools
 from PIL import Image
-from markji import Markji, MaskItem
-from markji.auth import Auth
+from markji import MaskItem
 from markji.editor.formula import FormulaBuilder
 from markji.types import LanguageCode
 from markji.editor import (
@@ -26,7 +25,7 @@ from markji.editor import (
     ReferenceBuilder,
 )
 from markji.types.card import Card
-from tests import ENV, AsyncTestCase
+from tests import AsyncTestCase
 
 
 class TestAnswerLine(unittest.TestCase):
@@ -138,24 +137,16 @@ class TestParagraph(AsyncTestCase):
         self.assertEqual(result, "[P#H1#[F#1#test]]")
 
     async def test_audio(self):
-        auth = Auth(ENV.username, ENV.password)
-        token = await auth.login()
-        client = Markji(token)
-
         word = "test"
-        audio = await client.tts(word, LanguageCode.EN_US)
+        audio = await self.client.tts(word, LanguageCode.EN_US)
 
         result = ParagraphBuilder(AudioBuilder(audio.id, word)).heading().build()
 
         self.assertEqual(result, f"[P#H1#[Audio#A,ID/{audio.id}#test]]")
 
     async def test_reference(self):
-        auth = Auth(ENV.username, ENV.password)
-        token = await auth.login()
-        client = Markji(token)
-
         word = "test"
-        cards, _ = await client.search_cards(word, self_only=False)
+        cards, _ = await self.client.search_cards(word, self_only=False)
 
         result = ParagraphBuilder(ReferenceBuilder(word, cards[0])).heading().build()
 
@@ -241,12 +232,8 @@ class TestFormula(unittest.TestCase):
 
 class TestReference(AsyncTestCase):
     async def test(self):
-        auth = Auth(ENV.username, ENV.password)
-        token = await auth.login()
-        client = Markji(token)
-
         word = "test"
-        cards, _ = await client.search_cards(word, self_only=False)
+        cards, _ = await self.client.search_cards(word, self_only=False)
 
         result = ReferenceBuilder(word, cards[0]).build()
 
@@ -271,41 +258,33 @@ class TestReference(AsyncTestCase):
 
 class TestMedia(AsyncTestCase):
     async def test_image(self):
-        auth = Auth(ENV.username, ENV.password)
-        token = await auth.login()
-        client = Markji(token)
-
         image_path = "test_image.jpeg"
         image_size = (256, 256)
         image = Image.new("RGB", image_size)
         image.save(image_path)
         self.addCleanup(os.remove, image_path)
 
-        image = await client.upload_file(image_path)
+        image = await self.client.upload_file(image_path)
 
         result = ImageBuilder(image.id).build()
 
         self.assertEqual(result, f"[Pic#ID/{image.id}#]")
 
     async def test_mask(self):
-        auth = Auth(ENV.username, ENV.password)
-        token = await auth.login()
-        client = Markji(token)
-
         image_path = "test_image.jpeg"
         image_size = (256, 256)
         image = Image.new("RGB", image_size)
         image.save(image_path)
         self.addCleanup(os.remove, image_path)
 
-        image = await client.upload_file(image_path)
+        image = await self.client.upload_file(image_path)
 
         mask_data = [
             MaskItem(0, 0, 128, 128, 1),
             MaskItem(200, 200, 256, 256, 2),
         ]
 
-        mask = await client.upload_mask(mask_data)
+        mask = await self.client.upload_mask(mask_data)
 
         result = ImageBuilder(image.id).mask(mask.id).build()
 
@@ -317,12 +296,8 @@ class TestMedia(AsyncTestCase):
         self.assertIn(result, all_correct)
 
     async def test_audio(self):
-        auth = Auth(ENV.username, ENV.password)
-        token = await auth.login()
-        client = Markji(token)
-
         word = "test"
-        audio = await client.tts(word, LanguageCode.EN_US)
+        audio = await self.client.tts(word, LanguageCode.EN_US)
 
         result = AudioBuilder(audio.id, word).build()
 

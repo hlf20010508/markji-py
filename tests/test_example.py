@@ -8,23 +8,17 @@ from markji.editor import AnswerLine, AudioBuilder, ParagraphBuilder
 from markji.types import LanguageCode
 from markji.types.deck import DeckInfo
 from markji.types.folder import Folder
-from tests import AsyncTestCase, ENV
-from markji import Markji
-from markji.auth import Auth
+from tests import AsyncTestCase
 
 
 class TestExample(AsyncTestCase):
     async def test(self):
-        auth = Auth(ENV.username, ENV.password)
-        token = await auth.login()
-        client = Markji(token)
-
         folder_name = "t_folder"
-        _folder = await client.new_folder(folder_name)
-        self.addCleanup(client.delete_folder, _folder.id)
+        _folder = await self.client.new_folder(folder_name)
+        self.addCleanup(self.client.delete_folder, _folder.id)
 
         folder = None
-        folders = await client.list_folders()
+        folders = await self.client.list_folders()
         for _folder in folders:
             if _folder.name == folder_name:
                 folder = _folder
@@ -38,11 +32,11 @@ class TestExample(AsyncTestCase):
         self.assertEqual(type(folder), Folder)
 
         deck_name = "t_deck"
-        _deck = await client.new_deck(folder.id, deck_name)
-        self.addCleanup(client.delete_deck, _deck.id)
+        _deck = await self.client.new_deck(folder.id, deck_name)
+        self.addCleanup(self.client.delete_deck, _deck.id)
 
         deck = None
-        decks = await client.list_decks(folder.id)
+        decks = await self.client.list_decks(folder.id)
 
         for _deck in decks:
             if _deck.name == deck_name:
@@ -55,7 +49,7 @@ class TestExample(AsyncTestCase):
 
         self.assertEqual(deck.name, deck_name)
 
-        chapters = await client.list_chapters(deck.id)
+        chapters = await self.client.list_chapters(deck.id)
 
         self.assertTrue(len(chapters) == 1)
 
@@ -64,13 +58,13 @@ class TestExample(AsyncTestCase):
         content = []
 
         word = "English"
-        tts = await client.tts(word, LanguageCode.EN_US)
+        tts = await self.client.tts(word, LanguageCode.EN_US)
         word = ParagraphBuilder(AudioBuilder(tts.id, word)).heading().build()
         content.append(word)
         content.append(AnswerLine)
         content.append("英语")
         content = "\n".join(content)
 
-        card = await client.new_card(deck.id, chapter.id, content)
+        card = await self.client.new_card(deck.id, chapter.id, content)
 
         self.assertEqual(card.content, content)
