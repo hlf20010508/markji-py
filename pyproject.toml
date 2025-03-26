@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "markji-py"
+name = "markji"
 version = "0.1.0"
 description = "Markji SDK for Python"
 authors = ["L-ING <hlf01@icloud.com>"]
