@@ -24,12 +24,12 @@ class TestFolder(AsyncTestCase):
         folder = await client.get_folder(folder.id)
 
         self.assertEqual(folder.name, folder_name)
-        self.assertTrue(isinstance(folder, Folder))
+        self.assertEqual(type(folder), Folder)
 
         root_folder = await client.get_root_folder()
         folder = await client.get_folder(root_folder.id)
 
-        self.assertTrue(isinstance(folder, RootFolder))
+        self.assertEqual(type(folder), RootFolder)
 
     async def test_get_root(self):
         auth = Auth(ENV.username, ENV.password)

@@ -4,7 +4,7 @@
 # :license: MIT, see LICENSE for more details.
 
 from markji.types import CardRootID
-from markji.types.card import Card, CardResult
+from markji.types.card import Card, CardBase, CardResult
 
 
 class ReferenceBuilder:
@@ -40,7 +40,7 @@ class ReferenceBuilder:
         :rtype: str
         """
         card_root_id = ""
-        if isinstance(self._card, (CardResult, Card)):
+        if isinstance(self._card, CardBase):
             card_root_id = self._card.root_id
         elif isinstance(self._card, str):
             card_root_id = self._card

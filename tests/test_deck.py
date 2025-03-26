@@ -223,7 +223,7 @@ class TestDeck(AsyncTestCase):
         is_searchable = False
         access_setting = await client.update_deck_access_setting(deck.id, is_searchable)
 
-        self.assertTrue(isinstance(access_setting, DeckAccessSettingBrief))
+        self.assertEqual(type(access_setting), DeckAccessSettingBrief)
 
         access_setting = cast(DeckAccessSettingBrief, access_setting)
 
@@ -235,7 +235,7 @@ class TestDeck(AsyncTestCase):
             deck.id, is_searchable, validation_request_access
         )
 
-        self.assertTrue(isinstance(access_setting, DeckAccessSettingInfo))
+        self.assertEqual(type(access_setting), DeckAccessSettingInfo)
 
         access_setting = cast(DeckAccessSettingInfo, access_setting)
 
@@ -249,7 +249,7 @@ class TestDeck(AsyncTestCase):
             deck.id, is_searchable, validation_request_access, validation_password
         )
 
-        self.assertTrue(isinstance(access_setting, DeckAccessSetting))
+        self.assertEqual(type(access_setting), DeckAccessSetting)
 
         access_setting = cast(DeckAccessSetting, access_setting)
 

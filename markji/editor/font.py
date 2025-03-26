@@ -163,15 +163,15 @@ class FontBuilder:
         if self._bold:
             result.append("B")
         if self._color:
-            if isinstance(self._color, str):
-                result.append(self._color)
-            else:
+            if isinstance(self._color, FontColor):
                 result.append(self._color.value)
-        if self._background:
-            if isinstance(self._background, str):
-                result.append(self._background)
             else:
+                result.append(self._color)
+        if self._background:
+            if isinstance(self._background, FontBackgroundColor):
                 result.append(self._background.value)
+            else:
+                result.append(self._background)
         if self._italics:
             result.append("I")
         if self._underline:

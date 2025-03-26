@@ -35,7 +35,7 @@ class TestExample(AsyncTestCase):
         folder = cast(Folder, folder)
 
         self.assertEqual(folder.name, folder_name)
-        self.assertTrue(isinstance(folder, Folder))
+        self.assertEqual(type(folder), Folder)
 
         deck_name = "t_deck"
         _deck = await client.new_deck(folder.id, deck_name)
