@@ -13,6 +13,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3.11",
 ]
+package-mode = true
 
 [tool.poetry.dependencies]
 python = "^3.11"
