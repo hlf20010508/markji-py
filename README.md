@@ -1,5 +1,5 @@
 # markji-py
-默默记忆卡-Markji Python SDK
+墨墨记忆卡-Markji Python SDK
 
 文档： https://hlf20010508.github.io/markji-py/
 
