@@ -5,7 +5,7 @@
 
 from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin, config
-from typing import IO, Sequence
+from typing import IO, Iterable
 from markji.types import (
     CardID,
     Datetime,
@@ -23,7 +23,7 @@ from markji.types import (
 class _LoginForm(DataClassJsonMixin):
     identity: str
     password: str
-    nuencrypt_fields: Sequence[str] = field(
+    nuencrypt_fields: Iterable[str] = field(
         default_factory=lambda: ["password"]
     )  # encrypt password
 
@@ -41,7 +41,7 @@ class _RenameFolderForm(DataClassJsonMixin):
 
 @dataclass
 class _SortFoldersForm(DataClassJsonMixin):
-    items: Sequence[FolderID | str] = field(
+    items: Iterable[FolderID | str] = field(
         metadata=config(
             encoder=lambda ids: [
                 FolderItem(i, ItemObjectClass.FOLDER).to_dict() for i in ids
@@ -89,7 +89,7 @@ class _UpdateDeckAccessSettingForm(DataClassJsonMixin):
 
 @dataclass
 class _SortDecksForm(DataClassJsonMixin):
-    items: Sequence[DeckID | str] = field(
+    items: Iterable[DeckID | str] = field(
         metadata=config(
             encoder=lambda ids: [
                 FolderItem(i, ItemObjectClass.DECK).to_dict() for i in ids
@@ -101,7 +101,7 @@ class _SortDecksForm(DataClassJsonMixin):
 
 @dataclass
 class _MoveDecksForm(DataClassJsonMixin):
-    items: Sequence[DeckID | str] = field(
+    items: Iterable[DeckID | str] = field(
         metadata=config(
             encoder=lambda ids: [
                 FolderItem(i, ItemObjectClass.DECK).to_dict() for i in ids
@@ -125,7 +125,7 @@ class _RenameChapterForm(DataClassJsonMixin):
 
 @dataclass
 class _SortChaptersForm(DataClassJsonMixin):
-    chapter_ids: Sequence[ChapterID | str]
+    chapter_ids: Iterable[ChapterID | str]
     revision: int
 
 
@@ -143,7 +143,7 @@ class _NewCardForm(DataClassJsonMixin):
 
 @dataclass
 class _ListCardsForm(DataClassJsonMixin):
-    card_ids: Sequence[CardID]
+    card_ids: Iterable[CardID]
 
 
 @dataclass
@@ -153,7 +153,7 @@ class _EditCardForm(DataClassJsonMixin):
 
 @dataclass
 class _SortCardsForm(DataClassJsonMixin):
-    card_ids: Sequence[CardID | str]
+    card_ids: Iterable[CardID | str]
     revision: int
 
 
@@ -161,7 +161,7 @@ class _SortCardsForm(DataClassJsonMixin):
 class _MoveCardsForm(DataClassJsonMixin):
     to_chapter_id: ChapterID | str
     order: int
-    card_ids: Sequence[CardID | str]
+    card_ids: Iterable[CardID | str]
 
 
 @dataclass
@@ -187,4 +187,4 @@ class _TTSGetFileForm(DataClassJsonMixin):
 
 @dataclass
 class _QueryUsersForm(DataClassJsonMixin):
-    ids: Sequence[UserID | int]
+    ids: Iterable[UserID | int]

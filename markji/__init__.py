@@ -13,7 +13,7 @@ __license__ = "MIT"
 __copyright__ = f"(C) 2025-{datetime.now(UTC).year} {__author__} <hlf01@icloud.com>"
 
 from io import BufferedReader
-from typing import IO, Sequence, cast
+from typing import IO, Iterable, cast
 from aiohttp import ClientSession, FormData
 from markji._response import _ResponseWrapper
 from markji._const import (
@@ -121,11 +121,11 @@ class Markji:
 
         return Profile.from_dict(data["data"]["user"])
 
-    async def query_users(self, user_ids: Sequence[UserID | int]) -> list[UserBrief]:
+    async def query_users(self, user_ids: Iterable[UserID | int]) -> list[UserBrief]:
         """
         查询用户信息
 
-        :param Sequence[UserID | int] user_ids: 用户ID列表
+        :param Iterable[UserID | int] user_ids: 用户ID列表
         :return: 用户简要信息列表
         :rtype: list[UserBrief]
         :raises aiohttp.ClientResponseError: 查询用户失败
@@ -359,11 +359,11 @@ class Markji:
 
         return Folder.from_dict(data["data"]["folder"])
 
-    async def sort_folders(self, folder_ids: Sequence[FolderID | str]) -> RootFolder:
+    async def sort_folders(self, folder_ids: Iterable[FolderID | str]) -> RootFolder:
         """
         排序文件夹
 
-        :param Sequence[FolderID | str] folder_ids: 排序后的文件夹ID列表
+        :param Iterable[FolderID | str] folder_ids: 排序后的文件夹ID列表
         :return: 排序后的根文件夹
         :rtype: RootFolder
         :raises aiohttp.ClientResponseError: 排序文件夹失败
@@ -729,13 +729,13 @@ class Markji:
         return access_setting
 
     async def sort_decks(
-        self, folder_id: FolderID | str, deck_ids: Sequence[DeckID | str]
+        self, folder_id: FolderID | str, deck_ids: Iterable[DeckID | str]
     ) -> Folder:
         """
         排序卡组
 
         :param FolderID | str folder_id: 文件夹ID
-        :param Sequence[DeckID | str] deck_ids: 排序后的卡组ID列表
+        :param Iterable[DeckID | str] deck_ids: 排序后的卡组ID列表
         :return: 排序后的文件夹
         :rtype: Folder
         :raises aiohttp.ClientResponseError: 排序卡组失败
@@ -757,7 +757,7 @@ class Markji:
         self,
         folder_id_from: FolderID | str,
         folder_id_to: FolderID | str,
-        deck_ids: Sequence[DeckID | str],
+        deck_ids: Iterable[DeckID | str],
         order: int | None = None,
     ) -> FolderDiff:
         """
@@ -765,7 +765,7 @@ class Markji:
 
         :param FolderID | str folder_id_from: 旧文件夹ID
         :param FolderID | str folder_id_to: 新文件夹ID
-        :param Sequence[DeckID | str] deck_ids: 卡组ID列表
+        :param Iterable[DeckID | str] deck_ids: 卡组ID列表
         :param int order: 排序
         :return: 文件夹变化
         :rtype: FolderDiff
@@ -1031,13 +1031,13 @@ class Markji:
         return Chapter.from_dict(data["data"]["chapter"])
 
     async def sort_chapters(
-        self, deck_id: DeckID | str, chapter_ids: Sequence[ChapterID | str]
+        self, deck_id: DeckID | str, chapter_ids: Iterable[ChapterID | str]
     ) -> ChapterSet:
         """
         排序章节
 
         :param DeckID | str deck_id: 卡组ID
-        :param Sequence[ChapterID | str] chapter_ids: 排序后的章节ID列表
+        :param Iterable[ChapterID | str] chapter_ids: 排序后的章节ID列表
         :return: 排序后的章节集合
         :rtype: ChapterSet
         :raises aiohttp.ClientResponseError: 排序章节失败
@@ -1205,14 +1205,14 @@ class Markji:
         self,
         deck_id: DeckID | str,
         chapter_id: ChapterID | str,
-        card_ids: Sequence[CardID | str],
+        card_ids: Iterable[CardID | str],
     ) -> Chapter:
         """
         排序卡片
 
         :param DeckID | str deck_id: 卡组ID
         :param ChapterID | str chapter_id: 章节ID
-        :param Sequence[str] card_ids: 排序后的卡片ID列表
+        :param Iterable[str] card_ids: 排序后的卡片ID列表
         :return: 排序后的章节
         :rtype: Chapter
         :raises aiohttp.ClientResponseError: 排序卡片失败
@@ -1235,7 +1235,7 @@ class Markji:
         deck_id: DeckID | str,
         chapter_id_from: ChapterID | str,
         chapter_id_to: ChapterID | str,
-        card_ids: Sequence[CardID | str],
+        card_ids: Iterable[CardID | str],
         order: int | None = None,
     ) -> ChapterDiff:
         """
@@ -1388,11 +1388,11 @@ class Markji:
 
         return File.from_dict(data["data"]["file"])
 
-    async def upload_mask(self, mask: Sequence[MaskItem | dict] | Path | str) -> File:
+    async def upload_mask(self, mask: Iterable[MaskItem | dict] | Path | str) -> File:
         """
         上传图片遮罩
 
-        :param Sequence[MaskItem | dict] | Path | str mask: 遮罩或文件路径
+        :param Iterable[MaskItem | dict] | Path | str mask: 遮罩或文件路径
         :return: 上传后的文件
         :rtype: File
         :raises aiohttp.ClientResponseError: 上传文件失败

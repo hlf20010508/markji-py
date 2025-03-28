@@ -3,7 +3,7 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
-from typing import Sequence
+from typing import Iterable
 
 
 class ChoiceItem:
@@ -37,11 +37,11 @@ class ChoiceBuilder:
     选择题构建器
     """
 
-    def __init__(self, choices: Sequence[ChoiceItem]):
+    def __init__(self, choices: Iterable[ChoiceItem]):
         """
         选择题构建器
 
-        :param Sequence[ChoiceItem] choices: 选项
+        :param Iterable[ChoiceItem] choices: 选项
 
         .. code-block:: python
 
