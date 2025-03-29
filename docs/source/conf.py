@@ -20,7 +20,7 @@ if os.path.exists("../../docs/build"):
 project = "markji"
 copyright = "2025-%Y, L-ING"
 author = "L-ING"
-version = release = "0.1.0"
+version = release = "0.1.1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

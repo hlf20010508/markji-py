@@ -8,7 +8,7 @@ import json
 
 __title__ = "markji-py"
 __author__ = "L-ING"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __license__ = "MIT"
 __copyright__ = f"(C) 2025-{datetime.now(UTC).year} {__author__} <hlf01@icloud.com>"
 
