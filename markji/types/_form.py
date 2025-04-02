@@ -4,12 +4,14 @@
 # :license: MIT, see LICENSE for more details.
 
 from dataclasses import dataclass, field
-from dataclasses_json import DataClassJsonMixin, config
 from typing import IO, Iterable
+
+from dataclasses_json import DataClassJsonMixin, config
+
 from markji.types import (
     CardID,
-    Datetime,
     ChapterID,
+    Datetime,
     DeckID,
     FolderID,
     FolderItem,

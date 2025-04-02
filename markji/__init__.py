@@ -3,19 +3,13 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
-from datetime import datetime, UTC
 import json
-
-__title__ = "markji-py"
-__author__ = "L-ING"
-__version__ = "0.1.1"
-__license__ = "MIT"
-__copyright__ = f"(C) 2025-{datetime.now(UTC).year} {__author__} <hlf01@icloud.com>"
-
+from datetime import UTC, datetime
 from io import BufferedReader
 from typing import IO, Iterable, cast
+
 from aiohttp import ClientSession, FormData
-from markji._response import _ResponseWrapper
+
 from markji._const import (
     _ACCESS_ROUTE,
     _API_URL,
@@ -35,6 +29,21 @@ from markji._const import (
     _TTS_ROUTE,
     _URL_ROUTE,
     _USER_ROUTE,
+)
+from markji._response import _ResponseWrapper
+from markji.types import (
+    CardID,
+    ChapterID,
+    DeckAccessSetting,
+    DeckAccessSettingBrief,
+    DeckAccessSettingInfo,
+    DeckID,
+    FolderID,
+    LanguageCode,
+    MaskItem,
+    Path,
+    TTSItem,
+    _SearchScope,
 )
 from markji.types._form import (
     _ContentInfo,
@@ -59,25 +68,17 @@ from markji.types._form import (
     _UpdateDeckInfoForm,
     _UploadFileForm,
 )
-from markji.types import (
-    DeckAccessSetting,
-    DeckAccessSettingBrief,
-    DeckAccessSettingInfo,
-    MaskItem,
-    Path,
-    CardID,
-    ChapterID,
-    DeckID,
-    FolderID,
-    LanguageCode,
-    _SearchScope,
-    TTSItem,
-)
 from markji.types.card import Card, CardResult, File, UserID
 from markji.types.chapter import Chapter, ChapterDiff, ChapterSet
 from markji.types.deck import Deck, DeckBasic, DeckBrief, DeckForked, DeckInfo
 from markji.types.folder import Folder, FolderDiff, RootFolder
 from markji.types.user import Collaborator, Profile, User, UserBrief
+
+__title__ = "markji-py"
+__author__ = "L-ING"
+__version__ = "0.1.1"
+__license__ = "MIT"
+__copyright__ = f"(C) 2025-{datetime.now(UTC).year} {__author__} <hlf01@icloud.com>"
 
 
 class Markji:

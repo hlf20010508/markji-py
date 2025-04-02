@@ -3,13 +3,13 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
+import itertools
 import os
 import unittest
-import itertools
+
 from PIL import Image
+
 from markji import MaskItem
-from markji.editor.formula import FormulaBuilder
-from markji.types import LanguageCode
 from markji.editor import (
     AnswerLine,
     AudioBuilder,
@@ -24,6 +24,8 @@ from markji.editor import (
     ParagraphBuilder,
     ReferenceBuilder,
 )
+from markji.editor.formula import FormulaBuilder
+from markji.types import LanguageCode
 from markji.types.card import Card
 from tests import AsyncTestCase
 

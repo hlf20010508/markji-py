@@ -5,8 +5,9 @@
 
 import unittest
 import warnings
-from tests import AsyncTestCase, ENV
+
 from markji.auth import Auth
+from tests import ENV, AsyncTestCase
 
 
 class TestAuth(AsyncTestCase):

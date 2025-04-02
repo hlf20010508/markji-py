@@ -4,7 +4,9 @@
 # :license: MIT, see LICENSE for more details.
 
 from dataclasses import dataclass
+
 from dataclasses_json import DataClassJsonMixin
+
 from markji.types import Datetime, Status, UserGender, UserID, UserLevel, UserOAuth
 
 

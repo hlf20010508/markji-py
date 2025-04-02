@@ -4,7 +4,9 @@
 # :license: MIT, see LICENSE for more details.
 
 import unittest
+
 from aiohttp import ClientResponseError
+
 from markji.types.folder import Folder, RootFolder
 from tests import AsyncTestCase
 

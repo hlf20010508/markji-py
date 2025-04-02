@@ -4,8 +4,10 @@
 # :license: MIT, see LICENSE for more details.
 
 from dataclasses import dataclass
+
 from dataclasses_json import DataClassJsonMixin
-from markji.types import Datetime, CardID, ChapterID, ChapterSetID, DeckID, UserID
+
+from markji.types import CardID, ChapterID, ChapterSetID, Datetime, DeckID, UserID
 
 
 @dataclass

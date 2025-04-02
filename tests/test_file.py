@@ -3,20 +3,22 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
-from typing import cast
-import unittest
-from PIL import Image
-import os
-import wave
-import struct
 import json
+import os
+import struct
+import unittest
+import wave
+from typing import cast
+
+from PIL import Image
+
 from markji.types import (
     AudioInfo,
     FileSource,
     ImageInfo,
     LanguageCode,
-    TTSInfo,
     MaskItem,
+    TTSInfo,
 )
 from tests import AsyncTestCase
 

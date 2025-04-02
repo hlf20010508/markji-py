@@ -4,8 +4,10 @@
 # :license: MIT, see LICENSE for more details.
 
 from dataclasses import dataclass, field
+
 from dataclasses_json import DataClassJsonMixin
-from markji.types import Datetime, UserID, FolderID, Status, FolderItem
+
+from markji.types import Datetime, FolderID, FolderItem, Status, UserID
 
 
 @dataclass

@@ -4,11 +4,13 @@
 # :license: MIT, see LICENSE for more details.
 
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from dataclasses_json import DataClassJsonMixin, config
 from datetime import datetime
 from enum import StrEnum
 from typing import NewType, Type
+
+from dataclasses_json import DataClassJsonMixin, config
 
 Path = NewType("Path", str)
 """路径"""

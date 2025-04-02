@@ -3,9 +3,9 @@
 # :copyright: (C) 2025 L-ING <hlf01@icloud.com>
 # :license: MIT, see LICENSE for more details.
 
-from markji.editor.media import AudioBuilder
-from markji.editor.font import FontBuilder
 from markji.editor.cloze import ClozeBuilder
+from markji.editor.font import FontBuilder
+from markji.editor.media import AudioBuilder
 from markji.editor.reference import ReferenceBuilder
 
 

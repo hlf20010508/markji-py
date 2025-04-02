@@ -4,14 +4,16 @@
 # :license: MIT, see LICENSE for more details.
 
 from dataclasses import dataclass, field
+
 from dataclasses_json import DataClassJsonMixin
+
 from markji.types import (
     Datetime,
     DeckAccessSettingBasic,
-    UserID,
     DeckID,
-    Status,
     DeckSource,
+    Status,
+    UserID,
 )
 from markji.types.user import UserBasic
 

@@ -4,6 +4,7 @@
 # :license: MIT, see LICENSE for more details.
 
 from typing import cast
+
 from markji.editor import AnswerLine, AudioBuilder, ParagraphBuilder
 from markji.types import LanguageCode
 from markji.types.deck import DeckInfo

@@ -4,9 +4,10 @@
 # :license: MIT, see LICENSE for more details.
 
 import asyncio
+import os
 import unittest
 import warnings
-import os
+
 from markji import Markji
 from markji.auth import Auth
 
